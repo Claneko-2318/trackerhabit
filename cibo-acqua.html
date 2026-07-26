@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tracker personale — Cibo e acqua</title>
+  <link rel="stylesheet" href="styles.css?v=20260726-18">
+</head>
+<body class="food-page">
+  <header class="site-header">
+    <nav class="navbar" aria-label="Navigazione principale">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M19.5 15.4A8 8 0 0 1 8.6 4.5a8.2 8.2 0 1 0 10.9 10.9Z"/>
+            <path d="M17 4v3M15.5 5.5h3M5 15v2M4 16h2"/>
+          </svg>
+        </span>
+        <span>Tracker personale</span>
+      </a>
+
+      <div class="nav-links">
+        <a class="nav-link" href="index.html">Home</a>
+        <a class="nav-link" href="giornata.html">La mia giornata</a>
+        <a class="nav-link" href="sonno.html">Sonno</a>
+        <a class="nav-link active" href="cibo-acqua.html" aria-current="page">Cibo e acqua</a>
+        <a class="nav-link" href="tetr-emotion.html">Tetr-Emotion</a>
+        <a class="nav-link" href="statistiche.html">Statistiche</a>
+        <a class="nav-link" href="archivio.html">Archivio</a>
+      </div>
+
+      <a class="settings-link" href="impostazioni.html" aria-label="Impostazioni">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z"/>
+          <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1L7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/>
+        </svg>
+      </a>
+    </nav>
+  </header>
+
+  <main class="food-main">
+    <section class="food-hero">
+      <div class="food-content food-hero-inner">
+        <div class="food-hero-copy">
+          <span class="food-eyebrow">Abitudini quotidiane</span>
+          <h1>Cibo e acqua</h1>
+          <p>Annota ciò che hai mangiato e segui l’acqua attraverso la tua borraccia, senza calorie o giudizi.</p>
+        </div>
+
+        <div class="food-date-switcher" aria-label="Seleziona il giorno">
+          <button class="food-date-arrow" type="button" data-food-date-shift="-1" aria-label="Giorno precedente">←</button>
+          <div class="food-date-copy">
+            <span data-food-weekday>Domenica</span>
+            <strong data-food-date>26 luglio 2026</strong>
+          </div>
+          <button class="food-date-arrow" type="button" data-food-date-shift="1" aria-label="Giorno successivo">→</button>
+          <button class="food-today-button" type="button" data-food-today>Oggi</button>
+        </div>
+      </div>
+      <span class="food-hero-plate" aria-hidden="true"></span>
+      <span class="food-hero-drop food-hero-drop-one" aria-hidden="true"></span>
+      <span class="food-hero-drop food-hero-drop-two" aria-hidden="true"></span>
+    </section>
+
+    <section class="food-overview food-content" aria-labelledby="food-overview-title">
+      <div class="food-section-heading">
+        <div>
+          <span class="food-eyebrow">Situazione di oggi</span>
+          <h2 id="food-overview-title">Riepilogo rapido</h2>
+        </div>
+        <p>I valori cambiano mentre aggiorni i pasti o aggiungi acqua dalla tua borraccia.</p>
+      </div>
+
+      <div class="food-summary-grid">
+        <article class="food-summary-card summary-meals">
+          <span class="food-summary-icon">◌</span>
+          <span>Pasti registrati</span>
+          <strong data-meal-count>3</strong>
+          <span class="secondary-text">su quattro sezioni disponibili</span>
+        </article>
+        <article class="food-summary-card summary-water">
+          <span class="food-summary-icon">◒</span>
+          <span>Acqua bevuta</span>
+          <strong data-water-short>1 + 2/4</strong>
+          <span data-water-ml-short class="secondary-text">circa 1,125 l</span>
+        </article>
+        <article class="food-summary-card summary-last-meal">
+          <span class="food-summary-icon">⌁</span>
+          <span>Ultimo pasto</span>
+          <strong data-last-meal>Cena</strong>
+          <span class="secondary-text">registrato oggi</span>
+        </article>
+        <article class="food-summary-card summary-last-water">
+          <span class="food-summary-icon">⌄</span>
+          <span>Ultima bevuta</span>
+          <strong data-last-water>1/4 · 188 ml</strong>
+          <span class="secondary-text">ultima quantità aggiunta</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="food-entry-section food-content" aria-labelledby="food-entry-title">
+      <div class="food-section-heading">
+        <div>
+          <span class="food-eyebrow">Compilazione</span>
+          <h2 id="food-entry-title">La giornata a tavola</h2>
+        </div>
+        <p>Cibo e acqua restano vicini, ma hanno spazi e interazioni distinti.</p>
+      </div>
+
+      <div class="food-entry-layout">
+        <div class="meals-column">
+          <div class="meals-column-heading">
+            <div>
+              <span class="food-mini-kicker">Cibo</span>
+              <h3>Cosa hai mangiato?</h3>
+            </div>
+            <span class="meals-column-note">Scrivi liberamente, anche in modo approssimativo.</span>
+          </div>
+
+          <div class="meal-grid">
+            <article class="meal-card is-saved" data-meal-card data-meal-name="Colazione">
+              <div class="meal-card-top">
+                <span class="meal-icon meal-breakfast">☼</span>
+                <div><span class="secondary-text">Mattina</span><h4>Colazione</h4></div>
+                <span class="meal-status" data-meal-status>Registrata</span>
+              </div>
+              <label class="meal-text-field"><span>Cosa hai mangiato?</span><textarea rows="4" data-meal-text>Yogurt con cereali e una pesca.</textarea></label>
+              <button class="meal-save-button" type="button" data-save-meal>Aggiorna</button>
+            </article>
+
+            <article class="meal-card is-saved" data-meal-card data-meal-name="Pranzo">
+              <div class="meal-card-top">
+                <span class="meal-icon meal-lunch">◇</span>
+                <div><span class="secondary-text">Mezzogiorno</span><h4>Pranzo</h4></div>
+                <span class="meal-status" data-meal-status>Registrato</span>
+              </div>
+              <label class="meal-text-field"><span>Cosa hai mangiato?</span><textarea rows="4" data-meal-text>Pasta al pomodoro, mozzarella e una pesca.</textarea></label>
+              <button class="meal-save-button" type="button" data-save-meal>Aggiorna</button>
+            </article>
+
+            <article class="meal-card is-saved" data-meal-card data-meal-name="Cena">
+              <div class="meal-card-top">
+                <span class="meal-icon meal-dinner">☾</span>
+                <div><span class="secondary-text">Sera</span><h4>Cena</h4></div>
+                <span class="meal-status" data-meal-status>Registrata</span>
+              </div>
+              <label class="meal-text-field"><span>Cosa hai mangiato?</span><textarea rows="4" data-meal-text>Frittata con zucchine e pane.</textarea></label>
+              <button class="meal-save-button" type="button" data-save-meal>Aggiorna</button>
+            </article>
+
+            <article class="meal-card" data-meal-card data-meal-name="Spuntino">
+              <div class="meal-card-top">
+                <span class="meal-icon meal-snack">✦</span>
+                <div><span class="secondary-text">Durante il giorno</span><h4>Spuntini</h4></div>
+                <span class="meal-status" data-meal-status>Da compilare</span>
+              </div>
+              <label class="meal-text-field"><span>Cosa hai mangiato?</span><textarea rows="4" data-meal-text placeholder="Es. biscotti, frutta, qualcosa preso fuori…"></textarea></label>
+              <button class="meal-save-button" type="button" data-save-meal>Registra spuntino</button>
+            </article>
+          </div>
+          <p class="food-feedback" data-meal-feedback aria-live="polite">I pasti vengono salvati automaticamente per la data selezionata.</p>
+        </div>
+
+        <aside class="water-panel" aria-labelledby="water-panel-title">
+          <div class="water-panel-heading">
+            <div>
+              <span class="food-mini-kicker">Acqua</span>
+              <h3 id="water-panel-title">La tua borraccia</h3>
+            </div>
+            <span class="bottle-capacity">750 ml</span>
+          </div>
+
+          <div class="water-main-display">
+            <div class="bottle-visual" aria-hidden="true">
+              <span class="bottle-neck"></span>
+              <div class="bottle-body">
+                <i data-bottle-segment="4"></i>
+                <i data-bottle-segment="3"></i>
+                <i data-bottle-segment="2" class="filled"></i>
+                <i data-bottle-segment="1" class="filled"></i>
+              </div>
+            </div>
+            <div class="water-total-copy">
+              <span class="secondary-text">Totale di oggi</span>
+              <strong data-water-total>1 borraccia + 2/4</strong>
+              <span data-water-liters>circa 1,125 l</span>
+              <em data-water-progress>1 completa + 2/4 della seconda</em>
+            </div>
+          </div>
+
+          <div class="water-actions" aria-label="Aggiungi acqua">
+            <button type="button" data-water-add="1"><strong>+ 1/4</strong><span>circa 188 ml</span></button>
+            <button type="button" data-water-add="2"><strong>+ 2/4</strong><span>375 ml</span></button>
+            <button type="button" data-water-add="3"><strong>+ 3/4</strong><span>circa 563 ml</span></button>
+            <button type="button" data-water-add="4"><strong>+ 1 borraccia</strong><span>750 ml</span></button>
+          </div>
+
+          <div class="water-history-heading">
+            <div><span>Registrazioni</span><span class="secondary-text">in ordine di inserimento</span></div>
+            <button type="button" data-water-undo>Annulla ultima</button>
+          </div>
+
+          <div class="water-history" data-water-history>
+            <div class="water-history-row" data-water-entry data-quarters="1">
+              <span class="water-history-dot"></span>
+              <div><strong>1/4 · circa 188 ml</strong></div>
+              <button type="button" data-water-delete aria-label="Elimina registrazione">×</button>
+            </div>
+            <div class="water-history-row" data-water-entry data-quarters="4">
+              <span class="water-history-dot"></span>
+              <div><strong>1 borraccia · 750 ml</strong></div>
+              <button type="button" data-water-delete aria-label="Elimina registrazione">×</button>
+            </div>
+            <div class="water-history-row" data-water-entry data-quarters="1">
+              <span class="water-history-dot"></span>
+              <div><strong>1/4 · circa 188 ml</strong></div>
+              <button type="button" data-water-delete aria-label="Elimina registrazione">×</button>
+            </div>
+          </div>
+          <p class="water-feedback" data-water-feedback aria-live="polite">Ogni quarto corrisponde a 187,5 ml; nell’interfaccia viene arrotondato.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="food-week-band" aria-labelledby="food-week-title">
+      <div class="food-content">
+        <div class="food-section-heading">
+          <div>
+            <span class="food-eyebrow">Andamento recente</span>
+            <h2 id="food-week-title">Gli ultimi 7 giorni</h2>
+          </div>
+        </div>
+
+        <div class="food-week-layout">
+          <article class="water-week-card">
+            <div class="week-card-heading">
+              <div><span class="secondary-text">Acqua</span><h3>Borracce al giorno</h3></div>
+              <span>Media 1,5</span>
+            </div>
+            <div class="water-week-bars" role="img" aria-label="Borracce bevute negli ultimi sette giorni">
+              <div class="water-week-item"><span>1,25</span><div><i style="height:62.5%"></i></div><span class="secondary-text">Lun</span></div>
+              <div class="water-week-item"><span>1,75</span><div><i style="height:87.5%"></i></div><span class="secondary-text">Mar</span></div>
+              <div class="water-week-item"><span>1,5</span><div><i style="height:75%"></i></div><span class="secondary-text">Mer</span></div>
+              <div class="water-week-item"><span>2</span><div><i style="height:100%"></i></div><span class="secondary-text">Gio</span></div>
+              <div class="water-week-item"><span>1</span><div><i style="height:50%"></i></div><span class="secondary-text">Ven</span></div>
+              <div class="water-week-item"><span>1,75</span><div><i style="height:87.5%"></i></div><span class="secondary-text">Sab</span></div>
+              <div class="water-week-item active"><span>1,5</span><div><i style="height:75%"></i></div><span class="secondary-text">Dom</span></div>
+            </div>
+          </article>
+
+          <article class="meal-week-card">
+            <div class="week-card-heading">
+              <div><span class="secondary-text">Cibo</span><h3>Pasti annotati</h3></div>
+              <span>25 registrazioni</span>
+            </div>
+            <div class="meal-week-table" role="table" aria-label="Pasti registrati negli ultimi sette giorni">
+              <div class="meal-week-row meal-week-head" role="row"><span>Giorno</span><span>Col.</span><span>Pranzo</span><span>Cena</span><span>Snack</span></div>
+              <div class="meal-week-row" role="row"><strong>Lun</strong><i>✓</i><i>✓</i><i>✓</i><i>2</i></div>
+              <div class="meal-week-row" role="row"><strong>Mar</strong><i>✓</i><i>✓</i><i>✓</i><i>1</i></div>
+              <div class="meal-week-row" role="row"><strong>Mer</strong><i>✓</i><i>✓</i><i>—</i><i>1</i></div>
+              <div class="meal-week-row" role="row"><strong>Gio</strong><i>✓</i><i>✓</i><i>✓</i><i>2</i></div>
+              <div class="meal-week-row" role="row"><strong>Ven</strong><i>—</i><i>✓</i><i>✓</i><i>—</i></div>
+              <div class="meal-week-row" role="row"><strong>Sab</strong><i>✓</i><i>✓</i><i>✓</i><i>1</i></div>
+              <div class="meal-week-row active" role="row"><strong>Dom</strong><i>✓</i><i>✓</i><i>✓</i><i>—</i></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer food-content">
+      <span>Tracker personale · salvataggio attivo</span>
+      <span>I dati vengono salvati automaticamente</span>
+    </footer>
+  </main>
+
+  <script src="tracker-store.js?v=20260726-18"></script>
+<script src="app.js?v=20260726-18"></script>
+</body>
+</html>

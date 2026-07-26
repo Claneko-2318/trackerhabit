@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tracker personale — Sonno</title>
+  <link rel="stylesheet" href="styles.css?v=20260726-18">
+</head>
+<body class="sleep-page">
+  <header class="site-header">
+    <nav class="navbar" aria-label="Navigazione principale">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M19.5 15.4A8 8 0 0 1 8.6 4.5a8.2 8.2 0 1 0 10.9 10.9Z"/>
+            <path d="M17 4v3M15.5 5.5h3M5 15v2M4 16h2"/>
+          </svg>
+        </span>
+        <span>Tracker personale</span>
+      </a>
+
+      <div class="nav-links">
+        <a class="nav-link" href="index.html">Home</a>
+        <a class="nav-link" href="giornata.html">La mia giornata</a>
+        <a class="nav-link active" href="sonno.html" aria-current="page">Sonno</a>
+        <a class="nav-link" href="cibo-acqua.html">Cibo e acqua</a>
+        <a class="nav-link" href="tetr-emotion.html">Tetr-Emotion</a>
+        <a class="nav-link" href="statistiche.html">Statistiche</a>
+        <a class="nav-link" href="archivio.html">Archivio</a>
+      </div>
+
+      <a class="settings-link" href="impostazioni.html" aria-label="Impostazioni">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z"/>
+          <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1L7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/>
+        </svg>
+      </a>
+    </nav>
+  </header>
+
+  <main class="sleep-main">
+    <section class="sleep-hero">
+      <div class="sleep-content sleep-hero-inner">
+        <div class="sleep-hero-copy">
+          <span class="sleep-eyebrow">Riposo quotidiano</span>
+          <h1>Sonno</h1>
+          <p>Annota gli orari della notte e osserva il tuo ritmo senza trasformarlo in un voto da raggiungere.</p>
+        </div>
+
+        <div class="sleep-date-switcher" aria-label="Seleziona la notte">
+          <button class="sleep-date-arrow" type="button" data-sleep-date-shift="-1" aria-label="Notte precedente">←</button>
+          <div class="sleep-date-copy">
+            <span data-sleep-weekday>Domenica</span>
+            <strong data-sleep-date>26 luglio 2026</strong>
+            <span class="secondary-text">Notte tra sabato e domenica</span>
+          </div>
+          <button class="sleep-date-arrow" type="button" data-sleep-date-shift="1" aria-label="Notte successiva">→</button>
+          <button class="sleep-today-button" type="button" data-sleep-today>Oggi</button>
+        </div>
+      </div>
+
+      <div class="sleep-orbit sleep-orbit-one" aria-hidden="true"></div>
+      <div class="sleep-orbit sleep-orbit-two" aria-hidden="true"></div>
+      <span class="sleep-star sleep-star-one" aria-hidden="true">✦</span>
+      <span class="sleep-star sleep-star-two" aria-hidden="true">✧</span>
+    </section>
+
+    <section class="sleep-entry-section sleep-content" aria-labelledby="sleep-entry-title">
+      <div class="sleep-section-heading">
+        <div>
+          <span class="sleep-eyebrow">La notte appena trascorsa</span>
+          <h2 id="sleep-entry-title">Registra il sonno</h2>
+        </div>
+        <p>Gli orari possono essere approssimativi. Puoi lasciare vuoti i dati che non ricordi.</p>
+      </div>
+
+      <form class="sleep-form" data-sleep-form>
+        <div class="sleep-form-grid">
+          <article class="sleep-input-card sleep-evening-card">
+            <div class="sleep-card-heading">
+              <span class="sleep-card-icon" aria-hidden="true">☾</span>
+              <div><span class="secondary-text">La sera</span><h3>Prima di dormire</h3></div>
+            </div>
+            <label class="sleep-field">
+              <span>A letto</span>
+              <span class="sleep-time-wrap"><input type="time" name="bedtime" value="23:48"></span>
+            </label>
+            <label class="sleep-field">
+              <span>Mi sono addormentata</span>
+              <span class="sleep-time-wrap"><input type="time" name="asleep" value="00:12"></span>
+            </label>
+          </article>
+
+          <article class="sleep-input-card sleep-morning-card">
+            <div class="sleep-card-heading">
+              <span class="sleep-card-icon" aria-hidden="true">☼</span>
+              <div><span class="secondary-text">La mattina</span><h3>Il risveglio</h3></div>
+            </div>
+            <label class="sleep-field">
+              <span>Sveglia</span>
+              <span class="sleep-time-wrap"><input type="time" name="wake" value="07:35"></span>
+            </label>
+            <label class="sleep-field">
+              <span>Mi sono alzata</span>
+              <span class="sleep-time-wrap"><input type="time" name="up" value="07:52"></span>
+            </label>
+          </article>
+
+          <article class="sleep-input-card sleep-awakenings-card">
+            <div class="sleep-card-heading sleep-card-heading-row">
+              <div class="sleep-card-heading">
+                <span class="sleep-card-icon" aria-hidden="true">✦</span>
+                <div><span class="secondary-text">Durante la notte</span><h3>Risvegli</h3></div>
+              </div>
+              <button class="sleep-small-button" type="button" data-add-awakening>＋ Aggiungi</button>
+            </div>
+            <div class="awakening-list" data-awakening-list>
+              <div class="awakening-row">
+                <label><span>Orario</span><span class="sleep-time-wrap"><input type="time" name="awakeningTime[]" value="03:20"></span></label>
+                <label><span>Durata</span><span class="sleep-duration-wrap"><input type="number" name="awakeningDuration[]" min="0" step="1" value="12"><em>min</em></span></label>
+                <button class="awakening-remove" type="button" data-remove-awakening aria-label="Rimuovi risveglio">×</button>
+              </div>
+            </div>
+            <p class="sleep-helper">Inserisci solo i risvegli che ricordi. La durata viene sottratta dal sonno stimato.</p>
+          </article>
+
+          <article class="sleep-input-card sleep-quality-card">
+            <div class="sleep-card-heading">
+              <span class="sleep-card-icon" aria-hidden="true">♡</span>
+              <div><span class="secondary-text">Percezione</span><h3>Come hai dormito?</h3></div>
+            </div>
+            <div class="quality-scale" role="radiogroup" aria-label="Qualità percepita del sonno">
+              <label><input type="radio" name="quality" value="1"><span>1</span><span class="secondary-text">Pessimo</span></label>
+              <label><input type="radio" name="quality" value="2"><span>2</span><span class="secondary-text">Poco</span></label>
+              <label><input type="radio" name="quality" value="3"><span>3</span><span class="secondary-text">Medio</span></label>
+              <label><input type="radio" name="quality" value="4" checked><span>4</span><span class="secondary-text">Buono</span></label>
+              <label><input type="radio" name="quality" value="5"><span>5</span><span class="secondary-text">Ottimo</span></label>
+            </div>
+            <label class="sleep-field sleep-note-field">
+              <span>Nota facoltativa</span>
+              <textarea name="sleepNote" rows="3" placeholder="Sogni, rumori, temperatura, come ti senti al risveglio…"></textarea>
+            </label>
+          </article>
+        </div>
+
+        <div class="sleep-form-footer">
+          <span class="sleep-feedback" data-sleep-feedback aria-live="polite">I dati vengono salvati automaticamente per la data selezionata.</span>
+          <button class="sleep-primary-button" type="submit">Aggiorna la notte <span>✓</span></button>
+        </div>
+      </form>
+    </section>
+
+    <section class="sleep-summary-band" aria-labelledby="sleep-summary-title">
+      <div class="sleep-content">
+        <div class="sleep-section-heading">
+          <div>
+            <span class="sleep-eyebrow">Calcolo automatico</span>
+            <h2 id="sleep-summary-title">Riepilogo della notte</h2>
+          </div>
+          <p>I valori si aggiornano dagli orari inseriti sopra. Sono stime, non misurazioni mediche.</p>
+        </div>
+
+        <div class="sleep-summary-grid">
+          <article class="sleep-summary-card">
+            <span class="sleep-summary-symbol">☾</span>
+            <span>Sonno stimato</span>
+            <strong data-sleep-duration>7 h 11 min</strong>
+            <span class="secondary-text">esclusi i risvegli registrati</span>
+          </article>
+          <article class="sleep-summary-card">
+            <span class="sleep-summary-symbol">⌂</span>
+            <span>Tempo a letto</span>
+            <strong data-bed-duration>8 h 04 min</strong>
+            <span class="secondary-text">dall’andare a letto all’alzata</span>
+          </article>
+          <article class="sleep-summary-card">
+            <span class="sleep-summary-symbol">↗</span>
+            <span>Tempo per alzarti</span>
+            <strong data-rise-delay>17 min</strong>
+            <span class="secondary-text">dalla sveglia all’alzata</span>
+          </article>
+          <article class="sleep-summary-card">
+            <span class="sleep-summary-symbol">✦</span>
+            <span>Risvegli</span>
+            <strong data-awakening-count>1</strong>
+            <span class="secondary-text"><span data-awakening-total>12 min</span> totali registrati</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="sleep-trend-section sleep-content" aria-labelledby="sleep-trend-title">
+      <div class="sleep-section-heading">
+        <div>
+          <span class="sleep-eyebrow">Andamento recente</span>
+          <h2 id="sleep-trend-title">Gli ultimi 7 giorni</h2>
+        </div>
+        <a class="sleep-text-link" href="statistiche.html">Vai alle statistiche complete →</a>
+      </div>
+
+      <div class="sleep-trend-layout">
+        <article class="sleep-chart-card">
+          <div class="sleep-chart-topline">
+            <div><span>Durata del sonno</span><strong>Media 7 h 03 min</strong></div>
+            <span class="sleep-legend"><i></i> Ore dormite</span>
+          </div>
+          <div class="sleep-bars" role="img" aria-label="Grafico delle ore dormite negli ultimi sette giorni">
+            <div class="sleep-bar-item"><span class="sleep-bar-value">6h 25</span><div class="sleep-bar-track"><i style="height:72%"></i></div><span class="secondary-text">Lun</span></div>
+            <div class="sleep-bar-item"><span class="sleep-bar-value">7h 10</span><div class="sleep-bar-track"><i style="height:81%"></i></div><span class="secondary-text">Mar</span></div>
+            <div class="sleep-bar-item"><span class="sleep-bar-value">6h 48</span><div class="sleep-bar-track"><i style="height:76%"></i></div><span class="secondary-text">Mer</span></div>
+            <div class="sleep-bar-item"><span class="sleep-bar-value">7h 32</span><div class="sleep-bar-track"><i style="height:86%"></i></div><span class="secondary-text">Gio</span></div>
+            <div class="sleep-bar-item"><span class="sleep-bar-value">6h 55</span><div class="sleep-bar-track"><i style="height:78%"></i></div><span class="secondary-text">Ven</span></div>
+            <div class="sleep-bar-item"><span class="sleep-bar-value">7h 21</span><div class="sleep-bar-track"><i style="height:83%"></i></div><span class="secondary-text">Sab</span></div>
+            <div class="sleep-bar-item active"><span class="sleep-bar-value">7h 11</span><div class="sleep-bar-track"><i style="height:81%"></i></div><span class="secondary-text">Oggi</span></div>
+          </div>
+        </article>
+
+        <aside class="sleep-insight-card">
+          <span class="sleep-eyebrow">Questa settimana</span>
+          <h3>Ritmo abbastanza stabile</h3>
+          <p>L’orario della sveglia è variato di circa 38 minuti. La durata del sonno è rimasta vicina alla tua media.</p>
+          <div class="sleep-insight-list">
+            <div><span>Ora media a letto</span><strong>23:54</strong></div>
+            <div><span>Ora media sveglia</span><strong>07:18</strong></div>
+            <div><span>Qualità media</span><strong>3,8 / 5</strong></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="sleep-nights-band" aria-labelledby="recent-nights-title">
+      <div class="sleep-content">
+        <div class="sleep-section-heading">
+          <div>
+            <span class="sleep-eyebrow">Archivio rapido</span>
+            <h2 id="recent-nights-title">Ultime notti registrate</h2>
+          </div>
+          <a class="sleep-text-link" href="archivio.html">Apri l’archivio →</a>
+        </div>
+
+        <div class="recent-nights-list">
+          <article class="recent-night-row">
+            <div class="recent-night-date"><strong>26</strong><span>Luglio</span></div>
+            <div><span class="recent-night-label">Sonno</span><strong>7 h 11 min</strong></div>
+            <div><span class="recent-night-label">Orari</span><strong>00:12 — 07:35</strong></div>
+            <div><span class="recent-night-label">Qualità</span><strong>4 / 5</strong></div>
+            <button type="button" aria-label="Apri notte del 26 luglio">→</button>
+          </article>
+          <article class="recent-night-row">
+            <div class="recent-night-date"><strong>25</strong><span>Luglio</span></div>
+            <div><span class="recent-night-label">Sonno</span><strong>7 h 21 min</strong></div>
+            <div><span class="recent-night-label">Orari</span><strong>23:55 — 07:28</strong></div>
+            <div><span class="recent-night-label">Qualità</span><strong>4 / 5</strong></div>
+            <button type="button" aria-label="Apri notte del 25 luglio">→</button>
+          </article>
+          <article class="recent-night-row">
+            <div class="recent-night-date"><strong>24</strong><span>Luglio</span></div>
+            <div><span class="recent-night-label">Sonno</span><strong>6 h 55 min</strong></div>
+            <div><span class="recent-night-label">Orari</span><strong>00:20 — 07:27</strong></div>
+            <div><span class="recent-night-label">Qualità</span><strong>3 / 5</strong></div>
+            <button type="button" aria-label="Apri notte del 24 luglio">→</button>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer sleep-content">
+      <span>Bozza grafica desktop — pagina Sonno</span>
+      <a href="index.html">Torna alla homepage</a>
+    </footer>
+  </main>
+
+  <script src="tracker-store.js?v=20260726-18"></script>
+<script src="app.js?v=20260726-18"></script>
+</body>
+</html>

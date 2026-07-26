@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tracker personale — Archivio</title>
+  <link rel="stylesheet" href="styles.css?v=20260726-18" />
+</head>
+<body class="archive-page">
+<header class="site-header">
+  <nav class="navbar" aria-label="Navigazione principale">
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M19.5 15.4A8 8 0 0 1 8.6 4.5a8.2 8.2 0 1 0 10.9 10.9Z" />
+          <path d="M17 4v3M15.5 5.5h3M5 15v2M4 16h2" />
+        </svg>
+      </span>
+      <span>Tracker personale</span>
+    </a>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="giornata.html">La mia giornata</a>
+      <a class="nav-link" href="sonno.html">Sonno</a>
+      <a class="nav-link" href="cibo-acqua.html">Cibo e acqua</a>
+      <a class="nav-link" href="tetr-emotion.html">Tetr-Emotion</a>
+      <a class="nav-link" href="statistiche.html">Statistiche</a>
+      <a class="nav-link active" href="archivio.html" aria-current="page">Archivio</a>
+    </div>
+    <a class="settings-link" href="impostazioni.html" aria-label="Impostazioni">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z" />
+        <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1L7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z" />
+      </svg>
+    </a>
+  </nav>
+</header>
+
+<main class="archive-main">
+  <section class="archive-hero">
+    <div class="archive-content archive-hero-inner">
+      <div class="archive-hero-copy">
+        <span class="archive-eyebrow">Le giornate passate</span>
+        <h1>Archivio</h1>
+        <p>Rivedi ciò che hai registrato, giorno per giorno, senza perdere il filo delle tue abitudini.</p>
+      </div>
+      <div class="archive-month-panel" aria-label="Navigazione del mese">
+        <p class="archive-control-label">Mese visualizzato</p>
+        <div class="archive-month-row">
+          <button type="button" class="archive-icon-button" data-archive-month-shift="-1" aria-label="Mese precedente">←</button>
+          <strong data-archive-month-label>Luglio 2026</strong>
+          <button type="button" class="archive-icon-button" data-archive-month-shift="1" aria-label="Mese successivo">→</button>
+          <button type="button" class="archive-today-button" data-archive-today>Oggi</button>
+        </div>
+        <a class="archive-tetr-grid-link" href="tetr-emotion.html" data-archive-tetr-link>Apri la griglia Tetr-Emotion di luglio →</a>
+      </div>
+    </div>
+    <span class="archive-orb archive-orb-one" aria-hidden="true"></span>
+    <span class="archive-orb archive-orb-two" aria-hidden="true"></span>
+  </section>
+
+  <section class="archive-tools archive-content" aria-label="Ricerca e filtri archivio">
+    <label class="archive-search">
+      <span class="archive-search-icon" aria-hidden="true">⌕</span>
+      <input type="search" placeholder="Cerca un’attività, un alimento o un’emozione…" data-archive-search />
+    </label>
+    <div class="archive-filter-group" aria-label="Filtra i dati mostrati">
+      <button class="archive-filter active" type="button" data-archive-filter="all">Tutto</button>
+      <button class="archive-filter" type="button" data-archive-filter="sleep">Sonno</button>
+      <button class="archive-filter" type="button" data-archive-filter="food">Cibo e acqua</button>
+      <button class="archive-filter" type="button" data-archive-filter="day">La mia giornata</button>
+      <button class="archive-filter" type="button" data-archive-filter="tetr">Tetr-Emotion</button>
+    </div>
+    <div class="archive-view-switch" aria-label="Modalità di visualizzazione">
+      <button class="active" type="button" data-archive-view="calendar">Calendario</button>
+      <button type="button" data-archive-view="list">Elenco</button>
+    </div>
+  </section>
+
+  <section class="archive-calendar-section archive-content" data-archive-calendar-section>
+    <div class="archive-section-heading">
+      <div>
+        <span class="archive-eyebrow">Vista mensile</span>
+        <h2>Le tue giornate</h2>
+      </div>
+      <p data-archive-result-caption>Seleziona una data per aprire il riepilogo completo.</p>
+    </div>
+    <div class="archive-calendar-shell">
+      <div class="archive-weekdays" aria-hidden="true">
+        <span>Lunedì</span><span>Martedì</span><span>Mercoledì</span><span>Giovedì</span><span>Venerdì</span><span>Sabato</span><span>Domenica</span>
+      </div>
+      <div class="archive-calendar-grid" data-archive-calendar></div>
+    </div>
+  </section>
+
+  <section class="archive-list-section archive-content" data-archive-list-section hidden>
+    <div class="archive-section-heading">
+      <div>
+        <span class="archive-eyebrow">Vista cronologica</span>
+        <h2>Giornate del mese</h2>
+      </div>
+      <p>Una lettura più compatta degli stessi dati.</p>
+    </div>
+    <div class="archive-list" data-archive-list></div>
+  </section>
+
+  <section class="archive-detail-band" aria-labelledby="archive-detail-title">
+    <div class="archive-content">
+      <div class="archive-detail-heading">
+        <div>
+          <span class="archive-eyebrow">Giorno selezionato</span>
+          <h2 id="archive-detail-title" data-archive-detail-date>Domenica 26 luglio 2026</h2>
+          <p data-archive-detail-intro>Un riepilogo completo di sonno, pasti, acqua, attività e Tetr-Emotion.</p>
+        </div>
+        <div class="archive-detail-actions">
+          <button type="button" data-archive-edit>Modifica giornata</button>
+          <button type="button" class="secondary" data-archive-export>Esporta giornata</button>
+        </div>
+      </div>
+
+      <div class="archive-detail-grid">
+        <article class="archive-detail-card archive-sleep-card" data-detail-card="sleep">
+          <div class="archive-card-heading">
+            <span class="archive-card-icon" aria-hidden="true">☾</span>
+            <div><p>Riposo</p><h3>Sonno</h3></div>
+            <a href="sonno.html">Apri →</a>
+          </div>
+          <div class="archive-stat-strip">
+            <div><span>Durata</span><strong data-detail-sleep-duration>7 h 20 min</strong></div>
+            <div><span>Qualità</span><strong data-detail-sleep-quality>4 / 5</strong></div>
+            <div><span>Risvegli</span><strong data-detail-sleep-awakenings>1</strong></div>
+          </div>
+          <dl class="archive-detail-list">
+            <div><dt>A letto</dt><dd data-detail-bedtime>00:10</dd></div>
+            <div><dt>Sveglia</dt><dd data-detail-wakeup>07:45</dd></div>
+            <div><dt>Alzata</dt><dd data-detail-rise>08:05</dd></div>
+          </dl>
+        </article>
+
+        <article class="archive-detail-card archive-food-card" data-detail-card="food">
+          <div class="archive-card-heading">
+            <span class="archive-card-icon" aria-hidden="true">◒</span>
+            <div><p>Alimentazione</p><h3>Cibo e acqua</h3></div>
+            <a href="cibo-acqua.html">Apri →</a>
+          </div>
+          <div class="archive-water-highlight">
+            <span>Acqua totale</span>
+            <strong data-detail-water>1 borraccia + 2/4</strong>
+            <p data-detail-water-ml>circa 1,12 l</p>
+          </div>
+          <div class="archive-meals" data-detail-meals></div>
+        </article>
+
+        <article class="archive-detail-card archive-day-card" data-detail-card="day">
+          <div class="archive-card-heading">
+            <span class="archive-card-icon" aria-hidden="true">✦</span>
+            <div><p>Attività</p><h3>La mia giornata</h3></div>
+            <a href="giornata.html">Apri →</a>
+          </div>
+          <div class="archive-day-summary">
+            <div><span>Ore lavorate</span><strong data-detail-work>3 h 40 min</strong></div>
+            <div><span>Attività</span><strong data-detail-activity-count>5</strong></div>
+          </div>
+          <div class="archive-activity-list" data-detail-activities></div>
+        </article>
+
+        <article class="archive-detail-card archive-tetr-card" data-detail-card="tetr">
+          <div class="archive-card-heading">
+            <span class="archive-card-icon archive-tetr-icon" aria-hidden="true"><span class="tetromino piece-i" data-detail-tetr-piece style="--piece-color:#9A92DF;--unit:8px"><i></i><i></i><i></i><i></i></span></span>
+            <div><p>Emozione</p><h3>Tetr-Emotion</h3></div>
+            <a href="tetr-emotion.html">Apri →</a>
+          </div>
+          <div class="archive-tetr-highlight">
+            <span class="tetromino piece-i" data-detail-tetr-large style="--piece-color:#9A92DF;--unit:18px"><i></i><i></i><i></i><i></i></span>
+            <div><span>Emozione registrata</span><strong data-detail-tetr-emotion>Produttiva</strong><p data-detail-tetr-meta>Tetramino I · Pervinca</p></div>
+          </div>
+          <blockquote class="archive-tetr-note" data-detail-tetr-note>Ho concluso ciò che avevo rimandato e mi sono sentita soddisfatta.</blockquote>
+        </article>
+
+        <article class="archive-detail-card archive-note-card">
+          <div class="archive-card-heading">
+            <span class="archive-card-icon" aria-hidden="true">✎</span>
+            <div><p>Annotazione</p><h3>Nota della giornata</h3></div>
+          </div>
+          <blockquote data-detail-note>Giornata tranquilla. Ho lavorato bene nel pomeriggio e la sera mi sono rilassata.</blockquote>
+          <p class="archive-save-feedback" data-archive-action-feedback aria-live="polite"></p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer archive-footer">
+    <span>Archivio personale — bozza grafica desktop</span>
+    <a href="statistiche.html">Vai alle statistiche</a>
+  </footer>
+</main>
+<script src="tracker-store.js?v=20260726-18"></script>
+<script src="app.js?v=20260726-18"></script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tracker personale — La mia giornata</title>
+  <link rel="stylesheet" href="styles.css?v=20260726-18">
+</head>
+<body class="day-page">
+  <header class="site-header">
+    <nav class="navbar" aria-label="Navigazione principale">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M19.5 15.4A8 8 0 0 1 8.6 4.5a8.2 8.2 0 1 0 10.9 10.9Z"/>
+            <path d="M17 4v3M15.5 5.5h3M5 15v2M4 16h2"/>
+          </svg>
+        </span>
+        <span>Tracker personale</span>
+      </a>
+
+      <div class="nav-links">
+        <a class="nav-link" href="index.html">Home</a>
+        <a class="nav-link active" href="giornata.html" aria-current="page">La mia giornata</a>
+        <a class="nav-link" href="sonno.html">Sonno</a>
+        <a class="nav-link" href="cibo-acqua.html">Cibo e acqua</a>
+        <a class="nav-link" href="tetr-emotion.html">Tetr-Emotion</a>
+        <a class="nav-link" href="statistiche.html">Statistiche</a>
+        <a class="nav-link" href="archivio.html">Archivio</a>
+      </div>
+
+      <a class="settings-link" href="impostazioni.html" aria-label="Impostazioni">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z"/>
+          <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1L7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/>
+        </svg>
+      </a>
+    </nav>
+  </header>
+
+  <main class="day-main">
+    <section class="day-hero">
+      <div class="day-content day-hero-inner">
+        <div class="day-hero-copy">
+          <span class="day-eyebrow">Diario quotidiano</span>
+          <h1>La mia giornata</h1>
+          <p>Registra le cose che hai fatto, il tempo che hai dedicato e i piccoli dettagli che vuoi ricordare.</p>
+        </div>
+
+        <div class="date-switcher" aria-label="Seleziona il giorno">
+          <button class="date-arrow" type="button" data-date-shift="-1" aria-label="Giorno precedente">←</button>
+          <div class="date-switcher-copy">
+            <span data-selected-weekday>Domenica</span>
+            <strong data-selected-date>26 luglio 2026</strong>
+          </div>
+          <button class="date-arrow" type="button" data-date-shift="1" aria-label="Giorno successivo">→</button>
+          <button class="today-button" type="button" data-date-today>Oggi</button>
+        </div>
+      </div>
+      <span class="day-decoration day-decoration-one" aria-hidden="true"></span>
+      <span class="day-decoration day-decoration-two" aria-hidden="true"></span>
+      <span class="day-decoration day-decoration-three" aria-hidden="true">✦</span>
+    </section>
+
+    <section class="day-entry-section day-content" aria-labelledby="add-activity-title">
+      <div class="day-section-heading">
+        <div>
+          <span class="day-eyebrow">Nuova voce</span>
+          <h2 id="add-activity-title">Aggiungi un’attività</h2>
+        </div>
+        <p>Compila solo i campi che ti servono. L’orario, la durata e la nota sono facoltativi.</p>
+      </div>
+
+      <form class="activity-form" data-activity-form>
+        <div class="activity-form-main">
+          <label class="field field-wide">
+            <span>Che cosa hai fatto?</span>
+            <input type="text" name="activity" placeholder="Es. Disegnato, fatto la spesa, guardato una serie…" autocomplete="off" required>
+          </label>
+
+          <label class="field">
+            <span>Categoria</span>
+            <select name="category">
+              <option value="Lavoro">Lavoro</option>
+              <option value="Creatività">Creatività</option>
+              <option value="Casa">Casa</option>
+              <option value="Commissioni">Commissioni</option>
+              <option value="Svago">Svago</option>
+              <option value="Cura personale">Cura personale</option>
+              <option value="Altro">Altro</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Orario</span>
+            <span class="native-time-wrap"><input type="time" name="time"></span>
+          </label>
+
+          <label class="field">
+            <span>Durata</span>
+            <div class="duration-input"><input type="number" name="duration" min="0" step="5" placeholder="0"><span>min</span></div>
+          </label>
+
+          <label class="field field-wide">
+            <span>Nota facoltativa</span>
+            <textarea name="note" rows="3" placeholder="Un dettaglio, una frase o qualcosa che vuoi ricordare…"></textarea>
+          </label>
+        </div>
+
+        <div class="activity-form-side">
+          <div class="form-side-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <path d="M6 3h9l3 3v15H6z"/>
+              <path d="M15 3v4h4M9 11h6M9 15h6M9 19h4"/>
+            </svg>
+          </div>
+          <strong>Una voce alla volta</strong>
+          <p>Il riepilogo in basso si aggiorna mentre aggiungi o rimuovi attività.</p>
+          <button class="primary-button" type="submit">Aggiungi attività <span>＋</span></button>
+          <span class="secondary-text form-feedback" data-form-feedback aria-live="polite"></span>
+        </div>
+      </form>
+    </section>
+
+    <section class="day-full-band activities-band" aria-labelledby="today-activities-title">
+      <div class="day-content activities-band-inner">
+        <div class="day-section-heading day-section-heading-light">
+          <div>
+            <span class="day-eyebrow">Cronologia</span>
+            <h2 id="today-activities-title">Attività di oggi</h2>
+          </div>
+          <div class="activity-filter" aria-label="Filtra attività">
+            <button class="filter-chip active" type="button" data-filter="Tutte">Tutte</button>
+            <button class="filter-chip" type="button" data-filter="Creatività">Creatività</button>
+            <button class="filter-chip" type="button" data-filter="Casa">Casa</button>
+            <button class="filter-chip" type="button" data-filter="Svago">Svago</button>
+          </div>
+        </div>
+
+        <div class="activity-list" data-activity-list>
+          <article class="activity-item" data-category="Creatività" data-duration="80">
+            <div class="activity-time"><strong>16:00</strong><span>1 h 20 min</span></div>
+            <span class="timeline-dot category-creativity" aria-hidden="true"></span>
+            <div class="activity-card">
+              <div class="activity-card-top">
+                <span class="category-pill category-creativity">Creatività</span>
+                <div class="activity-actions">
+                  <button type="button" data-edit-activity aria-label="Modifica attività">✎</button>
+                  <button type="button" data-delete-activity aria-label="Elimina attività">×</button>
+                </div>
+              </div>
+              <h3>Disegnato le espressioni del modello</h3>
+              <p>Ho sistemato gli occhi e provato due variazioni per il sorriso.</p>
+            </div>
+          </article>
+
+          <article class="activity-item" data-category="Commissioni" data-duration="45">
+            <div class="activity-time"><strong>12:10</strong><span>45 min</span></div>
+            <span class="timeline-dot category-errands" aria-hidden="true"></span>
+            <div class="activity-card">
+              <div class="activity-card-top">
+                <span class="category-pill category-errands">Commissioni</span>
+                <div class="activity-actions">
+                  <button type="button" data-edit-activity aria-label="Modifica attività">✎</button>
+                  <button type="button" data-delete-activity aria-label="Elimina attività">×</button>
+                </div>
+              </div>
+              <h3>Fatto la spesa</h3>
+              <p>Preso ciò che serviva per i prossimi giorni.</p>
+            </div>
+          </article>
+
+          <article class="activity-item" data-category="Svago" data-duration="70">
+            <div class="activity-time"><strong>21:30</strong><span>1 h 10 min</span></div>
+            <span class="timeline-dot category-leisure" aria-hidden="true"></span>
+            <div class="activity-card">
+              <div class="activity-card-top">
+                <span class="category-pill category-leisure">Svago</span>
+                <div class="activity-actions">
+                  <button type="button" data-edit-activity aria-label="Modifica attività">✎</button>
+                  <button type="button" data-delete-activity aria-label="Elimina attività">×</button>
+                </div>
+              </div>
+              <h3>Guardato una serie</h3>
+              <p>Due episodi prima di andare a dormire.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="day-summary-section day-content" aria-labelledby="day-summary-title">
+      <div class="day-section-heading">
+        <div>
+          <span class="day-eyebrow">In breve</span>
+          <h2 id="day-summary-title">Riepilogo della giornata</h2>
+        </div>
+        <p>Una lettura rapida di ciò che hai registrato, senza trasformare la giornata in una lista di obiettivi.</p>
+      </div>
+
+      <div class="day-summary-grid">
+        <article class="day-summary-card accent-rose">
+          <span class="day-summary-icon">▣</span>
+          <span>Attività registrate</span>
+          <strong data-summary-count>3</strong>
+          <span class="secondary-text">Voci presenti nella giornata</span>
+          <i></i>
+        </article>
+        <article class="day-summary-card accent-lilac">
+          <span class="day-summary-icon">◷</span>
+          <span>Tempo registrato</span>
+          <strong data-summary-duration>3 h 15 min</strong>
+          <span class="secondary-text">Somma delle durate inserite</span>
+          <i></i>
+        </article>
+        <article class="day-summary-card accent-sky">
+          <span class="day-summary-icon">✦</span>
+          <span>Categoria più presente</span>
+          <strong data-summary-category>Creatività</strong>
+          <span class="secondary-text">In base al tempo registrato</span>
+          <i></i>
+        </article>
+        <article class="day-summary-card accent-periwinkle">
+          <span class="day-summary-icon">○</span>
+          <span>Voci senza durata</span>
+          <strong data-summary-undated>0</strong>
+          <span class="secondary-text">Attività annotate senza tempo</span>
+          <i></i>
+        </article>
+      </div>
+    </section>
+
+    <section class="day-note-band day-full-band" aria-labelledby="daily-note-title">
+      <div class="day-content day-note-inner">
+        <div class="day-note-copy">
+          <span class="day-eyebrow">Una frase per oggi</span>
+          <h2 id="daily-note-title">Com’è andata la giornata?</h2>
+          <p>Non deve essere un diario completo. Può bastare anche una sola frase.</p>
+        </div>
+        <div class="day-note-card">
+          <textarea data-daily-note rows="5" placeholder="Oggi mi sono sentita… / La cosa che voglio ricordare è…"></textarea>
+          <div class="day-note-footer">
+            <span data-note-feedback aria-live="polite">Nota non ancora salvata</span>
+            <button class="secondary-button" type="button" data-save-note>Salva nota</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer day-content">
+      <span>Tracker personale · salvataggio attivo</span>
+      <span>I dati vengono salvati automaticamente</span>
+    </footer>
+  </main>
+
+  <script src="tracker-store.js?v=20260726-18"></script>
+<script src="app.js?v=20260726-18"></script>
+</body>
+</html>

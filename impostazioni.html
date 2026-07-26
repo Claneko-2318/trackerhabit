@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <!-- build: settings-page-v14 -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Impostazioni desktop del tracker personale.">
+  <title>Tracker personale — Impostazioni</title>
+  <link rel="stylesheet" href="styles.css?v=20260726-18">
+</head>
+<body class="settings-page">
+<header class="site-header">
+  <nav class="navbar" aria-label="Navigazione principale">
+    <a class="brand" href="index.html" aria-label="Tracker personale, homepage">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M19.5 15.4A8 8 0 0 1 8.6 4.5a8.2 8.2 0 1 0 10.9 10.9Z"/>
+          <path d="M17 4v3M15.5 5.5h3M5 15v2M4 16h2"/>
+        </svg>
+      </span>
+      <span>Tracker personale</span>
+    </a>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="giornata.html">La mia giornata</a>
+      <a class="nav-link" href="sonno.html">Sonno</a>
+      <a class="nav-link" href="cibo-acqua.html">Cibo e acqua</a>
+      <a class="nav-link" href="tetr-emotion.html">Tetr-Emotion</a>
+      <a class="nav-link" href="statistiche.html">Statistiche</a>
+      <a class="nav-link" href="archivio.html">Archivio</a>
+    </div>
+    <a class="settings-link active" href="impostazioni.html" aria-label="Impostazioni" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z"/>
+        <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1L7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/>
+      </svg>
+    </a>
+  </nav>
+</header>
+
+<main class="settings-main">
+  <section class="settings-hero">
+    <div class="settings-content settings-hero-inner">
+      <div>
+        <span class="settings-eyebrow">Il tracker, come serve a te</span>
+        <h1>Impostazioni</h1>
+        <p>Personalizza l’aspetto del sito, le sezioni visibili e il modo in cui vengono mostrati i tuoi dati.</p>
+      </div>
+      <div class="settings-hero-art" aria-hidden="true">
+        <span class="settings-orbit settings-orbit-one"></span>
+        <span class="settings-orbit settings-orbit-two"></span>
+        <span class="settings-hero-icon">✦</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="settings-content settings-workspace">
+    <div class="settings-tabs" role="tablist" aria-label="Categorie delle impostazioni">
+      <button class="settings-tab active" type="button" role="tab" aria-selected="true" data-settings-tab="general">Generali</button>
+      <button class="settings-tab" type="button" role="tab" aria-selected="false" data-settings-tab="appearance">Aspetto</button>
+      <button class="settings-tab" type="button" role="tab" aria-selected="false" data-settings-tab="tracker">Tracker</button>
+      <button class="settings-tab" type="button" role="tab" aria-selected="false" data-settings-tab="data">Dati</button>
+    </div>
+
+    <section class="settings-panel active" role="tabpanel" data-settings-panel="general">
+      <div class="settings-section-heading">
+        <div><span class="settings-section-kicker">Generali</span><h2>Il funzionamento quotidiano</h2></div>
+        <p>Località, calendario e contenuti mostrati nella homepage.</p>
+      </div>
+
+      <div class="settings-grid settings-grid-two">
+        <article class="settings-card">
+          <div class="settings-card-heading">
+            <span class="settings-card-icon icon-sky">⌖</span>
+            <div><h3>Meteo e località</h3><p>La città usata per il riquadro meteo della homepage.</p></div>
+          </div>
+          <label class="settings-field">
+            <span>Città</span>
+            <input type="text" value="Roma, Italia" data-setting-city>
+          </label>
+          <div class="settings-inline-fields">
+            <label class="settings-field"><span>Temperatura</span><select><option selected>Celsius</option><option>Fahrenheit</option></select></label>
+            <label class="settings-field"><span>Aggiornamento</span><select><option selected>Ogni 60 minuti</option><option>Ogni 30 minuti</option><option>Solo all’apertura</option></select></label>
+          </div>
+          <p class="settings-note">Il meteo userà Open-Meteo e non richiede una chiave personale.</p>
+        </article>
+
+        <article class="settings-card">
+          <div class="settings-card-heading">
+            <span class="settings-card-icon icon-lilac">◷</span>
+            <div><h3>Data e calendario</h3><p>Formato usato nelle pagine e nell’Archivio.</p></div>
+          </div>
+          <div class="settings-inline-fields">
+            <label class="settings-field"><span>Formato ora</span><select><option selected>24 ore</option><option>12 ore</option></select></label>
+            <label class="settings-field"><span>Inizio settimana</span><select><option selected>Lunedì</option><option>Domenica</option></select></label>
+          </div>
+          <label class="settings-field"><span>Formato della data</span><select><option selected>Domenica 26 luglio 2026</option><option>26 luglio 2026</option><option>26/07/2026</option></select></label>
+          <p class="settings-note">Il fuso orario viene letto automaticamente dal computer.</p>
+        </article>
+      </div>
+
+      <article class="settings-card settings-card-wide">
+        <div class="settings-card-heading">
+          <span class="settings-card-icon icon-rose">⌂</span>
+          <div><h3>Homepage</h3><p>Scegli quali sezioni lasciare visibili nella pagina iniziale.</p></div>
+        </div>
+        <div class="settings-switch-grid">
+          <label class="settings-switch-row"><span><strong>Meteo</strong><span class="secondary-text">Temperatura e condizione del giorno</span></span><input type="checkbox" checked data-setting-home="weather"><i aria-hidden="true"></i></label>
+          <label class="settings-switch-row"><span><strong>Riepilogo di oggi</strong><span class="secondary-text">Sonno, acqua, attività e Tetr-Emotion</span></span><input type="checkbox" checked data-setting-home="summary"><i aria-hidden="true"></i></label>
+          <label class="settings-switch-row"><span><strong>Completa la giornata</strong><span class="secondary-text">Promemoria discreti per le parti mancanti</span></span><input type="checkbox" checked data-setting-home="reminders"><i aria-hidden="true"></i></label>
+          <label class="settings-switch-row"><span><strong>Le tue sezioni</strong><span class="secondary-text">Collegamenti rapidi alle pagine del tracker</span></span><input type="checkbox" checked data-setting-home="sections"><i aria-hidden="true"></i></label>
+          <label class="settings-switch-row"><span><strong>Andamento recente</strong><span class="secondary-text">Piccola anteprima degli ultimi sette giorni</span></span><input type="checkbox" checked data-setting-home="trends"><i aria-hidden="true"></i></label>
+          <label class="settings-switch-row"><span><strong>Ultime giornate</strong><span class="secondary-text">Accesso rapido alle giornate più recenti</span></span><input type="checkbox" checked data-setting-home="recentDays"><i aria-hidden="true"></i></label>
+        </div>
+      </article>
+
+      <article class="settings-card settings-card-wide settings-home-tetr-card">
+        <div class="settings-card-heading">
+          <span class="settings-card-icon icon-periwinkle"><span class="tetromino piece-t" style="--piece-color:#E8BD93;--unit:7px"><i></i><i></i><i></i><i></i></span></span>
+          <div><h3>Tetr-Emotion nella homepage</h3><p>Scegli quali riepiloghi emotivi mostrare nella pagina iniziale.</p></div>
+        </div>
+        <div class="settings-switch-grid settings-switch-grid-three">
+          <label class="settings-switch-row"><span><strong>Riepilogo di oggi</strong><span class="secondary-text">Mostra emozione e tetramino scelti</span></span><input type="checkbox" checked data-setting-home="tetrToday"><i aria-hidden="true"></i></label>
+          <label class="settings-switch-row"><span><strong>Ultimi sette pezzi</strong><span class="secondary-text">Aggiunge la striscia settimanale all’andamento recente</span></span><input type="checkbox" checked data-setting-home="tetrWeek"><i aria-hidden="true"></i></label>
+          <label class="settings-switch-row"><span><strong>Promemoria giornaliero</strong><span class="secondary-text">Segnala quando manca il pezzo di oggi</span></span><input type="checkbox" checked data-setting-home="tetrReminder"><i aria-hidden="true"></i></label>
+        </div>
+      </article>
+    </section>
+
+    <section class="settings-panel" role="tabpanel" data-settings-panel="appearance" hidden>
+      <div class="settings-section-heading">
+        <div><span class="settings-section-kicker">Aspetto</span><h2>L’atmosfera del sito</h2></div>
+        <p>Immagini, intensità visiva e leggibilità dei testi.</p>
+      </div>
+
+      <article class="settings-card settings-image-card">
+        <div class="settings-card-heading settings-card-heading-split">
+          <div class="settings-card-title-wrap"><span class="settings-card-icon icon-periwinkle">☾</span><div><h3>Immagine della homepage</h3><p>La scena può cambiare automaticamente in base all’orario.</p></div></div>
+          <label class="settings-switch-row compact"><span><strong>Cambio automatico</strong></span><input type="checkbox" checked data-auto-scenes><i aria-hidden="true"></i></label>
+        </div>
+
+        <div class="scene-preview-large scene-afternoon" data-scene-preview>
+          <div class="scene-preview-overlay">
+            <span class="scene-preview-period" data-scene-period>Pomeriggio</span>
+            <strong data-scene-time-range>12:00 — 17:59</strong>
+            <p>L’immagine e il trattamento luminoso seguono il momento della giornata.</p>
+          </div>
+        </div>
+
+        <div class="scene-card-grid">
+          <button class="scene-card scene-morning" type="button" data-scene-choice="morning"><span>Mattina</span><strong>05:00 — 11:59</strong></button>
+          <button class="scene-card scene-afternoon active" type="button" data-scene-choice="afternoon"><span>Pomeriggio</span><strong>12:00 — 17:59</strong></button>
+          <button class="scene-card scene-evening" type="button" data-scene-choice="evening"><span>Sera</span><strong>18:00 — 21:59</strong></button>
+          <button class="scene-card scene-night" type="button" data-scene-choice="night"><span>Notte</span><strong>22:00 — 04:59</strong></button>
+        </div>
+
+        <div class="settings-image-actions">
+          <button class="settings-button secondary" type="button" data-demo-upload>Scegli un’immagine</button>
+          <button class="settings-button ghost" type="button" data-demo-reset>Ripristina scena</button>
+          <p class="settings-note" data-image-feedback>Per ora le quattro fasce usano la stessa illustrazione con atmosfere diverse. In seguito potrai assegnare un’immagine distinta a ogni fascia.</p>
+        </div>
+      </article>
+
+      <div class="settings-grid settings-grid-two">
+        <article class="settings-card">
+          <div class="settings-card-heading"><span class="settings-card-icon icon-rose">◐</span><div><h3>Intensità del gradiente</h3><p>Regola quanto deve essere scura la parte sotto al testo.</p></div></div>
+          <label class="settings-range-field"><span><strong>Opacità</strong><span data-gradient-value>62%</span></span><input type="range" min="30" max="85" value="62" data-gradient-range></label>
+          <div class="gradient-sample" data-gradient-sample><span>Data e meteo restano leggibili</span></div>
+        </article>
+
+        <article class="settings-card">
+          <div class="settings-card-heading"><span class="settings-card-icon icon-sky">Aa</span><div><h3>Testi</h3><p>La dimensione normale è già pensata per essere facilmente leggibile.</p></div></div>
+          <div class="settings-choice-list" data-single-choice>
+            <button type="button" class="settings-choice active"><span><strong>Normale</strong><span class="secondary-text">Testo del sito leggermente più grande</span></span><i>✓</i></button>
+            <button type="button" class="settings-choice"><span><strong>Grande</strong><span class="secondary-text">Aumenta ulteriormente testi e controlli</span></span><i>✓</i></button>
+            <button type="button" class="settings-choice"><span><strong>Contrasto elevato</strong><span class="secondary-text">Riduce i testi chiari e aumenta il contrasto</span></span><i>✓</i></button>
+          </div>
+        </article>
+      </div>
+
+      <article class="settings-card settings-card-wide settings-tetr-appearance-card">
+        <div class="settings-card-heading settings-card-heading-split">
+          <div class="settings-card-title-wrap"><span class="settings-card-icon icon-periwinkle"><span class="tetromino piece-o" style="--piece-color:#D7A2D0;--unit:7px"><i></i><i></i><i></i><i></i></span></span><div><h3>Aspetto della griglia Tetr-Emotion</h3><p>Mantieni la griglia chiara e regola soltanto i dettagli visivi.</p></div></div>
+          <span class="settings-status">Sfondo chiaro</span>
+        </div>
+        <div class="settings-tetr-appearance-layout">
+          <div class="settings-tetr-preview" aria-hidden="true">
+            <span class="tetromino piece-o" style="--piece-color:#D7A2D0;--unit:13px"><i></i><i></i><i></i><i></i></span>
+            <span class="tetromino piece-t" style="--piece-color:#E8BD93;--unit:13px"><i></i><i></i><i></i><i></i></span>
+            <span class="tetromino piece-i" style="--piece-color:#9A92DF;--unit:13px"><i></i><i></i><i></i><i></i></span>
+          </div>
+          <div class="settings-tetr-appearance-controls">
+            <label class="settings-field"><span>Fondo della griglia</span><select><option selected>Bianco rosato</option><option>Bianco neutro</option><option>Lilla chiarissimo</option></select></label>
+            <label class="settings-range-field"><span><strong>Visibilità delle celle</strong><span>Leggera</span></span><input type="range" min="1" max="3" value="1"></label>
+            <div class="settings-switch-grid">
+              <label class="settings-switch-row"><span><strong>Bordi dei tetramini</strong><span class="secondary-text">Mantiene separati i cubetti</span></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+              <label class="settings-switch-row"><span><strong>Evidenzia il pezzo al passaggio</strong><span class="secondary-text">Seleziona insieme tutti i quattro cubetti</span></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="settings-card settings-card-wide">
+        <div class="settings-card-heading"><span class="settings-card-icon icon-lilac">✦</span><div><h3>Decorazioni</h3><p>Stelle, bagliori e piccoli elementi floreali.</p></div></div>
+        <div class="settings-segmented" data-segmented>
+          <button type="button" class="active">Complete</button>
+          <button type="button">Leggere</button>
+          <button type="button">Nessuna</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="settings-panel" role="tabpanel" data-settings-panel="tracker" hidden>
+      <div class="settings-section-heading">
+        <div><span class="settings-section-kicker">Tracker</span><h2>Le tue abitudini</h2></div>
+        <p>Configura le categorie e i campi che usi davvero.</p>
+      </div>
+
+      <div class="settings-grid settings-grid-two">
+        <article class="settings-card">
+          <div class="settings-card-heading"><span class="settings-card-icon icon-sky">◒</span><div><h3>Acqua</h3><p>La pagina usa la tua borraccia come unità principale.</p></div></div>
+          <label class="settings-field"><span>Capienza della borraccia</span><div class="settings-unit-input"><input type="number" value="750" min="100" step="50" data-setting-bottle><span>ml</span></div></label>
+          <label class="settings-field"><span>Divisione</span><select><option selected>Quarti di borraccia</option><option>Metà borraccia</option></select></label>
+          <label class="settings-switch-row"><span><strong>Mostra equivalenza</strong><span class="secondary-text">Visualizza anche ml e litri</span></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+        </article>
+
+        <article class="settings-card">
+          <div class="settings-card-heading"><span class="settings-card-icon icon-lilac">☾</span><div><h3>Sonno</h3><p>Scegli quali dettagli registrare ogni notte.</p></div></div>
+          <div class="settings-switch-list">
+            <label class="settings-switch-row"><span><strong>Ora in cui mi sono addormentata</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+            <label class="settings-switch-row"><span><strong>Risvegli notturni</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+            <label class="settings-switch-row"><span><strong>Qualità percepita</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+            <label class="settings-switch-row"><span><strong>Tempo tra sveglia e alzata</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+          </div>
+        </article>
+      </div>
+
+      <article class="settings-card settings-card-wide settings-tetr-card">
+        <div class="settings-card-heading settings-card-heading-split">
+          <div class="settings-card-title-wrap"><span class="settings-card-icon icon-periwinkle"><span class="tetromino piece-z" style="--piece-color:#45488F;--unit:7px"><i></i><i></i><i></i><i></i></span></span><div><h3>Tetr-Emotion</h3><p>Associazioni fisse e comportamento della griglia mensile.</p></div></div>
+          <span class="settings-status">7 associazioni confermate</span>
+        </div>
+        <div class="settings-tetr-associations" aria-label="Associazioni tra emozioni, tetramini e colori">
+          <div class="settings-tetr-row"><span class="tetromino piece-o" style="--piece-color:#D7A2D0;--unit:7px"><i></i><i></i><i></i><i></i></span><strong>Normale / tranquilla</strong><span>Tetramino O</span><i style="--emotion-color:#D7A2D0"></i></div>
+          <div class="settings-tetr-row"><span class="tetromino piece-j" style="--piece-color:#7790D3;--unit:7px"><i></i><i></i><i></i><i></i></span><strong>Triste</strong><span>Tetramino J</span><i style="--emotion-color:#7790D3"></i></div>
+          <div class="settings-tetr-row"><span class="tetromino piece-z" style="--piece-color:#45488F;--unit:7px"><i></i><i></i><i></i><i></i></span><strong>Nervosa</strong><span>Tetramino Z</span><i style="--emotion-color:#45488F"></i></div>
+          <div class="settings-tetr-row"><span class="tetromino piece-t" style="--piece-color:#E8BD93;--unit:7px"><i></i><i></i><i></i><i></i></span><strong>Felice</strong><span>Tetramino T</span><i style="--emotion-color:#E8BD93"></i></div>
+          <div class="settings-tetr-row"><span class="tetromino piece-i" style="--piece-color:#9A92DF;--unit:7px"><i></i><i></i><i></i><i></i></span><strong>Produttiva</strong><span>Tetramino I</span><i style="--emotion-color:#9A92DF"></i></div>
+          <div class="settings-tetr-row"><span class="tetromino piece-s" style="--piece-color:#E3A2A8;--unit:7px"><i></i><i></i><i></i><i></i></span><strong>Non produttiva / non soddisfatta</strong><span>Tetramino S</span><i style="--emotion-color:#E3A2A8"></i></div>
+          <div class="settings-tetr-row"><span class="tetromino piece-l" style="--piece-color:#B89FD8;--unit:7px"><i></i><i></i><i></i><i></i></span><strong>Vuoto / noia</strong><span>Tetramino L</span><i style="--emotion-color:#B89FD8"></i></div>
+        </div>
+        <div class="settings-tetr-options">
+          <label class="settings-switch-row"><span><strong>Mostra la sagoma di caduta</strong><span class="secondary-text">Anticipa il punto in cui si appoggerà il pezzo</span></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+          <label class="settings-switch-row"><span><strong>Comandi da tastiera</strong><span class="secondary-text">Frecce per spostare e ruotare, Invio per confermare</span></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+          <label class="settings-switch-row"><span><strong>Conferma prima del salvataggio</strong><span class="secondary-text">Evita di bloccare il pezzo per errore</span></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+          <label class="settings-switch-row"><span><strong>Nota facoltativa modificabile</strong><span class="secondary-text">Può essere aggiunta anche dopo il pezzo</span></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+          <label class="settings-switch-row"><span><strong>Evidenzia il pezzo di oggi</strong><span class="secondary-text">Rende più semplice ritrovare l’ultimo inserimento</span></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+          <label class="settings-switch-row"><span><strong>Nuova griglia ogni mese</strong><span class="secondary-text">Regola fissa per preservare la composizione mensile</span></span><input type="checkbox" checked disabled><i aria-hidden="true"></i></label>
+        </div>
+      </article>
+
+      <article class="settings-card settings-card-wide">
+        <div class="settings-card-heading settings-card-heading-split">
+          <div class="settings-card-title-wrap"><span class="settings-card-icon icon-rose">▣</span><div><h3>Categorie della giornata</h3><p>Modifica o nascondi le categorie usate nelle attività.</p></div></div>
+          <button class="settings-button secondary" type="button" data-add-category>+ Aggiungi categoria</button>
+        </div>
+        <div class="category-settings-list" data-category-list>
+          <div class="category-setting-row"><span class="category-color color-rose"></span><input type="text" value="Creatività"><span class="category-icon">✦</span><label class="settings-switch-row compact"><span><strong>Visibile</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label><button type="button" class="category-remove" aria-label="Rimuovi categoria">×</button></div>
+          <div class="category-setting-row"><span class="category-color color-sky"></span><input type="text" value="Commissioni"><span class="category-icon">⌖</span><label class="settings-switch-row compact"><span><strong>Visibile</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label><button type="button" class="category-remove" aria-label="Rimuovi categoria">×</button></div>
+          <div class="category-setting-row"><span class="category-color color-lilac"></span><input type="text" value="Svago"><span class="category-icon">☾</span><label class="settings-switch-row compact"><span><strong>Visibile</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label><button type="button" class="category-remove" aria-label="Rimuovi categoria">×</button></div>
+          <div class="category-setting-row"><span class="category-color color-violet"></span><input type="text" value="Casa"><span class="category-icon">⌂</span><label class="settings-switch-row compact"><span><strong>Visibile</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label><button type="button" class="category-remove" aria-label="Rimuovi categoria">×</button></div>
+        </div>
+      </article>
+
+      <div class="settings-grid settings-grid-two">
+        <article class="settings-card">
+          <div class="settings-card-heading"><span class="settings-card-icon icon-periwinkle">◷</span><div><h3>Ore lavorate</h3><p>Il totale arriva dal tracker lavorativo separato.</p></div></div>
+          <label class="settings-switch-row"><span><strong>Mostra nelle statistiche</strong><span class="secondary-text">Usa il totale giornaliero per grafici e confronti</span></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+          <label class="settings-field"><span>Modalità di inserimento</span><select><option selected>Manuale</option><option disabled>Collegamento automatico — futuro</option></select></label>
+        </article>
+
+        <article class="settings-card">
+          <div class="settings-card-heading"><span class="settings-card-icon icon-rose">⌁</span><div><h3>Cibo</h3><p>Nascondi i momenti della giornata che non usi.</p></div></div>
+          <div class="settings-switch-list compact-list">
+            <label class="settings-switch-row"><span><strong>Colazione</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+            <label class="settings-switch-row"><span><strong>Pranzo</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+            <label class="settings-switch-row"><span><strong>Cena</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+            <label class="settings-switch-row"><span><strong>Spuntini</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="settings-panel" role="tabpanel" data-settings-panel="data" hidden>
+      <div class="settings-section-heading">
+        <div><span class="settings-section-kicker">Dati</span><h2>Esportazione e sicurezza</h2></div>
+        <p>I dati vengono salvati nel browser. Puoi anche collegare un foglio Google per sincronizzarli e conservarne una copia online.</p>
+      </div>
+
+      <div class="settings-grid settings-grid-three">
+        <article class="settings-card settings-action-card"><span class="settings-action-icon icon-sky">⇩</span><h3>Esporta backup</h3><p>Scarica tutti i dati e le impostazioni in un unico file JSON.</p><button class="settings-button secondary" type="button" data-data-action="export">Scarica backup</button></article>
+        <article class="settings-card settings-action-card"><span class="settings-action-icon icon-lilac">⇧</span><h3>Importa backup</h3><p>Carica un file esportato da una versione precedente del tracker.</p><button class="settings-button secondary" type="button" data-data-action="import">Scegli un file</button></article>
+        <article class="settings-card settings-action-card"><span class="settings-action-icon icon-rose">☁</span><h3>Salvataggio locale</h3><p>Le modifiche vengono conservate automaticamente in questo browser, anche dopo aver chiuso la pagina.</p><span class="settings-status is-ready">Attivo</span><button class="settings-button ghost" type="button" data-data-action="export">Scarica backup JSON</button></article>
+      </div>
+
+
+      <article class="settings-card settings-card-wide settings-connection-card">
+        <div class="settings-card-heading">
+          <span class="settings-card-icon icon-sky">☁</span>
+          <div><h3>Collegamento a Google Sheets</h3><p>Incolla l’URL della Web App creata con Google Apps Script. Il tracker continuerà a funzionare anche senza connessione.</p></div>
+        </div>
+        <label class="settings-field settings-connection-field"><span>URL della Web App</span><input type="url" data-connection-url placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off"></label>
+        <div class="settings-connection-actions">
+          <button class="settings-button primary" type="button" data-connect-sheet>Verifica collegamento</button>
+          <button class="settings-button secondary" type="button" data-push-sheet>Invia dati locali</button>
+          <button class="settings-button secondary" type="button" data-pull-sheet>Carica dal foglio</button>
+          <button class="settings-button ghost" type="button" data-disconnect-sheet>Disconnetti</button>
+        </div>
+        <p class="settings-connection-status is-off" data-connection-status aria-live="polite">Non configurato</p>
+        <p class="settings-note">Alla prima configurazione, verifica il collegamento e poi premi <strong>Invia dati locali</strong>. I salvataggi successivi verranno sincronizzati automaticamente.</p>
+        <a class="settings-guide-link" href="GUIDA-COLLEGAMENTO-GOOGLE-SHEETS.html">Apri la guida completa al collegamento →</a>
+      </article>
+
+      <article class="settings-card settings-card-wide">
+        <div class="settings-card-heading"><span class="settings-card-icon icon-periwinkle">▤</span><div><h3>Esportazione per Notion</h3><p>Questa parte resta in sospeso e verrà progettata in seguito.</p></div></div>
+        <div class="settings-export-grid">
+          <label class="settings-field"><span>Da</span><div class="settings-date-wrap"><input type="date" value="2026-07-01" disabled></div></label>
+          <label class="settings-field"><span>A</span><div class="settings-date-wrap"><input type="date" value="2026-07-31" disabled></div></label>
+          <label class="settings-field"><span>Formato</span><select disabled><option selected>Testo per Notion — in sospeso</option></select></label>
+        </div>
+        <div class="settings-check-row">
+          <label><input type="checkbox" checked disabled> Sonno</label>
+          <label><input type="checkbox" checked disabled> Cibo e acqua</label>
+          <label><input type="checkbox" checked disabled> La mia giornata</label>
+          <label><input type="checkbox" checked disabled> Tetr-Emotion</label>
+        </div>
+      </article>
+
+      <article class="settings-danger-card">
+        <div><span class="settings-section-kicker">Gestione dei dati</span><h3>Azioni irreversibili</h3><p>Queste funzioni avranno sempre una conferma aggiuntiva prima di modificare o cancellare i dati.</p></div>
+        <div class="settings-danger-actions"><button type="button" data-data-action="reset">Ripristina impostazioni</button><button type="button" class="danger" data-data-action="delete">Elimina tutti i dati</button></div>
+      </article>
+      <p class="settings-data-feedback" data-data-feedback aria-live="polite"></p>
+    </section>
+    <input type="file" accept="application/json,.json" data-import-file hidden>
+
+    <div class="settings-save-bar">
+      <div><strong>Salvataggio automatico</strong><p>Le modifiche restano nel browser e vengono sincronizzate con Google Sheets quando collegato.</p></div>
+      <p class="settings-save-feedback" data-settings-feedback aria-live="polite"></p>
+      <button class="settings-button primary" type="button" data-save-settings>Salva modifiche</button>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer settings-footer"><span>Tracker personale · salvataggio attivo</span><a href="index.html">Torna alla homepage</a></footer>
+<script src="tracker-store.js?v=20260726-18"></script>
+<script src="app.js?v=20260726-18"></script>
+</body>
+</html>

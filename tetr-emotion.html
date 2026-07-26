@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tracker personale — Tetr-Emotion</title>
+  <link rel="stylesheet" href="styles.css?v=20260726-18">
+</head>
+<body class="tetr-page tetr-page-v16">
+  <header class="site-header">
+    <nav class="navbar" aria-label="Navigazione principale">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M19.5 15.4A8 8 0 0 1 8.6 4.5a8.2 8.2 0 1 0 10.9 10.9Z"/>
+            <path d="M17 4v3M15.5 5.5h3M5 15v2M4 16h2"/>
+          </svg>
+        </span>
+        <span>Tracker personale</span>
+      </a>
+
+      <div class="nav-links">
+        <a class="nav-link" href="index.html">Home</a>
+        <a class="nav-link" href="giornata.html">La mia giornata</a>
+        <a class="nav-link" href="sonno.html">Sonno</a>
+        <a class="nav-link" href="cibo-acqua.html">Cibo e acqua</a>
+        <a class="nav-link active" href="tetr-emotion.html" aria-current="page">Tetr-Emotion</a>
+        <a class="nav-link" href="statistiche.html">Statistiche</a>
+        <a class="nav-link" href="archivio.html">Archivio</a>
+      </div>
+
+      <a class="settings-link" href="impostazioni.html" aria-label="Impostazioni">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z"/>
+          <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1L7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/>
+        </svg>
+      </a>
+    </nav>
+  </header>
+
+  <main class="tetr-main">
+    <section class="tetr-hero">
+      <div class="tetr-content tetr-hero-inner">
+        <h1>Tetr-Emotion</h1>
+
+        <div class="tetr-month-switcher" aria-label="Seleziona il mese">
+          <button type="button" data-tetr-month-shift="-1" aria-label="Mese precedente">←</button>
+          <div>
+            <span>Mese della griglia</span>
+            <strong data-tetr-month>Luglio 2026</strong>
+          </div>
+          <button type="button" data-tetr-month-shift="1" aria-label="Mese successivo">→</button>
+          <button class="tetr-today-button" type="button" data-tetr-today>Oggi</button>
+        </div>
+      </div>
+      <span class="tetr-hero-shape tetr-hero-shape-one" aria-hidden="true"></span>
+      <span class="tetr-hero-shape tetr-hero-shape-two" aria-hidden="true"></span>
+    </section>
+
+    <section class="tetr-workspace tetr-content" aria-label="Griglia e selezione dell'emozione">
+      <article class="tetr-studio-card">
+        <div class="tetr-card-heading tetr-studio-heading">
+          <div>
+            <span class="tetr-kicker">Griglia mensile</span>
+            <h2 data-tetr-board-title>La composizione di luglio</h2>
+          </div>
+          <div class="tetr-board-status">
+            <span class="tetr-status-dot"></span>
+            <span data-tetr-board-status>12 pezzi posizionati</span>
+          </div>
+        </div>
+
+        <div class="tetr-studio-layout">
+          <div class="tetr-board-zone">
+            <div class="tetr-board-frame">
+              <div class="tetr-board" data-tetr-board role="grid" aria-label="Griglia Tetr-Emotion 10 per 20"></div>
+              <div class="tetr-board-tooltip" data-tetr-tooltip role="tooltip" hidden></div>
+            </div>
+
+            <div class="tetr-board-instructions">
+              <strong data-current-emotion>Produttiva</strong>
+              <p data-current-piece-copy>Clicca una colonna per scegliere dove far cadere il pezzo. Doppio clic per ruotarlo e premi Invio per confermare.</p>
+              <p class="tetr-feedback" data-tetr-feedback aria-live="polite">Produttiva selezionata.</p>
+            </div>
+          </div>
+
+          <div class="tetr-emotion-panel">
+            <div class="tetr-card-heading tetr-emotion-heading">
+              <div>
+                <span class="tetr-kicker">Emozione di oggi</span>
+                <h2 data-tetr-today-date>Domenica 26 luglio</h2>
+              </div>
+              <span class="tetr-one-piece">1 pezzo al giorno</span>
+            </div>
+
+            <div class="tetr-emotion-list" role="radiogroup" aria-label="Scegli l'emozione di oggi">
+              <button class="tetr-emotion-choice" type="button" data-emotion="calm" role="radio" aria-checked="false">
+                <span class="tetr-mini" data-mini-piece="O" aria-hidden="true"></span>
+                <span><strong>Normale / tranquilla</strong><span>Tetramino O</span></span>
+                <i style="--emotion-color:#D7A2D0"></i>
+              </button>
+              <button class="tetr-emotion-choice" type="button" data-emotion="sad" role="radio" aria-checked="false">
+                <span class="tetr-mini" data-mini-piece="J" aria-hidden="true"></span>
+                <span><strong>Triste</strong><span>Tetramino J</span></span>
+                <i style="--emotion-color:#7790D3"></i>
+              </button>
+              <button class="tetr-emotion-choice" type="button" data-emotion="nervous" role="radio" aria-checked="false">
+                <span class="tetr-mini" data-mini-piece="Z" aria-hidden="true"></span>
+                <span><strong>Nervosa</strong><span>Tetramino Z</span></span>
+                <i style="--emotion-color:#45488F"></i>
+              </button>
+              <button class="tetr-emotion-choice" type="button" data-emotion="happy" role="radio" aria-checked="false">
+                <span class="tetr-mini" data-mini-piece="T" aria-hidden="true"></span>
+                <span><strong>Felice</strong><span>Tetramino T</span></span>
+                <i style="--emotion-color:#E8BD93"></i>
+              </button>
+              <button class="tetr-emotion-choice is-selected" type="button" data-emotion="productive" role="radio" aria-checked="true">
+                <span class="tetr-mini" data-mini-piece="I" aria-hidden="true"></span>
+                <span><strong>Produttiva</strong><span>Tetramino I</span></span>
+                <i style="--emotion-color:#9A92DF"></i>
+              </button>
+              <button class="tetr-emotion-choice" type="button" data-emotion="unproductive" role="radio" aria-checked="false">
+                <span class="tetr-mini" data-mini-piece="S" aria-hidden="true"></span>
+                <span><strong>Non produttiva / non soddisfatta</strong><span>Tetramino S</span></span>
+                <i style="--emotion-color:#E3A2A8"></i>
+              </button>
+              <button class="tetr-emotion-choice" type="button" data-emotion="empty" role="radio" aria-checked="false">
+                <span class="tetr-mini" data-mini-piece="L" aria-hidden="true"></span>
+                <span><strong>Vuoto / noia</strong><span>Tetramino L</span></span>
+                <i style="--emotion-color:#B89FD8"></i>
+              </button>
+            </div>
+
+            <label class="tetr-note-field">
+              <span>Nota facoltativa</span>
+              <textarea rows="3" data-tetr-note placeholder="Cosa ha caratterizzato questa giornata?"></textarea>
+            </label>
+            <p class="tetr-note-helper">Puoi lasciarla vuota e aggiungerla o modificarla anche dopo aver salvato il pezzo.</p>
+
+            <div class="tetr-primary-actions">
+              <button class="tetr-save-piece" type="button" data-tetr-place>Conferma posizione</button>
+              <button class="tetr-save-note" type="button" data-save-tetr-note disabled>Salva nota</button>
+            </div>
+
+            <div class="tetr-last-piece-actions" data-last-piece-actions hidden>
+              <button type="button" data-edit-last-piece>Modifica ultimo pezzo</button>
+              <button type="button" data-remove-last-piece>Rimuovi ultimo pezzo</button>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="tetr-summary-band" aria-labelledby="tetr-summary-title">
+      <div class="tetr-summary tetr-content">
+        <div class="tetr-section-heading">
+          <div>
+            <span class="tetr-kicker">Riepilogo mensile</span>
+            <h2 id="tetr-summary-title">Le emozioni di luglio</h2>
+          </div>
+          <p>Un riepilogo descrittivo della composizione, senza valutazioni o punteggi.</p>
+        </div>
+
+        <div class="tetr-summary-top">
+          <article><span>Emozione più frequente</span><strong data-tetr-most-common>Normale / tranquilla</strong><p data-tetr-most-common-detail>3 giorni nel mese</p></article>
+          <article><span>Giorni rappresentati</span><strong data-tetr-days-count>12</strong><p>un tetramino per ogni giornata inserita</p></article>
+          <article><span>Serie più lunga</span><strong data-tetr-longest-streak>2 giorni</strong><p data-tetr-streak-detail>Normale / tranquilla</p></article>
+        </div>
+
+        <div class="tetr-summary-bars" data-tetr-summary-bars></div>
+      </div>
+    </section>
+
+    <footer class="site-footer tetr-footer">
+      <span>Bozza interattiva di Tetr-Emotion</span>
+      <a href="index.html">Torna alla homepage</a>
+    </footer>
+  </main>
+
+  <div class="tetr-confirm-overlay" data-tetr-confirm-overlay hidden>
+    <div class="tetr-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="tetr-confirm-title">
+      <span class="tetr-kicker">Conferma posizione</span>
+      <h2 id="tetr-confirm-title">Salvare il pezzo di oggi?</h2>
+      <div class="tetr-confirm-piece" data-confirm-preview></div>
+      <strong data-confirm-emotion>Produttiva</strong>
+      <p>La nota potrà essere aggiunta o modificata anche dopo il salvataggio.</p>
+      <div>
+        <button type="button" data-confirm-back>Torna indietro</button>
+        <button type="button" data-confirm-save>Conferma posizione</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="tracker-store.js?v=20260726-18"></script>
+<script src="app.js?v=20260726-18"></script>
+</body>
+</html>
