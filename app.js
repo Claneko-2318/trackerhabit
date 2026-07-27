@@ -21,6 +21,31 @@ const MEAL_LABELS = {
 
 const MEAL_ORDER = ['breakfast', 'lunch', 'dinner', 'snacks'];
 
+function trackerSettings() {
+  return Store?.getState()?.settings || {};
+}
+
+function visibleMealOrder() {
+  const food = trackerSettings().tracker?.food || {};
+  return MEAL_ORDER.filter((key) => food[key] !== false);
+}
+
+function visibleCategories() {
+  const categories = trackerSettings().tracker?.categories;
+  return Array.isArray(categories) ? categories.filter((item) => item.visible !== false && String(item.name || '').trim()) : [];
+}
+
+function categoryStyleClass(name) {
+  const category = (trackerSettings().tracker?.categories || []).find((item) => item.name === name);
+  const color = category?.color || ({ 'Lavoro': 'violet', 'Creatività': 'rose', 'Commissioni': 'sky', 'Svago': 'lilac', 'Casa': 'violet', 'Cura personale': 'periwinkle' }[name] || 'neutral');
+  return ({ rose: 'category-creativity', sky: 'category-errands', lilac: 'category-leisure', violet: 'category-house', periwinkle: 'category-personal', neutral: 'category-other' })[color] || 'category-other';
+}
+
+function isWorkCategory(name) {
+  const configured = (trackerSettings().tracker?.categories || []).find((item) => item.id === 'work')?.name;
+  return name === 'Lavoro' || Boolean(configured && name === configured);
+}
+
 const BASE_SHAPES = {
   I: [[0,0],[1,0],[2,0],[3,0]],
   O: [[0,0],[1,0],[0,1],[1,1]],
@@ -41,9 +66,23 @@ function escapeHtml(value) {
   }[character]));
 }
 
-function formatDate(value, options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) {
+function formatDate(value, options = null) {
   const date = value instanceof Date ? value : new Date(`${value}T12:00:00`);
-  return capitalizeFirstLetter(new Intl.DateTimeFormat('it-IT', options).format(date));
+  let resolved = options;
+  if (!resolved) {
+    const mode = trackerSettings().dateFormat || 'long-weekday';
+    resolved = mode === 'numeric'
+      ? { day: '2-digit', month: '2-digit', year: 'numeric' }
+      : mode === 'long'
+        ? { day: 'numeric', month: 'long', year: 'numeric' }
+        : { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+  }
+  return capitalizeFirstLetter(new Intl.DateTimeFormat('it-IT', resolved).format(date));
+}
+
+function formatClock(value = new Date()) {
+  const hour12 = trackerSettings().clockFormat === '12';
+  return new Intl.DateTimeFormat('it-IT', { hour: '2-digit', minute: '2-digit', hour12 }).format(value);
 }
 
 function parseTime(value) {
@@ -81,9 +120,11 @@ function formatWater(quarters) {
   const bottles = Math.floor(safe / 4);
   const remainder = safe % 4;
   if (!safe) return '0 borracce';
-  if (!bottles) return `${remainder}/4 di borraccia`;
+  const division = trackerSettings().waterDivision || 'quarters';
+  const fraction = division === 'halves' && remainder === 2 ? '1/2' : `${remainder}/4`;
+  if (!bottles) return `${fraction} di borraccia`;
   const word = bottles === 1 ? 'borraccia' : 'borracce';
-  return remainder ? `${bottles} ${word} + ${remainder}/4` : `${bottles} ${word}`;
+  return remainder ? `${bottles} ${word} + ${fraction}` : `${bottles} ${word}`;
 }
 
 function waterLiters(quarters, bottleMl = 750) {
@@ -134,6 +175,28 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
   return `<span class="tetromino piece-${piece} ${extraClass}" style="--piece-color:${color};--unit:${unit}px"><i></i><i></i><i></i><i></i></span>`;
 }
 
+// Applica le preferenze visive condivise in tutte le pagine.
+function applyGlobalSettings() {
+  const settings = trackerSettings();
+  const appearance = settings.appearance || {};
+  const body = document.body;
+  if (!body) return;
+  body.classList.toggle('text-mode-large', appearance.textMode === 'large');
+  body.classList.toggle('text-mode-contrast', appearance.textMode === 'contrast');
+  body.classList.toggle('decorations-light', appearance.decorations === 'light');
+  body.classList.toggle('decorations-none', appearance.decorations === 'none');
+  body.classList.toggle('tetr-borders-off', appearance.tetrBorders === false);
+  body.classList.toggle('tetr-hover-off', appearance.tetrHover === false);
+  const backgrounds = { rose: '#F7F4FA', white: '#FFFFFF', lilac: '#F2EFF8' };
+  const lineAlpha = ({ 1: .10, 2: .18, 3: .28 })[Number(appearance.tetrGridLines) || 1];
+  document.documentElement.style.setProperty('--tetr-board-surface', backgrounds[appearance.tetrGridBackground] || backgrounds.rose);
+  document.documentElement.style.setProperty('--tetr-board-line', `rgba(82,63,119,${lineAlpha})`);
+}
+applyGlobalSettings();
+window.addEventListener('tracker:data-changed', (event) => {
+  if (['settings-update', 'remote-pull', 'import', 'reset'].includes(event.detail?.reason)) applyGlobalSettings();
+});
+
 // Orologio e data della homepage.
 (() => {
   const dateElement = document.querySelector('[data-current-date]');
@@ -149,10 +212,11 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     if (dayElement) dayElement.textContent = String(now.getDate()).padStart(2, '0');
     if (weekdayElement) weekdayElement.textContent = formatDate(now, { weekday: 'long' });
     if (monthYearElement) monthYearElement.textContent = formatDate(now, { month: 'long', year: 'numeric' });
-    if (timeElement) timeElement.textContent = new Intl.DateTimeFormat('it-IT', { hour: '2-digit', minute: '2-digit' }).format(now);
+    if (timeElement) timeElement.textContent = formatClock(now);
   }
   updateClock();
   window.setInterval(updateClock, 30000);
+  window.addEventListener('tracker:data-changed', (event) => { if (event.detail?.reason === 'settings-update') updateClock(); });
 })();
 
 // Atmosfera automatica della homepage.
@@ -166,9 +230,18 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     hero.classList.remove('scene-morning', 'scene-afternoon', 'scene-evening', 'scene-night');
     hero.classList.add(`scene-${scene}`);
     hero.dataset.heroScene = scene;
+    const strength = Math.max(.30, Math.min(.85, Number(appearance.gradient || 62) / 100));
+    const palette = {
+      morning: [[42,35,65],[74,56,74],[41,30,59]],
+      afternoon: [[25,15,42],[35,22,55],[24,15,40]],
+      evening: [[38,20,53],[91,48,76],[35,21,50]],
+      night: [[18,18,47],[25,28,66],[14,17,44]]
+    }[scene];
+    hero.style.backgroundImage = `linear-gradient(90deg, rgba(${palette[0].join(',')},${strength}) 0%, rgba(${palette[1].join(',')},${Math.max(.08, strength * .28)}) 52%, rgba(${palette[2].join(',')},${Math.max(.22, strength * .62)}) 100%), linear-gradient(0deg, rgba(${palette[0].join(',')},${Math.max(.34, strength * .92)}) 0%, rgba(${palette[0].join(',')},.02) 52%), url("assets/hero-room.png")`;
   };
   applyScene();
   window.setInterval(applyScene, 60000);
+  window.addEventListener('tracker:data-changed', (event) => { if (event.detail?.reason === 'settings-update') applyScene(); });
 })();
 
 // Meteo della homepage tramite Open-Meteo.
@@ -181,6 +254,7 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     61: 'Pioggia leggera', 63: 'Pioggia', 65: 'Pioggia intensa', 71: 'Neve leggera', 73: 'Neve', 75: 'Neve intensa',
     80: 'Rovesci leggeri', 81: 'Rovesci', 82: 'Rovesci intensi', 95: 'Temporale', 96: 'Temporale con grandine', 99: 'Temporale forte'
   };
+  let refreshTimer = null;
   async function loadWeather() {
     const settings = Store.getState().settings;
     if (settings.home.weather === false) { card.hidden = true; return; }
@@ -193,21 +267,31 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
       const geo = await geoResponse.json();
       const place = geo.results?.[0];
       if (!place) throw new Error('Località non trovata');
-      const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&forecast_days=1&timezone=auto`);
+      const unit = settings.weatherUnit === 'fahrenheit' ? 'fahrenheit' : 'celsius';
+      const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&forecast_days=1&timezone=auto&temperature_unit=${unit}`);
       const weather = await weatherResponse.json();
       card.querySelector('.weather-location').textContent = [place.name, place.country].filter(Boolean).join(', ');
-      card.querySelector('.weather-temp').textContent = `${Math.round(weather.current?.temperature_2m)}°`;
+      const unitSymbol = settings.weatherUnit === 'fahrenheit' ? '°F' : '°C';
+      card.querySelector('.weather-temp').textContent = `${Math.round(weather.current?.temperature_2m)}${unitSymbol}`;
       card.querySelector('.weather-status').textContent = descriptions[weather.current?.weather_code] || 'Condizioni aggiornate';
       const bottom = card.querySelectorAll('.weather-bottom span');
-      if (bottom[0]) bottom[0].textContent = `Min ${Math.round(weather.daily?.temperature_2m_min?.[0])}°`;
-      if (bottom[1]) bottom[1].textContent = `Max ${Math.round(weather.daily?.temperature_2m_max?.[0])}°`;
+      if (bottom[0]) bottom[0].textContent = `Min ${Math.round(weather.daily?.temperature_2m_min?.[0])}${unitSymbol}`;
+      if (bottom[1]) bottom[1].textContent = `Max ${Math.round(weather.daily?.temperature_2m_max?.[0])}${unitSymbol}`;
     } catch (error) {
       card.querySelector('.weather-temp').textContent = '—°';
       card.querySelector('.weather-status').textContent = 'Meteo non disponibile';
     }
   }
+  function scheduleWeather() {
+    window.clearInterval(refreshTimer);
+    const refresh = trackerSettings().weatherRefresh || '60';
+    if (refresh !== 'open') refreshTimer = window.setInterval(loadWeather, Number(refresh) * 60 * 1000);
+  }
   loadWeather();
-  window.addEventListener('tracker:data-changed', (event) => { if (event.detail?.reason === 'settings-update') loadWeather(); });
+  scheduleWeather();
+  window.addEventListener('tracker:data-changed', (event) => {
+    if (event.detail?.reason === 'settings-update') { loadWeather(); scheduleWeather(); }
+  });
 })();
 
 // La mia giornata.
@@ -234,6 +318,25 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
   };
 
   function key() { return Store.dateKey(selectedDate); }
+  function renderCategoryControls() {
+    const categories = visibleCategories();
+    const select = form?.elements.category;
+    if (select) {
+      const previous = select.value;
+      select.innerHTML = categories.map((item) => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</option>`).join('');
+      if (!select.options.length) select.innerHTML = '<option value="Altro">Altro</option>';
+      if ([...select.options].some((option) => option.value === previous)) select.value = previous;
+    }
+    const filters = page.querySelector('.activity-filter');
+    if (filters) {
+      const active = filters.querySelector('.active')?.dataset.filter || 'Tutte';
+      filters.innerHTML = `<button class="filter-chip${active === 'Tutte' ? ' active' : ''}" type="button" data-filter="Tutte">Tutte</button>${categories.map((item) => `<button class="filter-chip${active === item.name ? ' active' : ''}" type="button" data-filter="${escapeHtml(item.name)}">${escapeHtml(item.name)}</button>`).join('')}`;
+      filters.querySelectorAll('[data-filter]').forEach((button) => button.addEventListener('click', () => {
+        filters.querySelectorAll('[data-filter]').forEach((item) => item.classList.toggle('active', item === button));
+        applyFilter();
+      }));
+    }
+  }
   function renderDate() {
     page.querySelector('[data-selected-weekday]').textContent = formatDate(selectedDate, { weekday: 'long' });
     page.querySelector('[data-selected-date]').textContent = formatDate(selectedDate, { day: 'numeric', month: 'long', year: 'numeric' });
@@ -252,7 +355,7 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
       article.dataset.category = activity.category || 'Altro';
       article.dataset.duration = String(activity.duration || 0);
       article.dataset.activityId = activity.id;
-      const categoryClass = categoryClassMap[activity.category] || 'category-other';
+      const categoryClass = categoryStyleClass(activity.category);
       article.innerHTML = `
         <div class="activity-time"><strong>${escapeHtml(activity.time || '—')}</strong><span>${Number(activity.duration) ? formatMinutes(activity.duration) : 'Senza durata'}</span></div>
         <span class="timeline-dot ${categoryClass}" aria-hidden="true"></span>
@@ -295,6 +398,7 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     editingId = null;
     if (form) form.reset();
     if (submitButton) submitButton.innerHTML = 'Aggiungi attività <span>＋</span>';
+    renderCategoryControls();
     renderDate();
     renderList();
     if (feedback) feedback.textContent = dayHasData(Store.getDay(key())) ? 'Dati caricati per la giornata selezionata.' : 'Questa giornata non contiene ancora attività.';
@@ -306,10 +410,6 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     loadDay();
   }));
   page.querySelector('[data-date-today]')?.addEventListener('click', () => { selectedDate = new Date(); loadDay(); });
-  page.querySelectorAll('[data-filter]').forEach((button) => button.addEventListener('click', () => {
-    page.querySelectorAll('[data-filter]').forEach((item) => item.classList.toggle('active', item === button));
-    applyFilter();
-  }));
 
   form?.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -369,6 +469,9 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
   });
 
   loadDay();
+  window.addEventListener('tracker:data-changed', (event) => {
+    if (['settings-update', 'remote-pull', 'import', 'reset'].includes(event.detail?.reason)) loadDay();
+  });
 })();
 
 // Sonno.
@@ -379,6 +482,37 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
   const form = page.querySelector('[data-sleep-form]');
   const awakeningList = page.querySelector('[data-awakening-list]');
   const feedback = page.querySelector('[data-sleep-feedback]');
+
+  function setSleepElementVisible(element, visible) {
+    if (!element) return;
+    element.hidden = !visible;
+    element.classList.toggle('is-setting-hidden', !visible);
+    element.setAttribute('aria-hidden', String(!visible));
+  }
+
+  function applySleepSettings() {
+    const settings = trackerSettings().tracker?.sleep || {};
+    const showAsleep = settings.asleep !== false;
+    const showRiseDelay = settings.riseDelay !== false;
+    const showAwakenings = settings.awakenings !== false;
+    const showQuality = settings.quality !== false;
+    const asleepLabel = form?.elements.asleep?.closest('label');
+    const upLabel = form?.elements.up?.closest('label');
+    const awakeningsCard = page.querySelector('.sleep-awakenings-card');
+    const qualityScale = page.querySelector('.quality-scale');
+    const qualityHeading = page.querySelector('.sleep-quality-card h3');
+    setSleepElementVisible(asleepLabel, showAsleep);
+    setSleepElementVisible(upLabel, showRiseDelay);
+    setSleepElementVisible(awakeningsCard, showAwakenings);
+    setSleepElementVisible(qualityScale, showQuality);
+    if (qualityHeading) qualityHeading.textContent = showQuality ? 'Come hai dormito?' : 'Nota sul sonno';
+    const summaryCards = [...page.querySelectorAll('.sleep-summary-card')];
+    setSleepElementVisible(summaryCards[1], showRiseDelay);
+    setSleepElementVisible(summaryCards[2], showRiseDelay);
+    setSleepElementVisible(summaryCards[3], showAwakenings);
+    const insightRows = page.querySelectorAll('.sleep-insight-list > div');
+    setSleepElementVisible(insightRows[2], showQuality);
+  }
 
   function key() { return Store.dateKey(selectedDate); }
   function renderDate() {
@@ -406,11 +540,12 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
   }
 
   function sleepCalculations() {
+    const settings = trackerSettings().tracker?.sleep || {};
     const bedtime = form.elements.bedtime.value;
-    const asleep = form.elements.asleep.value || bedtime;
+    const asleep = settings.asleep === false ? bedtime : (form.elements.asleep.value || bedtime);
     const wake = form.elements.wake.value;
-    const up = form.elements.up.value || wake;
-    const awakeningMinutes = awakeningsFromForm().reduce((sum, item) => sum + item.duration, 0);
+    const up = settings.riseDelay === false ? wake : (form.elements.up.value || wake);
+    const awakeningMinutes = settings.awakenings === false ? 0 : awakeningsFromForm().reduce((sum, item) => sum + item.duration, 0);
     const baseSleep = timeDifference(asleep, wake);
     return {
       duration: baseSleep === null ? null : Math.max(0, baseSleep - awakeningMinutes),
@@ -524,6 +659,7 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     form.querySelectorAll('input[name="quality"]').forEach((radio) => { radio.checked = String(radio.value) === String(values.quality || ''); });
     form.elements.sleepNote.value = values.note || '';
     (values.awakenings || []).forEach((item) => awakeningList.append(awakeningRow(item)));
+    applySleepSettings();
     renderDate();
     updateSummary();
     feedback.textContent = sleep ? 'Notte caricata. Puoi modificarla e salvarla di nuovo.' : 'Nessun dato salvato per questa notte.';
@@ -569,6 +705,9 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
   page.querySelectorAll('[data-sleep-date-shift]').forEach((button) => button.addEventListener('click', () => { selectedDate.setDate(selectedDate.getDate() + Number(button.dataset.sleepDateShift)); loadDay(); }));
   page.querySelector('[data-sleep-today]')?.addEventListener('click', () => { selectedDate = new Date(); loadDay(); });
   loadDay();
+  window.addEventListener('tracker:data-changed', (event) => {
+    if (['settings-update', 'remote-pull', 'import', 'reset'].includes(event.detail?.reason)) loadDay();
+  });
 })();
 
 // Cibo e acqua.
@@ -578,16 +717,52 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
   let selectedDate = dateFromQuery();
   const mealCards = [...page.querySelectorAll('[data-meal-card]')];
   const waterHistory = page.querySelector('[data-water-history]');
-  const bottleMl = Number(Store.getState().settings.bottleMl) || 750;
-  const quarterMl = bottleMl / 4;
+  const bottleMl = () => Number(Store.getState().settings.bottleMl) || 750;
+  const quarterMl = () => bottleMl() / 4;
+
+  function applyFoodSettings() {
+    const settings = trackerSettings();
+    const food = settings.tracker?.food || {};
+    mealCards.forEach((card) => { card.hidden = food[mealKey(card.dataset.mealName)] === false; });
+    const mealsColumn = page.querySelector('.meals-column');
+    if (mealsColumn) mealsColumn.hidden = !visibleMealOrder().length;
+    const showEquivalence = settings.showWaterEquivalence !== false;
+    page.querySelectorAll('[data-water-ml-short], [data-water-liters], .water-actions button span').forEach((element) => { element.hidden = !showEquivalence; });
+    const capacity = page.querySelector('.bottle-capacity');
+    if (capacity) capacity.textContent = `${bottleMl()} ml`;
+    const buttons = [...page.querySelectorAll('[data-water-add]')];
+    const division = settings.waterDivision || 'quarters';
+    if (division === 'halves') {
+      const values = [2, 4];
+      buttons.forEach((button, index) => {
+        button.hidden = index > 1;
+        if (index <= 1) {
+          button.dataset.waterAdd = String(values[index]);
+          button.querySelector('strong').textContent = index === 0 ? '+ 1/2' : '+ 1 borraccia';
+          const detail = button.querySelector('span');
+          if (detail) detail.textContent = `${Math.round(values[index] * quarterMl())} ml`;
+        }
+      });
+    } else {
+      const values = [1, 2, 3, 4];
+      buttons.forEach((button, index) => {
+        button.hidden = false;
+        button.dataset.waterAdd = String(values[index]);
+        button.querySelector('strong').textContent = index === 3 ? '+ 1 borraccia' : `+ ${values[index]}/4`;
+        const detail = button.querySelector('span');
+        if (detail) detail.textContent = `${[0, 2].includes(index) ? 'circa ' : ''}${Math.round(values[index] * quarterMl())} ml`;
+      });
+    }
+  }
 
   function key() { return Store.dateKey(selectedDate); }
   function mealKey(name) {
     return ({ Colazione: 'breakfast', Pranzo: 'lunch', Cena: 'dinner', Spuntino: 'snacks' })[name] || String(name).toLowerCase();
   }
   function formatEntry(quarters) {
-    const ml = Math.round(quarters * quarterMl);
-    return quarters === 4 ? `1 borraccia · ${ml} ml` : `${quarters}/4 · circa ${ml} ml`;
+    const ml = Math.round(quarters * quarterMl());
+    const base = quarters === 4 ? '1 borraccia' : formatWater(quarters);
+    return trackerSettings().showWaterEquivalence === false ? base : `${base} · circa ${ml} ml`;
   }
   function renderDate() {
     page.querySelector('[data-food-weekday]').textContent = formatDate(selectedDate, { weekday: 'long' });
@@ -617,14 +792,15 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     updateSummary(day);
   }
   function updateSummary(day = Store.getDay(key())) {
-    const meals = Object.entries(day.meals || {}).filter(([, value]) => String(value).trim());
+    const allowedMeals = visibleMealOrder();
+    const meals = Object.entries(day.meals || {}).filter(([meal, value]) => allowedMeals.includes(meal) && String(value).trim());
     const quarters = waterQuarters(day);
     page.querySelector('[data-meal-count]').textContent = String(meals.length);
     page.querySelector('[data-last-meal]').textContent = meals.at(-1)?.[0] ? ({ breakfast: 'Colazione', lunch: 'Pranzo', dinner: 'Cena', snacks: 'Spuntino' }[meals.at(-1)[0]] || '—') : '—';
     page.querySelector('[data-water-total]').textContent = formatWater(quarters);
     page.querySelector('[data-water-short]').textContent = quarters ? (quarters % 4 ? `${Math.floor(quarters / 4)} + ${quarters % 4}/4` : String(quarters / 4)) : '0';
-    page.querySelector('[data-water-liters]').textContent = `circa ${waterLiters(quarters, bottleMl)}`;
-    page.querySelector('[data-water-ml-short]').textContent = `circa ${waterLiters(quarters, bottleMl)}`;
+    page.querySelector('[data-water-liters]').textContent = `circa ${waterLiters(quarters, bottleMl())}`;
+    page.querySelector('[data-water-ml-short]').textContent = `circa ${waterLiters(quarters, bottleMl())}`;
     const last = day.water?.at(-1);
     page.querySelector('[data-last-water]').textContent = last ? formatEntry(last.quarters) : '—';
     const complete = Math.floor(quarters / 4);
@@ -664,7 +840,8 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
       waterBars.setAttribute('aria-label', `Borracce bevute nei sette giorni fino al ${formatDate(selectedDate, { day: 'numeric', month: 'long' })}`);
     }
 
-    const mealTotal = records.reduce((total, { day }) => total + MEAL_ORDER.filter((meal) => String(day.meals?.[meal] || '').trim()).length, 0);
+    const mealKeys = visibleMealOrder();
+    const mealTotal = records.reduce((total, { day }) => total + mealKeys.filter((meal) => String(day.meals?.[meal] || '').trim()).length, 0);
     const mealHeading = page.querySelector('.meal-week-card .week-card-heading > span');
     if (mealHeading) mealHeading.textContent = `${mealTotal} ${mealTotal === 1 ? 'registrazione' : 'registrazioni'}`;
 
@@ -672,19 +849,22 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     if (mealTable) {
       const rows = records.map(({ date, key: dateKeyValue, day }) => {
         const dayLabel = capitalizeFirstLetter(new Intl.DateTimeFormat('it-IT', { weekday: 'short' }).format(date).replace('.', ''));
-        const cells = MEAL_ORDER.map((meal) => String(day.meals?.[meal] || '').trim() ? '✓' : '—');
+        const cells = mealKeys.map((meal) => String(day.meals?.[meal] || '').trim() ? '✓' : '—');
         return `<div class="meal-week-row${dateKeyValue === key() ? ' active' : ''}" role="row"><strong>${dayLabel}</strong>${cells.map((cell) => `<i>${cell}</i>`).join('')}</div>`;
       }).join('');
-      mealTable.innerHTML = `<div class="meal-week-row meal-week-head" role="row"><span>Giorno</span><span>Col.</span><span>Pranzo</span><span>Cena</span><span>Snack</span></div>${rows}`;
+      const shortLabels = { breakfast: 'Col.', lunch: 'Pranzo', dinner: 'Cena', snacks: 'Snack' };
+      mealTable.style.setProperty('--meal-columns', String(mealKeys.length));
+      mealTable.innerHTML = `<div class="meal-week-row meal-week-head" role="row"><span>Giorno</span>${mealKeys.map((meal) => `<span>${shortLabels[meal]}</span>`).join('')}</div>${rows}`;
       mealTable.setAttribute('aria-label', `Pasti registrati nei sette giorni fino al ${formatDate(selectedDate, { day: 'numeric', month: 'long' })}`);
     }
   }
 
   function loadDay() {
     const day = Store.getDay(key());
+    applyFoodSettings();
     renderDate(); renderMeals(day); renderWater(day); renderWeeklyStats();
     page.querySelector('[data-meal-feedback]').textContent = dayHasData(day) ? 'Dati caricati e pronti per essere aggiornati.' : 'Nessun pasto registrato per questa giornata.';
-    page.querySelector('[data-water-feedback]').textContent = `Ogni quarto corrisponde a ${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(quarterMl)} ml.`;
+    page.querySelector('[data-water-feedback]').textContent = `${trackerSettings().waterDivision === 'halves' ? 'Ogni metà' : 'Ogni quarto'} corrisponde a ${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(trackerSettings().waterDivision === 'halves' ? quarterMl() * 2 : quarterMl())} ml.`;
   }
 
   mealCards.forEach((card) => card.querySelector('[data-save-meal]')?.addEventListener('click', () => {
@@ -714,6 +894,9 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
   page.querySelectorAll('[data-food-date-shift]').forEach((button) => button.addEventListener('click', () => { selectedDate.setDate(selectedDate.getDate() + Number(button.dataset.foodDateShift)); loadDay(); }));
   page.querySelector('[data-food-today]')?.addEventListener('click', () => { selectedDate = new Date(); loadDay(); });
   loadDay();
+  window.addEventListener('tracker:data-changed', (event) => {
+    if (['settings-update', 'remote-pull', 'import', 'reset'].includes(event.detail?.reason)) loadDay();
+  });
 })();
 
 // Tetr-Emotion.
@@ -741,6 +924,20 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
   const lastPieceActions = page.querySelector('[data-last-piece-actions]');
   const nextDayButton = page.querySelector('[data-tetr-day-shift="1"]');
   if (!boardElement) return;
+
+  const tetrSettings = () => trackerSettings().tracker?.tetr || {};
+  function applyTetrSettings() {
+    const settings = tetrSettings();
+    const noteLabel = noteField?.closest('.tetr-note-field');
+    const noteHelper = page.querySelector('.tetr-note-helper');
+    if (noteLabel) noteLabel.hidden = settings.note === false;
+    if (noteHelper) noteHelper.hidden = settings.note === false;
+    if (noteSaveButton) noteSaveButton.hidden = settings.note === false;
+    const modeCopy = settings.keyboard === false
+      ? 'Clicca una colonna per scegliere la posizione. Doppio clic per ruotare e usa il pulsante per confermare.'
+      : 'Clicca una colonna per scegliere la posizione. Doppio clic per ruotare e premi Invio per confermare.';
+    if (currentPieceCopy && current) currentPieceCopy.textContent = modeCopy;
+  }
 
   const today = new Date();
   today.setHours(12, 0, 0, 0);
@@ -841,7 +1038,7 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     syncEmotionSelection(emotionKey);
     if (!preserveNote) noteField.value = '';
     currentEmotionLabel.textContent = emotion.label;
-    currentPieceCopy.textContent = 'Clicca una colonna per scegliere la posizione. Doppio clic per ruotare e premi Invio per confermare.';
+    currentPieceCopy.textContent = tetrSettings().keyboard === false ? 'Clicca una colonna per scegliere la posizione. Doppio clic per ruotare e usa il pulsante per confermare.' : 'Clicca una colonna per scegliere la posizione. Doppio clic per ruotare e premi Invio per confermare.';
     confirmEmotion.textContent = emotion.label;
     buildMini(confirmPreview, emotion.piece, emotion.color);
     placeButton.disabled = false;
@@ -870,9 +1067,10 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
           cell.dataset.date = locked.date;
           const dateLabel = formatDate(locked.date, { weekday: 'long', day: 'numeric', month: 'long' });
           cell.dataset.tooltip = `${dateLabel}|${locked.label}|Tetramino ${locked.piece}${locked.note ? `|${locked.note}` : ''}`;
+          if (locked.date === todayKey && tetrSettings().highlightToday !== false) cell.classList.add('is-today-piece');
         } else if (current && currentCells.has(key)) {
           cell.classList.add('is-current'); cell.style.setProperty('--cell-color', EMOTIONS[current.emotionKey].color);
-        } else if (current && ghostCells.has(key)) {
+        } else if (current && ghostCells.has(key) && tetrSettings().ghost !== false) {
           cell.classList.add('is-ghost'); cell.style.setProperty('--cell-color', EMOTIONS[current.emotionKey].color);
         }
         boardElement.append(cell);
@@ -919,6 +1117,7 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
 
   function initializeDay() {
     current = null;
+    applyTetrSettings();
     loadBoard();
     renderLabels();
     renderBoard();
@@ -1012,7 +1211,7 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     }
   });
   boardElement.addEventListener('dblclick', (event) => { if (event.target.closest('.tetr-cell') && current) { event.preventDefault(); rotateCurrent(); } });
-  placeButton.addEventListener('click', openConfirmation);
+  placeButton.addEventListener('click', () => { if (tetrSettings().confirm === false) lockCurrent(); else openConfirmation(); });
   noteSaveButton.addEventListener('click', updateNote);
   page.querySelector('[data-confirm-back]').addEventListener('click', () => { confirmOverlay.hidden = true; });
   confirmSaveButton.addEventListener('click', lockCurrent);
@@ -1027,7 +1226,7 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
   boardElement.addEventListener('mousemove', (event) => {
     const cell = event.target.closest('.tetr-cell[data-tooltip]');
     if (!cell) { highlightWholePiece(null); tooltip.hidden = true; return; }
-    highlightWholePiece(cell.dataset.pieceId);
+    if (trackerSettings().appearance?.tetrHover !== false) highlightWholePiece(cell.dataset.pieceId); else highlightWholePiece(null);
     const parts = cell.dataset.tooltip.split('|');
     tooltip.innerHTML = `<strong>${parts[0]}</strong><span>${parts[1]} · ${parts[2]}</span>${parts[3] ? `<span class="tetr-tooltip-note">${escapeHtml(parts[3])}</span>` : ''}`;
     tooltip.hidden = false; tooltip.style.left = `${event.clientX + 16}px`; tooltip.style.top = `${event.clientY + 16}px`;
@@ -1054,16 +1253,16 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     initializeDay();
   });
   document.addEventListener('keydown', (event) => {
-    if (event.target.matches('input, textarea, select, button') || !current || !confirmOverlay.hidden) return;
+    if (tetrSettings().keyboard === false || event.target.matches('input, textarea, select, button') || !current || !confirmOverlay.hidden) return;
     if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'Enter'].includes(event.key)) event.preventDefault();
     if (event.key === 'ArrowLeft') moveCurrent(-1);
     if (event.key === 'ArrowRight') moveCurrent(1);
     if (event.key === 'ArrowUp') rotateCurrent();
-    if (event.key === 'Enter') openConfirmation();
+    if (event.key === 'Enter') { if (tetrSettings().confirm === false) lockCurrent(); else openConfirmation(); }
   });
   initializeDay();
   window.addEventListener('tracker:data-changed', (event) => {
-    if (['remote-pull', 'import', 'reset'].includes(event.detail?.reason)) initializeDay();
+    if (['settings-update', 'remote-pull', 'import', 'reset'].includes(event.detail?.reason)) initializeDay();
   });
 })();
 
@@ -1219,7 +1418,7 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
 
   const average = (values) => values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
   function workMinutes(day) {
-    return (day.activities || []).filter((item) => item.category === 'Lavoro').reduce((sum, item) => sum + (Number(item.duration) || 0), 0);
+    return (day.activities || []).filter((item) => isWorkCategory(item.category)).reduce((sum, item) => sum + (Number(item.duration) || 0), 0);
   }
   function activityMinutes(day) {
     return (day.activities || []).reduce((sum, item) => sum + (Number(item.duration) || 0), 0);
@@ -1278,8 +1477,9 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     container.innerHTML = '';
     const first = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
     const daysInMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getDate();
-    const mondayOffset = (first.getDay() + 6) % 7;
-    for (let i = 0; i < mondayOffset; i += 1) {
+    const weekStartsSunday = trackerSettings().weekStart === 'sunday';
+    const calendarOffset = weekStartsSunday ? first.getDay() : (first.getDay() + 6) % 7;
+    for (let i = 0; i < calendarOffset; i += 1) {
       const empty = document.createElement('span'); empty.className = 'stats-heat-cell is-empty'; container.append(empty);
     }
     for (let dayNumber = 1; dayNumber <= daysInMonth; dayNumber += 1) {
@@ -1436,6 +1636,13 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
   }
 
   function render() {
+    const settings = trackerSettings();
+    const showWork = settings.tracker?.showWorkInStats !== false;
+    page.querySelector('.summary-work')?.toggleAttribute('hidden', !showWork);
+    const habitCards = [...page.querySelectorAll('.stats-habit-card')];
+    if (habitCards[2]) habitCards[2].hidden = !showWork;
+    const weekdayLabels = settings.weekStart === 'sunday' ? ['D','L','M','M','G','V','S'] : ['L','M','M','G','V','S','D'];
+    page.querySelectorAll('.stats-week-labels').forEach((holder) => { holder.innerHTML = weekdayLabels.map((label) => `<span>${label}</span>`).join(''); });
     const range = getDateRange(periodSelect.value);
     const days = Store.daysInRange(range.startKey, range.endKey);
     const current = calculate(days);
@@ -1533,7 +1740,7 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
   const list = page.querySelector('[data-archive-list]');
   const search = page.querySelector('[data-archive-search]');
 
-  function workMinutes(day) { return (day.activities || []).filter((item) => item.category === 'Lavoro').reduce((sum, item) => sum + (Number(item.duration) || 0), 0); }
+  function workMinutes(day) { return (day.activities || []).filter((item) => isWorkCategory(item.category)).reduce((sum, item) => sum + (Number(item.duration) || 0), 0); }
   function matches(day) {
     const query = search.value.trim().toLowerCase();
     const hasFilter = activeFilter === 'all' || (activeFilter === 'sleep' && day.sleep) || (activeFilter === 'food' && (Object.values(day.meals || {}).some(Boolean) || day.water.length)) || (activeFilter === 'day' && (day.activities.length || day.dailyNote)) || (activeFilter === 'tetr' && day.tetr);
@@ -1545,9 +1752,11 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
   function renderMonthLabel() { page.querySelector('[data-archive-month-label]').textContent = formatDate(selectedMonth, { month: 'long', year: 'numeric' }); }
   function renderCalendar() {
     calendar.innerHTML = '';
-    ['Lun','Mar','Mer','Gio','Ven','Sab','Dom'].forEach((label) => { const head = document.createElement('span'); head.className = 'archive-weekday'; head.textContent = label; calendar.append(head); });
+    const weekStartsSunday = trackerSettings().weekStart === 'sunday';
+    const weekdays = weekStartsSunday ? ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'] : ['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+    weekdays.forEach((label) => { const head = document.createElement('span'); head.className = 'archive-weekday'; head.textContent = label; calendar.append(head); });
     const first = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
-    const offset = (first.getDay() + 6) % 7;
+    const offset = weekStartsSunday ? first.getDay() : (first.getDay() + 6) % 7;
     for (let i = 0; i < offset; i += 1) { const empty = document.createElement('span'); empty.className = 'archive-day is-empty'; calendar.append(empty); }
     const count = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0).getDate();
     let results = 0;
@@ -1593,7 +1802,13 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
       : '<div class="archive-meal"><strong>Nessun pasto registrato</strong><p>Per questa giornata non hai ancora annotato cosa hai mangiato.</p></div>';
     page.querySelector('[data-detail-activity-count]').textContent = String(day.activities.length);
     page.querySelector('[data-detail-work]').textContent = formatMinutes(workMinutes(day));
-    const activities = page.querySelector('[data-detail-activities]'); activities.innerHTML = day.activities.length ? day.activities.map((item) => `<li><span>${escapeHtml(item.title)}</span><strong>${item.duration ? formatMinutes(item.duration) : item.category}</strong></li>`).join('') : '<li><span>Nessuna attività</span><strong>—</strong></li>';
+    const activities = page.querySelector('[data-detail-activities]');
+    activities.innerHTML = day.activities.length ? day.activities.map((item) => {
+      const categoryClass = categoryStyleClass(item.category || 'Altro');
+      const meta = [item.category || 'Altro', item.note].filter(Boolean).map(escapeHtml).join(' · ');
+      const duration = item.duration ? formatMinutes(item.duration) : (item.time || 'Senza durata');
+      return `<div class="archive-activity"><span class="archive-activity-dot ${categoryClass}" aria-hidden="true"></span><div><strong>${escapeHtml(item.title)}</strong><p>${meta || 'Nessun dettaglio aggiunto'}</p></div><span>${escapeHtml(duration)}</span></div>`;
+    }).join('') : '<div class="archive-activity archive-activity-empty"><span class="archive-activity-dot category-other" aria-hidden="true"></span><div><strong>Nessuna attività</strong><p>Non ci sono attività registrate per questa giornata.</p></div><span>—</span></div>';
     page.querySelector('[data-detail-note]').textContent = day.dailyNote || 'Nessuna nota salvata.';
     const emotion = day.tetr ? EMOTIONS[day.tetr.emotionKey] : null;
     page.querySelector('[data-detail-tetr-emotion]').textContent = emotion?.label || '—';
@@ -1624,7 +1839,7 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
   window.addEventListener('tracker:data-changed', renderAll);
 })();
 
-// Impostazioni, esportazione JSON e collegamento a Google Sheets.
+// Impostazioni dinamiche, esportazione JSON e collegamento a Google Sheets.
 (() => {
   const page = document.querySelector('.settings-page');
   if (!page) return;
@@ -1634,6 +1849,9 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
   const dataFeedback = page.querySelector('[data-data-feedback]');
   const connectionUrl = page.querySelector('[data-connection-url]');
   const connectionStatus = page.querySelector('[data-connection-status]');
+  const categoryList = page.querySelector('[data-category-list]');
+  const categoryColors = ['rose', 'sky', 'lilac', 'violet', 'periwinkle', 'neutral'];
+  const categoryIcons = ['✦', '⌖', '☾', '⌂', '♡', '•'];
 
   tabs.forEach((tab) => tab.addEventListener('click', () => {
     tabs.forEach((item) => { const active = item === tab; item.classList.toggle('active', active); item.setAttribute('aria-selected', String(active)); });
@@ -1643,67 +1861,209 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
   const sceneMeta = { morning: ['Mattina', '05:00 — 11:59'], afternoon: ['Pomeriggio', '12:00 — 17:59'], evening: ['Sera', '18:00 — 21:59'], night: ['Notte', '22:00 — 04:59'] };
   const scenePreview = page.querySelector('[data-scene-preview]');
   const autoScenes = page.querySelector('[data-auto-scenes]');
-  let chosenScene = Store.getState().settings.appearance.scene || 'afternoon';
-  function currentScene() { const h = new Date().getHours(); return h >= 5 && h < 12 ? 'morning' : h < 18 ? 'afternoon' : h < 22 ? 'evening' : 'night'; }
+  const gradient = page.querySelector('[data-gradient-range]');
+  const tetrLines = page.querySelector('[data-setting-tetr-lines]');
+  let chosenScene = trackerSettings().appearance?.scene || 'afternoon';
+  const currentScene = () => { const h = new Date().getHours(); return h >= 5 && h < 12 ? 'morning' : h < 18 ? 'afternoon' : h < 22 ? 'evening' : 'night'; };
+
   function renderScene(scene) {
     chosenScene = scene;
-    scenePreview.classList.remove('scene-morning','scene-afternoon','scene-evening','scene-night'); scenePreview.classList.add(`scene-${scene}`);
-    page.querySelector('[data-scene-period]').textContent = sceneMeta[scene][0]; page.querySelector('[data-scene-time-range]').textContent = sceneMeta[scene][1];
+    scenePreview?.classList.remove('scene-morning','scene-afternoon','scene-evening','scene-night');
+    scenePreview?.classList.add(`scene-${scene}`);
+    page.querySelector('[data-scene-period]').textContent = sceneMeta[scene][0];
+    page.querySelector('[data-scene-time-range]').textContent = sceneMeta[scene][1];
     page.querySelectorAll('[data-scene-choice]').forEach((button) => button.classList.toggle('active', button.dataset.sceneChoice === scene));
   }
-  page.querySelectorAll('[data-scene-choice]').forEach((button) => button.addEventListener('click', () => { autoScenes.checked = false; renderScene(button.dataset.sceneChoice); }));
-  autoScenes.addEventListener('change', () => { if (autoScenes.checked) renderScene(currentScene()); });
 
-  const gradient = page.querySelector('[data-gradient-range]');
   function renderGradient() {
     page.querySelector('[data-gradient-value]').textContent = `${gradient.value}%`;
     page.querySelector('[data-gradient-sample]').style.backgroundImage = `linear-gradient(0deg, rgba(38,25,56,${Number(gradient.value) / 100}), rgba(38,25,56,.03)), url("assets/hero-room.png")`;
   }
+
+  function renderTetrPreview() {
+    const value = Number(tetrLines?.value || 1);
+    const labels = { 1: 'Leggera', 2: 'Media', 3: 'Marcata' };
+    const label = page.querySelector('[data-tetr-lines-label]');
+    if (label) label.textContent = labels[value];
+    const preview = page.querySelector('.settings-tetr-preview');
+    if (preview) {
+      const bg = page.querySelector('[data-setting-tetr-bg]')?.value || 'rose';
+      const backgrounds = { rose: '#F7F4FA', white: '#FFFFFF', lilac: '#F2EFF8' };
+      preview.style.setProperty('--preview-grid-background', backgrounds[bg]);
+      preview.style.setProperty('--preview-grid-line', `rgba(82,63,119,${({1:.10,2:.18,3:.28})[value]})`);
+    }
+  }
+
+  function categoryRow(item, index) {
+    const color = item.color || categoryColors[index % categoryColors.length];
+    const icon = item.icon || categoryIcons[index % categoryIcons.length];
+    const row = document.createElement('div');
+    row.className = 'category-setting-row';
+    row.dataset.categoryId = item.id || `custom-${Date.now()}-${index}`;
+    row.dataset.categoryColor = color;
+    row.dataset.categoryIcon = icon;
+    row.innerHTML = `<span class="category-color color-${color}"></span><input type="text" value="${escapeHtml(item.name || 'Nuova categoria')}" data-category-name><span class="category-icon">${escapeHtml(icon)}</span><label class="settings-switch-row compact"><span><strong>Visibile</strong></span><input type="checkbox" data-category-visible${item.visible === false ? '' : ' checked'}><i aria-hidden="true"></i></label><button type="button" class="category-remove" aria-label="Rimuovi categoria">×</button>`;
+    return row;
+  }
+
+  function renderCategories(categories) {
+    categoryList.innerHTML = '';
+    categories.forEach((item, index) => categoryList.append(categoryRow(item, index)));
+  }
+
+  function readCategories() {
+    return [...categoryList.querySelectorAll('.category-setting-row')].map((row, index) => ({
+      id: row.dataset.categoryId || `category-${index + 1}`,
+      name: row.querySelector('[data-category-name]').value.trim() || `Categoria ${index + 1}`,
+      color: row.dataset.categoryColor || categoryColors[index % categoryColors.length],
+      icon: row.dataset.categoryIcon || categoryIcons[index % categoryIcons.length],
+      visible: row.querySelector('[data-category-visible]').checked
+    }));
+  }
+
+  page.querySelectorAll('[data-scene-choice]').forEach((button) => button.addEventListener('click', () => { autoScenes.checked = false; renderScene(button.dataset.sceneChoice); }));
+  autoScenes.addEventListener('change', () => { if (autoScenes.checked) renderScene(currentScene()); });
   gradient.addEventListener('input', renderGradient);
+  tetrLines?.addEventListener('input', renderTetrPreview);
+  page.querySelector('[data-setting-tetr-bg]')?.addEventListener('change', renderTetrPreview);
   page.querySelectorAll('[data-single-choice]').forEach((group) => group.querySelectorAll('.settings-choice').forEach((choice) => choice.addEventListener('click', () => { group.querySelectorAll('.settings-choice').forEach((item) => item.classList.remove('active')); choice.classList.add('active'); })));
   page.querySelectorAll('[data-segmented]').forEach((group) => group.querySelectorAll('button').forEach((button) => button.addEventListener('click', () => { group.querySelectorAll('button').forEach((item) => item.classList.remove('active')); button.classList.add('active'); })));
+  page.querySelector('[data-add-category]')?.addEventListener('click', () => {
+    const index = categoryList.children.length;
+    categoryList.append(categoryRow({ id: `custom-${Date.now()}`, name: 'Nuova categoria', color: categoryColors[index % categoryColors.length], icon: categoryIcons[index % categoryIcons.length], visible: true }, index));
+    categoryList.lastElementChild.querySelector('[data-category-name]')?.select();
+  });
+  categoryList?.addEventListener('click', (event) => {
+    const button = event.target.closest('.category-remove');
+    if (!button) return;
+    if (categoryList.children.length <= 1) { saveFeedback.textContent = 'Deve restare almeno una categoria.'; return; }
+    button.closest('.category-setting-row')?.remove();
+  });
 
-  function loadSettings() {
-    const settings = Store.getState().settings;
-    page.querySelector('[data-setting-city]').value = settings.city || 'Roma, Italia';
-    const bottleInput = page.querySelector('[data-setting-bottle]');
-    if (bottleInput) bottleInput.value = settings.bottleMl || 750;
-    page.querySelectorAll('[data-setting-home]').forEach((input) => { input.checked = settings.home[input.dataset.settingHome] !== false; });
-    autoScenes.checked = settings.appearance.autoScenes !== false;
-    gradient.value = settings.appearance.gradient || 62;
-    renderScene(autoScenes.checked ? currentScene() : (settings.appearance.scene || 'afternoon'));
-    renderGradient();
-    if (connectionUrl) connectionUrl.value = Store.getScriptUrl();
-    updateConnectionStatus(Store.getScriptUrl() ? 'Configurato. Premi “Verifica collegamento”.' : 'Non configurato', Store.getScriptUrl() ? 'wait' : 'off');
-  }
   function updateConnectionStatus(message, type) {
     if (!connectionStatus) return;
     connectionStatus.textContent = message;
     connectionStatus.className = `settings-connection-status is-${type}`;
   }
 
-  page.querySelector('[data-save-settings]').addEventListener('click', () => {
-    Store.saveSettings({
+  function loadSettings() {
+    const settings = trackerSettings();
+    page.querySelector('[data-setting-city]').value = settings.city || 'Roma, Italia';
+    page.querySelector('[data-setting-weather-unit]').value = settings.weatherUnit || 'celsius';
+    page.querySelector('[data-setting-weather-refresh]').value = settings.weatherRefresh || '60';
+    page.querySelector('[data-setting-clock-format]').value = settings.clockFormat || '24';
+    page.querySelector('[data-setting-week-start]').value = settings.weekStart || 'monday';
+    page.querySelector('[data-setting-date-format]').value = settings.dateFormat || 'long-weekday';
+    page.querySelector('[data-setting-bottle]').value = settings.bottleMl || 750;
+    page.querySelector('[data-setting-water-division]').value = settings.waterDivision || 'quarters';
+    page.querySelector('[data-setting-water-equivalence]').checked = settings.showWaterEquivalence !== false;
+    page.querySelectorAll('[data-setting-home]').forEach((input) => { input.checked = settings.home?.[input.dataset.settingHome] !== false; });
+
+    const appearance = settings.appearance || {};
+    autoScenes.checked = appearance.autoScenes !== false;
+    gradient.value = appearance.gradient || 62;
+    renderScene(autoScenes.checked ? currentScene() : (appearance.scene || 'afternoon'));
+    renderGradient();
+    page.querySelectorAll('[data-text-mode]').forEach((button) => button.classList.toggle('active', button.dataset.textMode === (appearance.textMode || 'normal')));
+    page.querySelectorAll('[data-decoration-mode]').forEach((button) => button.classList.toggle('active', button.dataset.decorationMode === (appearance.decorations || 'full')));
+    page.querySelector('[data-setting-tetr-bg]').value = appearance.tetrGridBackground || 'rose';
+    tetrLines.value = appearance.tetrGridLines || 1;
+    page.querySelectorAll('[data-setting-appearance]').forEach((input) => { input.checked = appearance[input.dataset.settingAppearance] !== false; });
+    renderTetrPreview();
+
+    const tracker = settings.tracker || {};
+    page.querySelectorAll('[data-setting-sleep]').forEach((input) => { input.checked = tracker.sleep?.[input.dataset.settingSleep] !== false; });
+    page.querySelectorAll('[data-setting-tetr]').forEach((input) => { input.checked = tracker.tetr?.[input.dataset.settingTetr] !== false; });
+    page.querySelector('[data-setting-work]').checked = tracker.showWorkInStats !== false;
+    page.querySelectorAll('[data-setting-food]').forEach((input) => { input.checked = tracker.food?.[input.dataset.settingFood] !== false; });
+    renderCategories(tracker.categories || visibleCategories());
+
+    if (connectionUrl) connectionUrl.value = Store.getScriptUrl();
+    updateConnectionStatus(Store.getScriptUrl() ? 'Configurato. Premi “Verifica collegamento”.' : 'Non configurato', Store.getScriptUrl() ? 'wait' : 'off');
+  }
+
+  function saveSettings({ showFeedback = true } = {}) {
+    const oldState = Store.getState();
+    const oldCategories = oldState.settings.tracker?.categories || [];
+    const categories = readCategories();
+    const renameMap = Object.fromEntries(oldCategories.map((old) => {
+      const next = categories.find((item) => item.id === old.id);
+      return [old.name, next?.name || old.name];
+    }));
+    const nextState = oldState;
+    nextState.settings = {
+      ...oldState.settings,
       city: page.querySelector('[data-setting-city]').value.trim() || 'Roma, Italia',
-      bottleMl: Math.max(100, Number(page.querySelector('[data-setting-bottle]')?.value) || 750),
+      weatherUnit: page.querySelector('[data-setting-weather-unit]').value,
+      weatherRefresh: page.querySelector('[data-setting-weather-refresh]').value,
+      clockFormat: page.querySelector('[data-setting-clock-format]').value,
+      weekStart: page.querySelector('[data-setting-week-start]').value,
+      dateFormat: page.querySelector('[data-setting-date-format]').value,
+      bottleMl: Math.max(100, Number(page.querySelector('[data-setting-bottle]').value) || 750),
+      waterDivision: page.querySelector('[data-setting-water-division]').value,
+      showWaterEquivalence: page.querySelector('[data-setting-water-equivalence]').checked,
       home: Object.fromEntries([...page.querySelectorAll('[data-setting-home]')].map((input) => [input.dataset.settingHome, input.checked])),
-      appearance: { autoScenes: autoScenes.checked, scene: chosenScene, gradient: Number(gradient.value) }
+      appearance: {
+        ...oldState.settings.appearance,
+        autoScenes: autoScenes.checked,
+        scene: chosenScene,
+        gradient: Number(gradient.value),
+        textMode: page.querySelector('[data-text-mode].active')?.dataset.textMode || 'normal',
+        decorations: page.querySelector('[data-decoration-mode].active')?.dataset.decorationMode || 'full',
+        tetrGridBackground: page.querySelector('[data-setting-tetr-bg]').value,
+        tetrGridLines: Number(tetrLines.value),
+        ...Object.fromEntries([...page.querySelectorAll('[data-setting-appearance]')].map((input) => [input.dataset.settingAppearance, input.checked]))
+      },
+      tracker: {
+        ...oldState.settings.tracker,
+        sleep: Object.fromEntries([...page.querySelectorAll('[data-setting-sleep]')].map((input) => [input.dataset.settingSleep, input.checked])),
+        tetr: Object.fromEntries([...page.querySelectorAll('[data-setting-tetr]')].map((input) => [input.dataset.settingTetr, input.checked])),
+        categories,
+        showWorkInStats: page.querySelector('[data-setting-work]').checked,
+        food: Object.fromEntries([...page.querySelectorAll('[data-setting-food]')].map((input) => [input.dataset.settingFood, input.checked]))
+      }
+    };
+    nextState.settingsUpdatedAt = new Date().toISOString();
+    Object.values(nextState.days || {}).forEach((day) => {
+      day.activities = (day.activities || []).map((activity) => ({ ...activity, category: renameMap[activity.category] || activity.category }));
     });
-    saveFeedback.textContent = 'Impostazioni salvate.';
-    setTimeout(() => { saveFeedback.textContent = ''; }, 3000);
+    Store.replaceState(nextState, 'settings-update');
+    if (showFeedback) {
+      saveFeedback.textContent = 'Impostazioni salvate e applicate al tracker.';
+      setTimeout(() => { saveFeedback.textContent = ''; }, 3500);
+    } else {
+      saveFeedback.textContent = 'Modifica salvata automaticamente.';
+      window.clearTimeout(saveFeedback._clearTimer);
+      saveFeedback._clearTimer = window.setTimeout(() => { saveFeedback.textContent = ''; }, 1800);
+    }
+  }
+
+  let automaticSaveTimer = null;
+  function queueAutomaticSettingsSave() {
+    window.clearTimeout(automaticSaveTimer);
+    automaticSaveTimer = window.setTimeout(() => saveSettings({ showFeedback: false }), 120);
+  }
+
+  page.querySelector('[data-save-settings]').addEventListener('click', () => saveSettings());
+  page.addEventListener('change', (event) => {
+    if (event.target.closest('[data-connection-url], [data-import-file]')) return;
+    if (event.target.matches('input, select, textarea')) queueAutomaticSettingsSave();
   });
+  page.querySelectorAll('[data-scene-choice], [data-text-mode], [data-decoration-mode], [data-segmented] button').forEach((control) => {
+    control.addEventListener('click', queueAutomaticSettingsSave);
+  });
+
 
   page.querySelector('[data-connect-sheet]')?.addEventListener('click', async () => {
     const url = connectionUrl.value.trim();
     if (!url) { updateConnectionStatus('Incolla prima l’URL della Web App.', 'error'); return; }
     updateConnectionStatus('Verifica in corso…', 'wait');
-    try {
-      await Store.ping(url); Store.setScriptUrl(url); updateConnectionStatus('Collegamento riuscito. I salvataggi verranno sincronizzati.', 'ok');
-    } catch (error) { updateConnectionStatus(`Collegamento non riuscito: ${error.message}`, 'error'); }
+    try { await Store.ping(url); Store.setScriptUrl(url); updateConnectionStatus('Collegamento riuscito. I salvataggi verranno sincronizzati.', 'ok'); }
+    catch (error) { updateConnectionStatus(`Collegamento non riuscito: ${error.message}`, 'error'); }
   });
   page.querySelector('[data-pull-sheet]')?.addEventListener('click', async () => {
     updateConnectionStatus('Caricamento dal foglio…', 'wait');
-    try { await Store.pullRemote({ merge: true }); updateConnectionStatus('Dati del foglio caricati e uniti a quelli locali.', 'ok'); }
+    try { await Store.pullRemote({ merge: true }); loadSettings(); updateConnectionStatus('Dati del foglio caricati e uniti a quelli locali.', 'ok'); }
     catch (error) { updateConnectionStatus(`Caricamento non riuscito: ${error.message}`, 'error'); }
   });
   page.querySelector('[data-push-sheet]')?.addEventListener('click', async () => {
@@ -1721,8 +2081,28 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
       const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `tracker-personale-backup-${Store.dateKey(new Date())}.json`; link.click(); URL.revokeObjectURL(link.href);
       dataFeedback.textContent = 'Backup JSON scaricato.';
     } else if (action === 'import') importInput?.click();
-    else if (action === 'reset') { if (confirm('Ripristinare le impostazioni predefinite? I dati giornalieri resteranno invariati.')) { Store.saveSettings({ city: 'Roma, Italia', bottleMl: 750 }); loadSettings(); dataFeedback.textContent = 'Impostazioni principali ripristinate.'; } }
-    else if (action === 'delete') { if (confirm('Eliminare tutti i dati del tracker? Questa azione non può essere annullata.') && confirm('Confermi definitivamente l’eliminazione di tutti i dati?')) { Store.resetAll(); loadSettings(); dataFeedback.textContent = 'Tutti i dati sono stati eliminati.'; } }
+    else if (action === 'reset') {
+      if (confirm('Ripristinare le impostazioni predefinite? I dati giornalieri resteranno invariati.')) {
+        Store.saveSettings({
+          city: 'Roma, Italia', weatherUnit: 'celsius', weatherRefresh: '60', clockFormat: '24', weekStart: 'monday', dateFormat: 'long-weekday', bottleMl: 750, waterDivision: 'quarters', showWaterEquivalence: true,
+          home: { weather:true, summary:true, reminders:true, sections:true, trends:true, recentDays:true, tetrToday:true, tetrWeek:true, tetrReminder:true },
+          appearance: { autoScenes:true, scene:'afternoon', gradient:62, textMode:'normal', decorations:'full', tetrGridBackground:'rose', tetrGridLines:1, tetrBorders:true, tetrHover:true },
+          tracker: {
+            sleep: { asleep:true, awakenings:true, quality:true, riseDelay:true },
+            tetr: { ghost:true, keyboard:true, confirm:true, note:true, highlightToday:true },
+            categories: [
+              { id:'work', name:'Lavoro', color:'violet', icon:'◷', visible:true }, { id:'creative', name:'Creatività', color:'rose', icon:'✦', visible:true }, { id:'home', name:'Casa', color:'violet', icon:'⌂', visible:true },
+              { id:'errands', name:'Commissioni', color:'sky', icon:'⌖', visible:true }, { id:'leisure', name:'Svago', color:'lilac', icon:'☾', visible:true }, { id:'personal', name:'Cura personale', color:'periwinkle', icon:'♡', visible:true }, { id:'other', name:'Altro', color:'neutral', icon:'•', visible:true }
+            ],
+            showWorkInStats: true,
+            food: { breakfast:true, lunch:true, dinner:true, snacks:true }
+          }
+        });
+        loadSettings(); dataFeedback.textContent = 'Impostazioni ripristinate.';
+      }
+    } else if (action === 'delete') {
+      if (confirm('Eliminare tutti i dati del tracker? Questa azione non può essere annullata.') && confirm('Confermi definitivamente l’eliminazione di tutti i dati?')) { Store.resetAll(); loadSettings(); dataFeedback.textContent = 'Tutti i dati sono stati eliminati.'; }
+    }
   }));
   importInput?.addEventListener('change', async () => {
     const file = importInput.files?.[0]; if (!file) return;
@@ -1730,8 +2110,8 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     catch (error) { dataFeedback.textContent = `File non valido: ${error.message}`; }
     importInput.value = '';
   });
-  page.querySelector('[data-demo-upload]')?.addEventListener('click', () => { page.querySelector('[data-image-feedback]').textContent = 'Il caricamento di immagini personalizzate verrà aggiunto in una fase successiva.'; });
-  page.querySelector('[data-demo-reset]')?.addEventListener('click', () => { autoScenes.checked = true; renderScene(currentScene()); page.querySelector('[data-image-feedback]').textContent = 'Scene automatiche ripristinate.'; });
+  page.querySelector('[data-demo-upload]')?.addEventListener('click', () => { page.querySelector('[data-image-feedback]').textContent = 'Il caricamento di immagini personalizzate resta locale e verrà aggiunto in una fase successiva.'; });
+  page.querySelector('[data-demo-reset]')?.addEventListener('click', () => { autoScenes.checked = true; renderScene(currentScene()); page.querySelector('[data-image-feedback]').textContent = 'Scene automatiche ripristinate. Premi Salva modifiche.'; });
   loadSettings();
 })();
 

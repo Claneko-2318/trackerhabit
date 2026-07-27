@@ -4,12 +4,10 @@
   <!-- build: settings-page-v14 -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <link rel="icon" type="image/png" href="favicon.png">
-  
   <meta name="description" content="Impostazioni desktop del tracker personale.">
   <title>Tracker personale — Impostazioni</title>
-  <link rel="stylesheet" href="styles.css?v=20260726-18">
+  <link rel="stylesheet" href="styles.css?v=20260727-23">
+  <meta name="robots" content="noindex, nofollow">
 </head>
 <body class="settings-page">
 <header class="site-header">
@@ -82,8 +80,8 @@
             <input type="text" value="Roma, Italia" data-setting-city>
           </label>
           <div class="settings-inline-fields">
-            <label class="settings-field"><span>Temperatura</span><select><option selected>Celsius</option><option>Fahrenheit</option></select></label>
-            <label class="settings-field"><span>Aggiornamento</span><select><option selected>Ogni 60 minuti</option><option>Ogni 30 minuti</option><option>Solo all’apertura</option></select></label>
+            <label class="settings-field"><span>Temperatura</span><select data-setting-weather-unit><option value="celsius" selected>Celsius</option><option value="fahrenheit">Fahrenheit</option></select></label>
+            <label class="settings-field"><span>Aggiornamento</span><select data-setting-weather-refresh><option value="60" selected>Ogni 60 minuti</option><option value="30">Ogni 30 minuti</option><option value="open">Solo all’apertura</option></select></label>
           </div>
           <p class="settings-note">Il meteo userà Open-Meteo e non richiede una chiave personale.</p>
         </article>
@@ -94,10 +92,10 @@
             <div><h3>Data e calendario</h3><p>Formato usato nelle pagine e nell’Archivio.</p></div>
           </div>
           <div class="settings-inline-fields">
-            <label class="settings-field"><span>Formato ora</span><select><option selected>24 ore</option><option>12 ore</option></select></label>
-            <label class="settings-field"><span>Inizio settimana</span><select><option selected>Lunedì</option><option>Domenica</option></select></label>
+            <label class="settings-field"><span>Formato ora</span><select data-setting-clock-format><option value="24" selected>24 ore</option><option value="12">12 ore</option></select></label>
+            <label class="settings-field"><span>Inizio settimana</span><select data-setting-week-start><option value="monday" selected>Lunedì</option><option value="sunday">Domenica</option></select></label>
           </div>
-          <label class="settings-field"><span>Formato della data</span><select><option selected>Domenica 26 luglio 2026</option><option>26 luglio 2026</option><option>26/07/2026</option></select></label>
+          <label class="settings-field"><span>Formato della data</span><select data-setting-date-format><option value="long-weekday" selected>Domenica 26 luglio 2026</option><option value="long">26 luglio 2026</option><option value="numeric">26/07/2026</option></select></label>
           <p class="settings-note">Il fuso orario viene letto automaticamente dal computer.</p>
         </article>
       </div>
@@ -174,9 +172,9 @@
         <article class="settings-card">
           <div class="settings-card-heading"><span class="settings-card-icon icon-sky">Aa</span><div><h3>Testi</h3><p>La dimensione normale è già pensata per essere facilmente leggibile.</p></div></div>
           <div class="settings-choice-list" data-single-choice>
-            <button type="button" class="settings-choice active"><span><strong>Normale</strong><span class="secondary-text">Testo del sito leggermente più grande</span></span><i>✓</i></button>
-            <button type="button" class="settings-choice"><span><strong>Grande</strong><span class="secondary-text">Aumenta ulteriormente testi e controlli</span></span><i>✓</i></button>
-            <button type="button" class="settings-choice"><span><strong>Contrasto elevato</strong><span class="secondary-text">Riduce i testi chiari e aumenta il contrasto</span></span><i>✓</i></button>
+            <button type="button" class="settings-choice active" data-text-mode="normal"><span><strong>Normale</strong><span class="secondary-text">Testo del sito leggermente più grande</span></span><i>✓</i></button>
+            <button type="button" class="settings-choice" data-text-mode="large"><span><strong>Grande</strong><span class="secondary-text">Aumenta ulteriormente testi e controlli</span></span><i>✓</i></button>
+            <button type="button" class="settings-choice" data-text-mode="contrast"><span><strong>Contrasto elevato</strong><span class="secondary-text">Riduce i testi chiari e aumenta il contrasto</span></span><i>✓</i></button>
           </div>
         </article>
       </div>
@@ -193,11 +191,11 @@
             <span class="tetromino piece-i" style="--piece-color:#9A92DF;--unit:13px"><i></i><i></i><i></i><i></i></span>
           </div>
           <div class="settings-tetr-appearance-controls">
-            <label class="settings-field"><span>Fondo della griglia</span><select><option selected>Bianco rosato</option><option>Bianco neutro</option><option>Lilla chiarissimo</option></select></label>
-            <label class="settings-range-field"><span><strong>Visibilità delle celle</strong><span>Leggera</span></span><input type="range" min="1" max="3" value="1"></label>
+            <label class="settings-field"><span>Fondo della griglia</span><select data-setting-tetr-bg><option value="rose" selected>Bianco rosato</option><option value="white">Bianco neutro</option><option value="lilac">Lilla chiarissimo</option></select></label>
+            <label class="settings-range-field"><span><strong>Visibilità delle celle</strong><span data-tetr-lines-label>Leggera</span></span><input type="range" min="1" max="3" value="1" data-setting-tetr-lines></label>
             <div class="settings-switch-grid">
-              <label class="settings-switch-row"><span><strong>Bordi dei tetramini</strong><span class="secondary-text">Mantiene separati i cubetti</span></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
-              <label class="settings-switch-row"><span><strong>Evidenzia il pezzo al passaggio</strong><span class="secondary-text">Seleziona insieme tutti i quattro cubetti</span></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+              <label class="settings-switch-row"><span><strong>Bordi dei tetramini</strong><span class="secondary-text">Mantiene separati i cubetti</span></span><input type="checkbox" checked data-setting-appearance="tetrBorders"><i aria-hidden="true"></i></label>
+              <label class="settings-switch-row"><span><strong>Evidenzia il pezzo al passaggio</strong><span class="secondary-text">Seleziona insieme tutti i quattro cubetti</span></span><input type="checkbox" checked data-setting-appearance="tetrHover"><i aria-hidden="true"></i></label>
             </div>
           </div>
         </div>
@@ -206,9 +204,9 @@
       <article class="settings-card settings-card-wide">
         <div class="settings-card-heading"><span class="settings-card-icon icon-lilac">✦</span><div><h3>Decorazioni</h3><p>Stelle, bagliori e piccoli elementi floreali.</p></div></div>
         <div class="settings-segmented" data-segmented>
-          <button type="button" class="active">Complete</button>
-          <button type="button">Leggere</button>
-          <button type="button">Nessuna</button>
+          <button type="button" class="active" data-decoration-mode="full">Complete</button>
+          <button type="button" data-decoration-mode="light">Leggere</button>
+          <button type="button" data-decoration-mode="none">Nessuna</button>
         </div>
       </article>
     </section>
@@ -223,17 +221,17 @@
         <article class="settings-card">
           <div class="settings-card-heading"><span class="settings-card-icon icon-sky">◒</span><div><h3>Acqua</h3><p>La pagina usa la tua borraccia come unità principale.</p></div></div>
           <label class="settings-field"><span>Capienza della borraccia</span><div class="settings-unit-input"><input type="number" value="750" min="100" step="50" data-setting-bottle><span>ml</span></div></label>
-          <label class="settings-field"><span>Divisione</span><select><option selected>Quarti di borraccia</option><option>Metà borraccia</option></select></label>
-          <label class="settings-switch-row"><span><strong>Mostra equivalenza</strong><span class="secondary-text">Visualizza anche ml e litri</span></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+          <label class="settings-field"><span>Divisione</span><select data-setting-water-division><option value="quarters" selected>Quarti di borraccia</option><option value="halves">Metà borraccia</option></select></label>
+          <label class="settings-switch-row"><span><strong>Mostra equivalenza</strong><span class="secondary-text">Visualizza anche ml e litri</span></span><input type="checkbox" checked data-setting-water-equivalence><i aria-hidden="true"></i></label>
         </article>
 
         <article class="settings-card">
           <div class="settings-card-heading"><span class="settings-card-icon icon-lilac">☾</span><div><h3>Sonno</h3><p>Scegli quali dettagli registrare ogni notte.</p></div></div>
           <div class="settings-switch-list">
-            <label class="settings-switch-row"><span><strong>Ora in cui mi sono addormentata</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
-            <label class="settings-switch-row"><span><strong>Risvegli notturni</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
-            <label class="settings-switch-row"><span><strong>Qualità percepita</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
-            <label class="settings-switch-row"><span><strong>Tempo tra sveglia e alzata</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+            <label class="settings-switch-row"><span><strong>Ora in cui mi sono addormentata</strong></span><input type="checkbox" checked data-setting-sleep="asleep"><i aria-hidden="true"></i></label>
+            <label class="settings-switch-row"><span><strong>Risvegli notturni</strong></span><input type="checkbox" checked data-setting-sleep="awakenings"><i aria-hidden="true"></i></label>
+            <label class="settings-switch-row"><span><strong>Qualità percepita</strong></span><input type="checkbox" checked data-setting-sleep="quality"><i aria-hidden="true"></i></label>
+            <label class="settings-switch-row"><span><strong>Tempo tra sveglia e alzata</strong></span><input type="checkbox" checked data-setting-sleep="riseDelay"><i aria-hidden="true"></i></label>
           </div>
         </article>
       </div>
@@ -253,11 +251,11 @@
           <div class="settings-tetr-row"><span class="tetromino piece-l" style="--piece-color:#B89FD8;--unit:7px"><i></i><i></i><i></i><i></i></span><strong>Vuoto / noia</strong><span>Tetramino L</span><i style="--emotion-color:#B89FD8"></i></div>
         </div>
         <div class="settings-tetr-options">
-          <label class="settings-switch-row"><span><strong>Mostra la sagoma di caduta</strong><span class="secondary-text">Anticipa il punto in cui si appoggerà il pezzo</span></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
-          <label class="settings-switch-row"><span><strong>Comandi da tastiera</strong><span class="secondary-text">Frecce per spostare e ruotare, Invio per confermare</span></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
-          <label class="settings-switch-row"><span><strong>Conferma prima del salvataggio</strong><span class="secondary-text">Evita di bloccare il pezzo per errore</span></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
-          <label class="settings-switch-row"><span><strong>Nota facoltativa modificabile</strong><span class="secondary-text">Può essere aggiunta anche dopo il pezzo</span></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
-          <label class="settings-switch-row"><span><strong>Evidenzia il pezzo di oggi</strong><span class="secondary-text">Rende più semplice ritrovare l’ultimo inserimento</span></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+          <label class="settings-switch-row"><span><strong>Mostra la sagoma di caduta</strong><span class="secondary-text">Anticipa il punto in cui si appoggerà il pezzo</span></span><input type="checkbox" checked data-setting-tetr="ghost"><i aria-hidden="true"></i></label>
+          <label class="settings-switch-row"><span><strong>Comandi da tastiera</strong><span class="secondary-text">Frecce per spostare e ruotare, Invio per confermare</span></span><input type="checkbox" checked data-setting-tetr="keyboard"><i aria-hidden="true"></i></label>
+          <label class="settings-switch-row"><span><strong>Conferma prima del salvataggio</strong><span class="secondary-text">Evita di bloccare il pezzo per errore</span></span><input type="checkbox" checked data-setting-tetr="confirm"><i aria-hidden="true"></i></label>
+          <label class="settings-switch-row"><span><strong>Nota facoltativa modificabile</strong><span class="secondary-text">Può essere aggiunta anche dopo il pezzo</span></span><input type="checkbox" checked data-setting-tetr="note"><i aria-hidden="true"></i></label>
+          <label class="settings-switch-row"><span><strong>Evidenzia il pezzo di oggi</strong><span class="secondary-text">Rende più semplice ritrovare l’ultimo inserimento</span></span><input type="checkbox" checked data-setting-tetr="highlightToday"><i aria-hidden="true"></i></label>
           <label class="settings-switch-row"><span><strong>Nuova griglia ogni mese</strong><span class="secondary-text">Regola fissa per preservare la composizione mensile</span></span><input type="checkbox" checked disabled><i aria-hidden="true"></i></label>
         </div>
       </article>
@@ -268,27 +266,30 @@
           <button class="settings-button secondary" type="button" data-add-category>+ Aggiungi categoria</button>
         </div>
         <div class="category-settings-list" data-category-list>
-          <div class="category-setting-row"><span class="category-color color-rose"></span><input type="text" value="Creatività"><span class="category-icon">✦</span><label class="settings-switch-row compact"><span><strong>Visibile</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label><button type="button" class="category-remove" aria-label="Rimuovi categoria">×</button></div>
-          <div class="category-setting-row"><span class="category-color color-sky"></span><input type="text" value="Commissioni"><span class="category-icon">⌖</span><label class="settings-switch-row compact"><span><strong>Visibile</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label><button type="button" class="category-remove" aria-label="Rimuovi categoria">×</button></div>
-          <div class="category-setting-row"><span class="category-color color-lilac"></span><input type="text" value="Svago"><span class="category-icon">☾</span><label class="settings-switch-row compact"><span><strong>Visibile</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label><button type="button" class="category-remove" aria-label="Rimuovi categoria">×</button></div>
-          <div class="category-setting-row"><span class="category-color color-violet"></span><input type="text" value="Casa"><span class="category-icon">⌂</span><label class="settings-switch-row compact"><span><strong>Visibile</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label><button type="button" class="category-remove" aria-label="Rimuovi categoria">×</button></div>
+          <div class="category-setting-row" data-category-id="work" data-category-color="violet" data-category-icon="◷"><span class="category-color color-violet"></span><input type="text" value="Lavoro" data-category-name><span class="category-icon">◷</span><label class="settings-switch-row compact"><span><strong>Visibile</strong></span><input type="checkbox" checked data-category-visible><i aria-hidden="true"></i></label><button type="button" class="category-remove" aria-label="Rimuovi categoria">×</button></div>
+          <div class="category-setting-row" data-category-id="creative" data-category-color="rose" data-category-icon="✦"><span class="category-color color-rose"></span><input type="text" value="Creatività" data-category-name><span class="category-icon">✦</span><label class="settings-switch-row compact"><span><strong>Visibile</strong></span><input type="checkbox" checked data-category-visible><i aria-hidden="true"></i></label><button type="button" class="category-remove" aria-label="Rimuovi categoria">×</button></div>
+          <div class="category-setting-row" data-category-id="home" data-category-color="violet" data-category-icon="⌂"><span class="category-color color-violet"></span><input type="text" value="Casa" data-category-name><span class="category-icon">⌂</span><label class="settings-switch-row compact"><span><strong>Visibile</strong></span><input type="checkbox" checked data-category-visible><i aria-hidden="true"></i></label><button type="button" class="category-remove" aria-label="Rimuovi categoria">×</button></div>
+          <div class="category-setting-row" data-category-id="errands" data-category-color="sky" data-category-icon="⌖"><span class="category-color color-sky"></span><input type="text" value="Commissioni" data-category-name><span class="category-icon">⌖</span><label class="settings-switch-row compact"><span><strong>Visibile</strong></span><input type="checkbox" checked data-category-visible><i aria-hidden="true"></i></label><button type="button" class="category-remove" aria-label="Rimuovi categoria">×</button></div>
+          <div class="category-setting-row" data-category-id="leisure" data-category-color="lilac" data-category-icon="☾"><span class="category-color color-lilac"></span><input type="text" value="Svago" data-category-name><span class="category-icon">☾</span><label class="settings-switch-row compact"><span><strong>Visibile</strong></span><input type="checkbox" checked data-category-visible><i aria-hidden="true"></i></label><button type="button" class="category-remove" aria-label="Rimuovi categoria">×</button></div>
+          <div class="category-setting-row" data-category-id="personal" data-category-color="periwinkle" data-category-icon="♡"><span class="category-color color-periwinkle"></span><input type="text" value="Cura personale" data-category-name><span class="category-icon">♡</span><label class="settings-switch-row compact"><span><strong>Visibile</strong></span><input type="checkbox" checked data-category-visible><i aria-hidden="true"></i></label><button type="button" class="category-remove" aria-label="Rimuovi categoria">×</button></div>
+          <div class="category-setting-row" data-category-id="other" data-category-color="neutral" data-category-icon="•"><span class="category-color color-neutral"></span><input type="text" value="Altro" data-category-name><span class="category-icon">•</span><label class="settings-switch-row compact"><span><strong>Visibile</strong></span><input type="checkbox" checked data-category-visible><i aria-hidden="true"></i></label><button type="button" class="category-remove" aria-label="Rimuovi categoria">×</button></div>
         </div>
       </article>
 
       <div class="settings-grid settings-grid-two">
         <article class="settings-card">
           <div class="settings-card-heading"><span class="settings-card-icon icon-periwinkle">◷</span><div><h3>Ore lavorate</h3><p>Il totale arriva dal tracker lavorativo separato.</p></div></div>
-          <label class="settings-switch-row"><span><strong>Mostra nelle statistiche</strong><span class="secondary-text">Usa il totale giornaliero per grafici e confronti</span></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+          <label class="settings-switch-row"><span><strong>Mostra nelle statistiche</strong><span class="secondary-text">Usa il totale giornaliero per grafici e confronti</span></span><input type="checkbox" checked data-setting-work><i aria-hidden="true"></i></label>
           <label class="settings-field"><span>Modalità di inserimento</span><select><option selected>Manuale</option><option disabled>Collegamento automatico — futuro</option></select></label>
         </article>
 
         <article class="settings-card">
           <div class="settings-card-heading"><span class="settings-card-icon icon-rose">⌁</span><div><h3>Cibo</h3><p>Nascondi i momenti della giornata che non usi.</p></div></div>
           <div class="settings-switch-list compact-list">
-            <label class="settings-switch-row"><span><strong>Colazione</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
-            <label class="settings-switch-row"><span><strong>Pranzo</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
-            <label class="settings-switch-row"><span><strong>Cena</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
-            <label class="settings-switch-row"><span><strong>Spuntini</strong></span><input type="checkbox" checked><i aria-hidden="true"></i></label>
+            <label class="settings-switch-row"><span><strong>Colazione</strong></span><input type="checkbox" checked data-setting-food="breakfast"><i aria-hidden="true"></i></label>
+            <label class="settings-switch-row"><span><strong>Pranzo</strong></span><input type="checkbox" checked data-setting-food="lunch"><i aria-hidden="true"></i></label>
+            <label class="settings-switch-row"><span><strong>Cena</strong></span><input type="checkbox" checked data-setting-food="dinner"><i aria-hidden="true"></i></label>
+            <label class="settings-switch-row"><span><strong>Spuntini</strong></span><input type="checkbox" checked data-setting-food="snacks"><i aria-hidden="true"></i></label>
           </div>
         </article>
       </div>
@@ -297,7 +298,7 @@
     <section class="settings-panel" role="tabpanel" data-settings-panel="data" hidden>
       <div class="settings-section-heading">
         <div><span class="settings-section-kicker">Dati</span><h2>Esportazione e sicurezza</h2></div>
-        <p>I dati vengono salvati nel browser. Puoi anche collegare un foglio Google per sincronizzarli e conservarne una copia online.</p>
+        <p>Il sito può essere pubblicato su GitHub Pages. I dati restano nel browser e possono essere sincronizzati con Google Sheets tramite Apps Script.</p>
       </div>
 
       <div class="settings-grid settings-grid-three">
@@ -310,7 +311,7 @@
       <article class="settings-card settings-card-wide settings-connection-card">
         <div class="settings-card-heading">
           <span class="settings-card-icon icon-sky">☁</span>
-          <div><h3>Collegamento a Google Sheets</h3><p>Incolla l’URL della Web App creata con Google Apps Script. Il tracker continuerà a funzionare anche senza connessione.</p></div>
+          <div><h3>Collegamento a Google Sheets</h3><p>Incolla l’URL della Web App creata con Google Apps Script. L’indirizzo viene salvato soltanto in questo browser e non nel repository GitHub.</p></div>
         </div>
         <label class="settings-field settings-connection-field"><span>URL della Web App</span><input type="url" data-connection-url placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off"></label>
         <div class="settings-connection-actions">
@@ -321,7 +322,7 @@
         </div>
         <p class="settings-connection-status is-off" data-connection-status aria-live="polite">Non configurato</p>
         <p class="settings-note">Alla prima configurazione, verifica il collegamento e poi premi <strong>Invia dati locali</strong>. I salvataggi successivi verranno sincronizzati automaticamente.</p>
-        <a class="settings-guide-link" href="GUIDA-COLLEGAMENTO-GOOGLE-SHEETS.html">Apri la guida completa al collegamento →</a>
+        <a class="settings-guide-link" href="GUIDA-COMPLETA-GITHUB-GOOGLE-SHEETS.html">Apri la guida completa a GitHub e Google Sheets →</a>
       </article>
 
       <article class="settings-card settings-card-wide">
@@ -356,7 +357,7 @@
 </main>
 
 <footer class="site-footer settings-footer"><span>Tracker personale · salvataggio attivo</span><a href="index.html">Torna alla homepage</a></footer>
-<script src="tracker-store.js?v=20260726-18"></script>
-<script src="app.js?v=20260726-18"></script>
+<script src="tracker-store.js?v=20260727-23"></script>
+<script src="app.js?v=20260727-23"></script>
 </body>
 </html>
