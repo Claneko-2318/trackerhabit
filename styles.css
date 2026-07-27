@@ -4771,3 +4771,337 @@ kbd { min-width: 34px; min-height: 32px; padding: 6px 9px; display: grid; place-
   grid-template-columns: repeat(2, minmax(0, 1fr));
   max-width: 860px;
 }
+
+/* V22 — archivio attività e impostazioni realmente applicate */
+.archive-day-card .archive-activity-list {
+  margin-top: 4px;
+  border-top: 1px solid var(--line);
+}
+.archive-day-card .archive-activity {
+  min-height: 64px;
+  padding: 15px 2px;
+}
+.archive-day-card .archive-activity > div { min-width: 0; }
+.archive-day-card .archive-activity strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.archive-day-card .archive-activity > span:last-child {
+  min-width: 84px;
+  text-align: right;
+  white-space: nowrap;
+}
+.archive-day-card .archive-activity-dot.category-creativity { background: var(--rose-soft); }
+.archive-day-card .archive-activity-dot.category-errands { background: var(--sky); }
+.archive-day-card .archive-activity-dot.category-leisure { background: var(--lilac); }
+.archive-day-card .archive-activity-dot.category-house { background: var(--violet-panel); }
+.archive-day-card .archive-activity-dot.category-personal { background: var(--periwinkle); }
+.archive-day-card .archive-activity-dot.category-other { background: #c8c9d8; }
+.archive-day-card .archive-activity-empty { opacity: .78; }
+
+/* Dimensione e contrasto scelti nelle impostazioni */
+body.text-mode-large { font-size: 18px; }
+body.text-mode-large .secondary-text { font-size: 17px !important; }
+body.text-mode-large input,
+body.text-mode-large select,
+body.text-mode-large textarea,
+body.text-mode-large button { font-size: 17px; }
+body.text-mode-large .nav-links a { font-size: 16px; }
+body.text-mode-contrast {
+  --muted: #51495f;
+  --line: rgba(82,63,119,.24);
+  --ink: #241e32;
+}
+body.text-mode-contrast .secondary-text,
+body.text-mode-contrast .settings-note,
+body.text-mode-contrast .archive-card-heading p { color: #51495f !important; }
+
+/* Quantità delle decorazioni */
+body.decorations-light .hero-spark,
+body.decorations-light .day-decoration-two,
+body.decorations-light .settings-orbit-two,
+body.decorations-light .sleep-orbit-two,
+body.decorations-light .stats-orbit-two,
+body.decorations-light .corner-shape { opacity: .22 !important; }
+body.decorations-none .hero-spark,
+body.decorations-none .day-decoration,
+body.decorations-none .settings-orbit,
+body.decorations-none .sleep-orbit,
+body.decorations-none .stats-orbit,
+body.decorations-none .corner-shape { display: none !important; }
+
+/* Aspetto dinamico della griglia Tetr-Emotion */
+.tetr-page-v16 .tetr-board { background: var(--tetr-board-surface, #f7f4fa); }
+.tetr-page-v16 .tetr-cell { border-color: var(--tetr-board-line, rgba(82,63,119,.10)); }
+body.tetr-borders-off .tetr-page-v16 .tetr-cell.is-filled,
+body.tetr-borders-off .tetr-page-v16 .tetr-cell.is-current {
+  border-color: transparent;
+  box-shadow: none;
+}
+body.tetr-hover-off .tetr-page-v16 .tetr-cell.is-filled:hover,
+body.tetr-hover-off .tetr-page-v16 .tetr-cell.is-filled.is-piece-hovered {
+  transform: none;
+  filter: none;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.35);
+}
+.tetr-page-v16 .tetr-cell.is-today-piece {
+  outline: 2px solid rgba(82,63,119,.58);
+  outline-offset: -3px;
+}
+
+/* Anteprima della griglia nelle impostazioni */
+.settings-tetr-preview {
+  background-color: var(--preview-grid-background, #faf7fb);
+  background-image:
+    linear-gradient(var(--preview-grid-line, rgba(82,63,119,.07)) 1px, transparent 1px),
+    linear-gradient(90deg, var(--preview-grid-line, rgba(82,63,119,.07)) 1px, transparent 1px);
+}
+.category-color.color-periwinkle { background: var(--periwinkle); }
+.category-color.color-neutral { background: #c8c9d8; }
+
+/* La tabella settimanale dei pasti segue le sezioni visibili */
+.food-page .meal-week-row {
+  grid-template-columns: 1.2fr repeat(var(--meal-columns, 4), .8fr);
+}
+
+/* I controlli nascosti dalle impostazioni non lasciano spazi vuoti */
+[hidden] { display: none !important; }
+
+/* V24 — esportazione per Notion */
+.notion-export-dialog {
+  width: min(1180px, calc(100vw - 72px));
+  max-height: calc(100vh - 64px);
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 28px;
+  color: var(--ink);
+  background: #fff;
+  box-shadow: 0 28px 80px rgba(47, 36, 67, .24);
+}
+.notion-export-dialog::backdrop {
+  background: rgba(35, 28, 49, .54);
+  backdrop-filter: blur(5px);
+}
+.notion-export-shell {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  max-height: calc(100vh - 64px);
+}
+.notion-export-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 30px 34px 24px;
+  border-bottom: 1px solid var(--line);
+  background: #fbf9fc;
+}
+.notion-export-header h2 { margin: 5px 0 7px; color: var(--violet); font-size: 31px; }
+.notion-export-header p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.55; }
+.notion-export-close {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  color: var(--violet);
+  background: #fff;
+  cursor: pointer;
+  font-size: 28px;
+  line-height: 1;
+}
+.notion-export-body {
+  display: grid;
+  gap: 22px;
+  padding: 28px 34px 34px;
+  overflow-y: auto;
+  background: #f8f6fa;
+}
+.notion-export-panel {
+  padding: 24px;
+  border: 1px solid rgba(82, 63, 119, .11);
+  border-radius: 22px;
+  background: #fff;
+}
+.notion-export-panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+.notion-export-panel-heading > div { display: flex; align-items: center; gap: 12px; }
+.notion-export-panel-heading > div > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  color: var(--violet);
+  background: #eee8f3;
+  font-weight: 780;
+}
+.notion-export-panel-heading h3 { margin: 0; color: var(--violet); font-size: 21px; }
+.notion-export-panel-heading p {
+  max-width: 470px;
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.55;
+  text-align: right;
+}
+.notion-export-period-grid {
+  display: grid;
+  grid-template-columns: minmax(300px, .8fr) 1.2fr;
+  gap: 18px;
+  align-items: end;
+}
+.notion-export-period-grid label,
+.notion-export-detail-row > label:not(.notion-inline-check) {
+  display: grid;
+  gap: 8px;
+  color: var(--violet);
+  font-size: 15px;
+  font-weight: 720;
+}
+.notion-export-period-grid select,
+.notion-export-detail-row select {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  color: var(--ink);
+  background: #fff;
+  font: inherit;
+  font-weight: 560;
+}
+.notion-custom-dates { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.notion-date-input {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #fff;
+}
+.notion-date-input input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  color: var(--ink);
+  background: transparent;
+  font: inherit;
+}
+.notion-section-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.notion-check,
+.notion-image-row label {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  min-width: 0;
+  cursor: pointer;
+}
+.notion-check {
+  min-height: 84px;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: #fcfbfd;
+}
+.notion-check input,
+.notion-image-row input,
+.notion-inline-check input {
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--violet);
+}
+.notion-check > span,
+.notion-image-row label > span { display: grid; gap: 4px; min-width: 0; }
+.notion-check strong,
+.notion-image-row strong { color: var(--violet); font-size: 15px; }
+.notion-check span span,
+.notion-image-row span span { color: var(--muted); font-size: 14px; line-height: 1.45; }
+.notion-export-detail-row {
+  display: grid;
+  grid-template-columns: minmax(230px, 330px) 1fr;
+  gap: 24px;
+  align-items: end;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.notion-inline-check { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; color: var(--ink); font-size: 15px; cursor: pointer; }
+.notion-image-list { display: grid; gap: 9px; }
+.notion-image-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  min-height: 66px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fcfbfd;
+}
+.notion-image-row button,
+.notion-image-actions button,
+.notion-export-footer button {
+  min-height: 42px;
+  padding: 9px 14px;
+  border: 1px solid rgba(82, 63, 119, .18);
+  border-radius: 12px;
+  color: var(--violet);
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 740;
+}
+.notion-image-row button:hover,
+.notion-image-actions button:hover,
+.notion-export-footer button:hover { background: #f2edf5; }
+.notion-image-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+.notion-image-actions .is-primary,
+.notion-export-footer .is-primary {
+  color: #fff;
+  border-color: var(--violet);
+  background: var(--violet);
+}
+.notion-image-actions .is-primary:hover,
+.notion-export-footer .is-primary:hover { background: #443365; }
+.notion-export-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 20px 34px;
+  border-top: 1px solid var(--line);
+  background: #fff;
+}
+.notion-export-footer p {
+  max-width: 510px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.notion-export-footer > div { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+.notion-export-dialog.is-busy button { opacity: .58; pointer-events: none; }
+.notion-export-dialog.is-busy [data-notion-close] { opacity: 1; pointer-events: auto; }

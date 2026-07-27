@@ -1572,7 +1572,7 @@ window.addEventListener('tracker:data-changed', (event) => {
     const max = Math.max(4, ...dates.map((item) => item.value));
     holder.innerHTML = dates.map((item, index) => `<div${index === 13 ? ' class="is-current"' : ''}><i style="height:${item.value ? Math.max(6, item.value / max * 100) : 0}%" title="${formatWater(item.value)}"></i><span>${item.date.getDate()}</span></div>`).join('');
     page.querySelector('[data-detail-water-total]').textContent = `Totale ${formatWater(current.waterTotal)}`;
-    page.querySelector('[data-detail-water-average]').textContent = current.water ? formatWater(Math.round(current.water * 4) / 4) : '—';
+    page.querySelector('[data-detail-water-average]').textContent = current.water ? formatWater(Math.round(current.water)) : '—';
     page.querySelector('[data-detail-water-max]').textContent = current.waterMax ? formatWater(current.waterMax) : '—';
     page.querySelector('[data-detail-water-total-value]').textContent = current.waterTotal ? formatWater(current.waterTotal) : '—';
   }
@@ -1628,7 +1628,7 @@ window.addEventListener('tracker:data-changed', (event) => {
     const productivePrevious = previous.emotionCounts.productive || 0;
     table.innerHTML = `<div class="stats-comparison-row stats-comparison-head" role="row"><span>Dato</span><span>${currentLabel}</span><span>${previousLabel}</span><span>Differenza</span></div>
       <div class="stats-comparison-row" role="row"><strong>Sonno medio</strong><span>${current.sleep ? formatMinutes(current.sleep) : '—'}</span><span>${previous.sleep ? formatMinutes(previous.sleep) : '—'}</span><em>${differenceMinutes(current.sleep, previous.sleep)}</em></div>
-      <div class="stats-comparison-row" role="row"><strong>Acqua media</strong><span>${current.water ? formatWater(Math.round(current.water * 4) / 4) : '—'}</span><span>${previous.water ? formatWater(Math.round(previous.water * 4) / 4) : '—'}</span><em>${differenceNumber(current.water, previous.water, ' quarti')}</em></div>
+      <div class="stats-comparison-row" role="row"><strong>Acqua media</strong><span>${current.water ? formatWater(Math.round(current.water)) : '—'}</span><span>${previous.water ? formatWater(Math.round(previous.water)) : '—'}</span><em>${differenceNumber(current.water, previous.water, ' quarti')}</em></div>
       <div class="stats-comparison-row" role="row"><strong>Tempo nelle attività</strong><span>${current.activityTotal ? formatMinutes(current.activityTotal) : '—'}</span><span>${previous.activityTotal ? formatMinutes(previous.activityTotal) : '—'}</span><em>${differenceMinutes(current.activityTotal, previous.activityTotal)}</em></div>
       <div class="stats-comparison-row" role="row"><strong>Ore lavorate</strong><span>${current.workTotal ? formatMinutes(current.workTotal) : '—'}</span><span>${previous.workTotal ? formatMinutes(previous.workTotal) : '—'}</span><em>${differenceMinutes(current.workTotal, previous.workTotal)}</em></div>
       <div class="stats-comparison-row" role="row"><strong>Emozione più frequente</strong><span>${emotionCurrent}</span><span>${emotionPrevious}</span><em>—</em></div>
@@ -1654,7 +1654,7 @@ window.addEventListener('tracker:data-changed', (event) => {
     page.querySelector('[data-period-caption]').textContent = `${formatDate(range.start, { day: 'numeric', month: 'long' })} — ${formatDate(range.end, { day: 'numeric', month: 'long', year: 'numeric' })}`;
     page.querySelector('[data-stat-sleep]').textContent = current.sleep ? formatMinutes(current.sleep) : '—';
     page.querySelector('[data-stat-sleep-note]').innerHTML = current.sleep ? `<b>${differenceMinutes(current.sleep, previous.sleep)}</b> rispetto al periodo precedente` : 'Nessun dato nel periodo';
-    page.querySelector('[data-stat-water]').textContent = current.water ? formatWater(Math.round(current.water * 4) / 4) : '—';
+    page.querySelector('[data-stat-water]').textContent = current.water ? formatWater(Math.round(current.water)) : '—';
     page.querySelector('[data-stat-water-note]').textContent = current.water ? `circa ${waterLiters(current.water, Store.getState().settings.bottleMl)} al giorno` : 'Nessun dato nel periodo';
     page.querySelector('[data-stat-work]').textContent = current.workTotal ? formatMinutes(current.workTotal) : '—';
     page.querySelector('[data-stat-work-note]').textContent = current.workAverage ? `media di ${formatMinutes(current.workAverage)} nei giorni lavorati` : 'Nessuna attività Lavoro';
@@ -1664,7 +1664,7 @@ window.addEventListener('tracker:data-changed', (event) => {
     const emotionIcon = page.querySelector('.summary-emotion .stats-summary-icon');
     if (emotionIcon) emotionIcon.innerHTML = emotion ? tetrominoMarkup({ emotionKey: current.mostEmotion[0], piece: emotion.piece, color: emotion.color }, 9) : '<span class="empty-tetr-piece">—</span>';
     page.querySelector('[data-stat-insight-sleep]').textContent = current.sleep ? `Hai dormito in media ${formatMinutes(current.sleep)} nel periodo selezionato.` : 'Non ci sono ancora notti sufficienti per calcolare la media.';
-    page.querySelector('[data-stat-insight-water]').textContent = current.water ? `La media giornaliera è stata di ${formatWater(Math.round(current.water * 4) / 4)}, circa ${waterLiters(current.water, Store.getState().settings.bottleMl)}.` : 'Non ci sono ancora registrazioni d’acqua nel periodo.';
+    page.querySelector('[data-stat-insight-water]').textContent = current.water ? `La media giornaliera è stata di ${formatWater(Math.round(current.water))}, circa ${waterLiters(current.water, Store.getState().settings.bottleMl)}.` : 'Non ci sono ancora registrazioni d’acqua nel periodo.';
     page.querySelector('[data-stat-insight-emotion]').textContent = emotion ? `${emotion.label} è stata l’emozione più frequente, registrata in ${current.mostEmotion[1]} giornate.` : 'Tetr-Emotion non contiene ancora dati nel periodo.';
 
     const monthDate = periodSelect.value === 'previous' ? new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1) : new Date(range.end.getFullYear(), range.end.getMonth(), 1);
@@ -1674,7 +1674,7 @@ window.addEventListener('tracker:data-changed', (event) => {
     if (heatmaps[2]) renderHeatmap(heatmaps[2], monthDate, 'work');
     heatmaps.forEach((map) => {
       map.closest('.stats-habit-card')?.querySelector('.stats-habit-top > strong')?.replaceChildren(document.createTextNode(
-        map === heatmaps[0] ? `Media ${current.sleep ? formatMinutes(current.sleep) : '—'}` : map === heatmaps[1] ? `Media ${current.water ? formatWater(Math.round(current.water * 4) / 4) : '—'}` : `Media ${current.workAverage ? formatMinutes(current.workAverage) : '—'}`
+        map === heatmaps[0] ? `Media ${current.sleep ? formatMinutes(current.sleep) : '—'}` : map === heatmaps[1] ? `Media ${current.water ? formatWater(Math.round(current.water)) : '—'}` : `Media ${current.workAverage ? formatMinutes(current.workAverage) : '—'}`
       ));
     });
 
@@ -1710,7 +1710,7 @@ window.addEventListener('tracker:data-changed', (event) => {
 
   periodSelect.addEventListener('change', render);
   page.querySelector('[data-stats-compare]')?.addEventListener('click', () => { comparison.hidden = !comparison.hidden; });
-  page.querySelector('[data-stats-export]')?.addEventListener('click', () => { page.querySelector('[data-stats-export-feedback]').textContent = 'L’esportazione per Notion è in sospeso e verrà aggiunta in seguito.'; });
+  page.querySelector('[data-stats-export]')?.addEventListener('click', () => window.dispatchEvent(new CustomEvent('tracker:open-notion-export')));
   page.addEventListener('mousemove', (event) => {
     const target = event.target.closest('[data-tooltip]');
     let tip = page.querySelector('.stats-floating-tooltip');
@@ -2119,3 +2119,752 @@ window.addEventListener('tracker:data-changed', (event) => {
 if (Store?.getScriptUrl()) {
   Store.pullRemote({ merge: true }).catch((error) => console.warn('Sincronizzazione iniziale non riuscita. I dati locali restano disponibili.', error));
 }
+
+// V24 — esportazione del riepilogo, CSV e grafici PNG per Notion.
+(() => {
+  const page = document.querySelector('.stats-page');
+  const dialog = document.querySelector('[data-notion-export-dialog]');
+  if (!page || !dialog) return;
+
+  const periodControl = dialog.querySelector('[data-notion-period]');
+  const customDates = dialog.querySelector('[data-notion-custom-dates]');
+  const startInput = dialog.querySelector('[data-notion-start]');
+  const endInput = dialog.querySelector('[data-notion-end]');
+  const periodCaption = dialog.querySelector('[data-notion-period-caption]');
+  const detailControl = dialog.querySelector('[data-notion-detail]');
+  const notesControl = dialog.querySelector('[data-notion-notes]');
+  const feedback = dialog.querySelector('[data-notion-feedback]');
+  const pageFeedback = page.querySelector('[data-stats-export-feedback]');
+
+  const COLORS = {
+    ink: '#2F283B', muted: '#6D6578', violet: '#523F77', violetSoft: '#EEE9F4',
+    line: '#DED9E5', rose: '#B35A8A', pink: '#F6B7C7', lilac: '#B6A5CE',
+    periwinkle: '#7880AE', sky: '#A3BBD7', white: '#FFFFFF', pale: '#F8F6FA',
+    sleep: ['#F5F1F8', '#DCD3E9', '#B9A8D0', '#8A75AA', '#523F77'],
+    water: ['#F4F7FA', '#DDE8F1', '#BDD2E3', '#91B4D1', '#5F8EB7'],
+    work: ['#F5F3F8', '#E4DFF0', '#BDB3D4', '#8C7DAE', '#5E4D82']
+  };
+
+  const IMAGE_META = {
+    overview: { label: 'Panoramica del periodo', file: 'panoramica' },
+    'sleep-trend': { label: 'Andamento del sonno', file: 'andamento-sonno' },
+    'sleep-calendar': { label: 'Calendario del sonno', file: 'calendario-sonno' },
+    'water-trend': { label: 'Andamento dell’acqua', file: 'andamento-acqua' },
+    'water-calendar': { label: 'Calendario dell’acqua', file: 'calendario-acqua' },
+    'work-calendar': { label: 'Calendario delle ore lavorate', file: 'calendario-lavoro' },
+    activities: { label: 'Distribuzione delle attività', file: 'distribuzione-attivita' },
+    emotions: { label: 'Distribuzione delle emozioni', file: 'distribuzione-emozioni' },
+    'tetr-grid': { label: 'Griglia Tetr-Emotion', file: 'griglia-tetr-emotion' }
+  };
+
+  const average = (values) => values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+  const workMinutes = (day) => (day.activities || []).filter((item) => isWorkCategory(item.category)).reduce((sum, item) => sum + (Number(item.duration) || 0), 0);
+  const activityMinutes = (day) => (day.activities || []).reduce((sum, item) => sum + (Number(item.duration) || 0), 0);
+  const escapeCsv = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+  const wait = (milliseconds) => new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+
+  function enumerateDates(range) {
+    const dates = [];
+    const cursor = new Date(range.start);
+    cursor.setHours(12, 0, 0, 0);
+    const end = new Date(range.end);
+    end.setHours(12, 0, 0, 0);
+    while (cursor <= end) {
+      const date = new Date(cursor);
+      const key = Store.dateKey(date);
+      dates.push({ date, key, day: Store.getDay(key) });
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    return dates;
+  }
+
+  function selectedSections() {
+    return new Set([...dialog.querySelectorAll('[data-notion-section]:checked')].map((input) => input.value));
+  }
+
+  function selectedImageKeys() {
+    return [...dialog.querySelectorAll('[data-notion-image]:checked')].map((input) => input.value);
+  }
+
+  function currentStatsRange() {
+    const statsPeriod = page.querySelector('[data-stats-period]')?.value || '30';
+    return getDateRange(statsPeriod);
+  }
+
+  function resolveRange() {
+    const value = periodControl.value;
+    if (value === 'current') return currentStatsRange();
+    if (value === 'custom') {
+      const start = /^\d{4}-\d{2}-\d{2}$/.test(startInput.value) ? new Date(`${startInput.value}T12:00:00`) : null;
+      const end = /^\d{4}-\d{2}-\d{2}$/.test(endInput.value) ? new Date(`${endInput.value}T12:00:00`) : null;
+      if (!start || !end || start > end) throw new Error('Controlla le date dell’intervallo personalizzato.');
+      return { start, end, startKey: Store.dateKey(start), endKey: Store.dateKey(end) };
+    }
+    return getDateRange(value);
+  }
+
+  function periodLabel(range) {
+    return `${formatDate(range.start, { day: 'numeric', month: 'long', year: 'numeric' })} — ${formatDate(range.end, { day: 'numeric', month: 'long', year: 'numeric' })}`;
+  }
+
+  function periodSlug(range) {
+    return `${Store.dateKey(range.start)}_${Store.dateKey(range.end)}`;
+  }
+
+  function averageClock(values, bedtime = false) {
+    const minutes = values.map(parseTime).filter((value) => value !== null).map((value) => bedtime && value < 720 ? value + 1440 : value);
+    return minutes.length ? average(minutes) : null;
+  }
+
+  function clockLabel(value) {
+    if (!Number.isFinite(value)) return '—';
+    const normalized = Math.round(value) % 1440;
+    return `${String(Math.floor(normalized / 60)).padStart(2, '0')}:${String(normalized % 60).padStart(2, '0')}`;
+  }
+
+  function calculate(days) {
+    const sleep = days.map((day) => Number(day.sleep?.duration)).filter((value) => Number.isFinite(value) && value > 0);
+    const water = days.map(waterQuarters).filter((value) => value > 0);
+    const work = days.map(workMinutes).filter((value) => value > 0);
+    const activities = days.map(activityMinutes).filter((value) => value > 0);
+    const quality = days.map((day) => Number(day.sleep?.quality)).filter((value) => value > 0);
+    const bedtimes = days.map((day) => day.sleep?.bedtime).filter(Boolean);
+    const wakes = days.map((day) => day.sleep?.wake).filter(Boolean);
+    const rise = days.map((day) => Number(day.sleep?.riseDelay)).filter((value) => Number.isFinite(value));
+    const emotionCounts = Object.fromEntries(Object.keys(EMOTIONS).map((key) => [key, 0]));
+    const categoryMinutes = {};
+    const categoryCounts = {};
+    const mealCounts = { breakfast: 0, lunch: 0, dinner: 0, snacks: 0 };
+    let totalActivities = 0;
+    let awakenings = 0;
+    days.forEach((day) => {
+      if (day.tetr?.emotionKey && emotionCounts[day.tetr.emotionKey] !== undefined) emotionCounts[day.tetr.emotionKey] += 1;
+      Object.keys(mealCounts).forEach((key) => { if (String(day.meals?.[key] || '').trim()) mealCounts[key] += 1; });
+      awakenings += Number(day.sleep?.awakenings) || 0;
+      (day.activities || []).forEach((item) => {
+        const category = item.category || 'Altro';
+        categoryMinutes[category] = (categoryMinutes[category] || 0) + (Number(item.duration) || 0);
+        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+        totalActivities += 1;
+      });
+    });
+    const mostEmotion = Object.entries(emotionCounts).sort((a, b) => b[1] - a[1])[0] || [null, 0];
+    const topCategory = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0] || [null, 0];
+    return {
+      sleepAverage: average(sleep), sleepCount: sleep.length, sleepTotal: sleep.reduce((sum, value) => sum + value, 0),
+      waterAverage: average(water), waterTotal: water.reduce((sum, value) => sum + value, 0), waterCount: water.length, waterMax: Math.max(0, ...water),
+      workTotal: work.reduce((sum, value) => sum + value, 0), workAverage: average(work),
+      activityTotal: activities.reduce((sum, value) => sum + value, 0), totalActivities, categoryMinutes, categoryCounts, topCategory,
+      qualityAverage: average(quality), qualityCount: quality.length, bedtime: averageClock(bedtimes, true), wake: averageClock(wakes), riseAverage: average(rise), awakenings,
+      emotionCounts, mostEmotion, mealCounts, completedDays: days.filter(dayHasData).length
+    };
+  }
+
+  function longestEmotionStreak(days) {
+    let best = { key: null, length: 0 };
+    let run = { key: null, length: 0 };
+    days.filter((day) => day.tetr).sort((a, b) => a.date.localeCompare(b.date)).forEach((day) => {
+      run = run.key === day.tetr.emotionKey ? { key: run.key, length: run.length + 1 } : { key: day.tetr.emotionKey, length: 1 };
+      if (run.length > best.length) best = { ...run };
+    });
+    return best;
+  }
+
+  function createContext() {
+    const range = resolveRange();
+    const dateEntries = enumerateDates(range);
+    const days = dateEntries.map((entry) => entry.day);
+    const stats = calculate(days);
+    const monthDate = new Date(range.end.getFullYear(), range.end.getMonth(), 1);
+    return { range, dateEntries, days, stats, monthDate, label: periodLabel(range), slug: periodSlug(range) };
+  }
+
+  function updatePeriodCaption() {
+    customDates.hidden = periodControl.value !== 'custom';
+    try {
+      const range = resolveRange();
+      periodCaption.textContent = periodLabel(range);
+    } catch (error) {
+      periodCaption.textContent = error.message;
+    }
+  }
+
+  function activityDescription(day) {
+    return (day.activities || []).map((item) => {
+      const duration = Number(item.duration) > 0 ? ` (${formatMinutes(Number(item.duration))})` : '';
+      return `${item.title || 'Attività'}${duration}`;
+    }).join('; ');
+  }
+
+  function buildMarkdown(context) {
+    const { range, days, stats, label } = context;
+    const sections = selectedSections();
+    const full = detailControl.value === 'full';
+    const includeNotes = notesControl.checked;
+    const emotion = stats.mostEmotion[0] ? EMOTIONS[stats.mostEmotion[0]] : null;
+    const streak = longestEmotionStreak(days);
+    const lines = [
+      `# Riepilogo personale — ${formatDate(range.end, { month: 'long', year: 'numeric' })}`,
+      '',
+      `**Periodo:** ${label}`,
+      `**Giornate con dati:** ${stats.completedDays}`,
+      ''
+    ];
+
+    if (sections.has('overview')) {
+      lines.push('## Panoramica', '', '| Dato | Valore |', '|---|---|',
+        `| Sonno medio | ${stats.sleepCount ? formatMinutes(stats.sleepAverage) : '—'} |`,
+        `| Acqua media | ${stats.waterCount ? `${formatWater(Math.round(stats.waterAverage))} · ${waterLiters(stats.waterAverage, Store.getState().settings.bottleMl)}` : '—'} |`,
+        `| Ore lavorate | ${stats.workTotal ? formatMinutes(stats.workTotal) : '—'} |`,
+        `| Attività registrate | ${stats.totalActivities} |`,
+        `| Emozione più frequente | ${emotion ? `${emotion.label} · ${stats.mostEmotion[1]} giorni` : '—'} |`,
+        '');
+    }
+
+    if (sections.has('sleep')) {
+      lines.push('## Sonno', '',
+        `- Sonno medio: **${stats.sleepCount ? formatMinutes(stats.sleepAverage) : '—'}**`,
+        `- Qualità media: **${stats.qualityCount ? `${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(stats.qualityAverage)} / 5` : '—'}**`,
+        `- Orario medio a letto: **${clockLabel(stats.bedtime)}**`,
+        `- Sveglia media: **${clockLabel(stats.wake)}**`,
+        `- Tempo medio per alzarti: **${stats.riseAverage ? formatMinutes(stats.riseAverage) : '—'}**`,
+        `- Risvegli complessivi: **${stats.awakenings}**`, '');
+      if (full) {
+        lines.push('| Data | Durata | A letto | Addormentata | Sveglia | Qualità | Risvegli |', '|---|---:|---:|---:|---:|---:|---:|');
+        context.dateEntries.filter(({ day }) => day.sleep).forEach(({ date, day }) => lines.push(`| ${formatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' })} | ${formatMinutes(day.sleep.duration)} | ${day.sleep.bedtime || '—'} | ${day.sleep.asleep || '—'} | ${day.sleep.wake || '—'} | ${day.sleep.quality || '—'} | ${day.sleep.awakenings || 0} |`));
+        lines.push('');
+      }
+    }
+
+    if (sections.has('water')) {
+      lines.push('## Cibo e acqua', '',
+        `- Acqua media: **${stats.waterCount ? `${formatWater(Math.round(stats.waterAverage))} · ${waterLiters(stats.waterAverage, Store.getState().settings.bottleMl)}` : '—'}**`,
+        `- Acqua totale: **${waterLiters(stats.waterTotal, Store.getState().settings.bottleMl)}**`,
+        `- Colazioni registrate: **${stats.mealCounts.breakfast}**`,
+        `- Pranzi registrati: **${stats.mealCounts.lunch}**`,
+        `- Cene registrate: **${stats.mealCounts.dinner}**`,
+        `- Giornate con spuntini: **${stats.mealCounts.snacks}**`, '');
+      if (full) {
+        lines.push('| Data | Acqua | Colazione | Pranzo | Cena | Spuntini |', '|---|---:|---|---|---|---|');
+        context.dateEntries.filter(({ day }) => waterQuarters(day) || Object.values(day.meals || {}).some(Boolean)).forEach(({ date, day }) => lines.push(`| ${formatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' })} | ${formatWater(waterQuarters(day))} | ${day.meals?.breakfast || '—'} | ${day.meals?.lunch || '—'} | ${day.meals?.dinner || '—'} | ${day.meals?.snacks || '—'} |`));
+        lines.push('');
+      }
+    }
+
+    if (sections.has('day')) {
+      lines.push('## La mia giornata', '',
+        `- Attività registrate: **${stats.totalActivities}**`,
+        `- Ore lavorate: **${stats.workTotal ? formatMinutes(stats.workTotal) : '—'}**`,
+        `- Categoria più presente: **${stats.topCategory[0] || '—'}${stats.topCategory[1] ? ` · ${stats.topCategory[1]} attività` : ''}**`, '');
+      const categories = Object.entries(stats.categoryMinutes).sort((a, b) => b[1] - a[1]);
+      if (categories.length) {
+        lines.push('### Tempo per categoria', '');
+        categories.forEach(([category, minutes]) => lines.push(`- ${category}: **${minutes ? formatMinutes(minutes) : 'Senza durata registrata'}**`));
+        lines.push('');
+      }
+      if (full) {
+        lines.push('| Data | Attività | Ore lavorate |', '|---|---|---:|');
+        context.dateEntries.filter(({ day }) => day.activities?.length).forEach(({ date, day }) => lines.push(`| ${formatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' })} | ${activityDescription(day) || '—'} | ${workMinutes(day) ? formatMinutes(workMinutes(day)) : '—'} |`));
+        lines.push('');
+      }
+    }
+
+    if (sections.has('tetr')) {
+      lines.push('## Tetr-Emotion', '');
+      Object.entries(EMOTIONS).forEach(([key, item]) => lines.push(`- ${item.label}: **${stats.emotionCounts[key] || 0} ${(stats.emotionCounts[key] || 0) === 1 ? 'giorno' : 'giorni'}**`));
+      lines.push('', `**Emozione più frequente:** ${emotion ? emotion.label : '—'}`,
+        `**Serie più lunga:** ${streak.length ? `${streak.length} ${streak.length === 1 ? 'giorno' : 'giorni'} · ${EMOTIONS[streak.key]?.label}` : '—'}`, '',
+        '> La griglia Tetr-Emotion e gli altri grafici possono essere scaricati separatamente come immagini PNG.', '');
+    }
+
+    if (sections.has('diary')) {
+      lines.push('## Diario giornaliero', '');
+      context.dateEntries.filter(({ day }) => dayHasData(day)).forEach(({ date, day }) => {
+        const emotionData = day.tetr ? EMOTIONS[day.tetr.emotionKey] : null;
+        lines.push(`### ${formatDate(date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}`, '',
+          `- **Sonno:** ${day.sleep ? formatMinutes(day.sleep.duration) : '—'}`,
+          `- **Acqua:** ${waterQuarters(day) ? formatWater(waterQuarters(day)) : '—'}`,
+          `- **Lavoro:** ${workMinutes(day) ? formatMinutes(workMinutes(day)) : '—'}`,
+          `- **Emozione:** ${emotionData?.label || '—'}`);
+        if (day.activities?.length) lines.push(`- **Attività:** ${activityDescription(day)}`);
+        const meals = [['Colazione', day.meals?.breakfast], ['Pranzo', day.meals?.lunch], ['Cena', day.meals?.dinner], ['Spuntini', day.meals?.snacks]].filter(([, value]) => String(value || '').trim());
+        if (meals.length) {
+          lines.push('', '**Cosa ho mangiato**');
+          meals.forEach(([name, value]) => lines.push(`- ${name}: ${value}`));
+        }
+        if (includeNotes) {
+          const notes = [day.dailyNote, day.sleep?.note, day.tetr?.note, ...(day.activities || []).map((item) => item.note)].filter((value) => String(value || '').trim());
+          if (notes.length) lines.push('', '**Note**', ...notes.map((note) => `> ${note}`));
+        }
+        lines.push('');
+      });
+    }
+
+    return lines.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+  }
+
+  function inlineMarkdown(value) {
+    return escapeHtml(value).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  }
+
+  function markdownToHtml(markdown) {
+    const lines = markdown.split('\n');
+    const html = [];
+    let index = 0;
+    let listOpen = false;
+    const closeList = () => { if (listOpen) { html.push('</ul>'); listOpen = false; } };
+    while (index < lines.length) {
+      const line = lines[index];
+      const next = lines[index + 1] || '';
+      if (!line.trim()) { closeList(); index += 1; continue; }
+      if (/^\|/.test(line) && /^\|?\s*:?-+/.test(next)) {
+        closeList();
+        const headers = line.split('|').slice(1, -1).map((cell) => cell.trim());
+        html.push('<table><thead><tr>' + headers.map((cell) => `<th>${inlineMarkdown(cell)}</th>`).join('') + '</tr></thead><tbody>');
+        index += 2;
+        while (index < lines.length && /^\|/.test(lines[index])) {
+          const cells = lines[index].split('|').slice(1, -1).map((cell) => cell.trim());
+          html.push('<tr>' + cells.map((cell) => `<td>${inlineMarkdown(cell)}</td>`).join('') + '</tr>');
+          index += 1;
+        }
+        html.push('</tbody></table>');
+        continue;
+      }
+      const heading = line.match(/^(#{1,3})\s+(.+)$/);
+      if (heading) { closeList(); html.push(`<h${heading[1].length}>${inlineMarkdown(heading[2])}</h${heading[1].length}>`); index += 1; continue; }
+      if (line.startsWith('- ')) {
+        if (!listOpen) { html.push('<ul>'); listOpen = true; }
+        html.push(`<li>${inlineMarkdown(line.slice(2))}</li>`); index += 1; continue;
+      }
+      if (line.startsWith('> ')) { closeList(); html.push(`<blockquote>${inlineMarkdown(line.slice(2))}</blockquote>`); index += 1; continue; }
+      closeList(); html.push(`<p>${inlineMarkdown(line)}</p>`); index += 1;
+    }
+    closeList();
+    return `<div>${html.join('')}</div>`;
+  }
+
+  function buildCsv(context) {
+    const bottleMl = Store.getState().settings.bottleMl;
+    const headers = ['Data', 'Sonno minuti', 'A letto', 'Addormentata', 'Sveglia', 'Tempo per alzarsi minuti', 'Qualità sonno', 'Risvegli', 'Acqua quarti', 'Acqua ml', 'Colazione', 'Pranzo', 'Cena', 'Spuntini', 'Lavoro minuti', 'Attività', 'Emozione', 'Nota Tetr-Emotion', 'Nota giornata'];
+    const rows = context.dateEntries.map(({ key, day }) => {
+      const quarters = waterQuarters(day);
+      const emotion = day.tetr ? EMOTIONS[day.tetr.emotionKey]?.label : '';
+      return [key, day.sleep?.duration || '', day.sleep?.bedtime || '', day.sleep?.asleep || '', day.sleep?.wake || '', day.sleep?.riseDelay ?? '', day.sleep?.quality || '', day.sleep?.awakenings ?? '', quarters || '', quarters ? Math.round(quarters * bottleMl / 4) : '', day.meals?.breakfast || '', day.meals?.lunch || '', day.meals?.dinner || '', day.meals?.snacks || '', workMinutes(day) || '', activityDescription(day), emotion || '', day.tetr?.note || '', day.dailyNote || ''];
+    });
+    return '\uFEFF' + [headers, ...rows].map((row) => row.map(escapeCsv).join(';')).join('\r\n');
+  }
+
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = filename;
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  function setBusy(value, message = '') {
+    dialog.classList.toggle('is-busy', value);
+    if (message) feedback.textContent = message;
+  }
+
+  function canvasBase(title, subtitle, width = 1600, height = 1000) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = COLORS.white;
+    ctx.fillRect(0, 0, width, height);
+    ctx.fillStyle = COLORS.violet;
+    ctx.font = '700 54px Arial, sans-serif';
+    ctx.fillText(title, 88, 90);
+    ctx.fillStyle = COLORS.muted;
+    ctx.font = '400 25px Arial, sans-serif';
+    ctx.fillText(subtitle, 88, 134);
+    ctx.strokeStyle = COLORS.line;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(88, 174); ctx.lineTo(width - 88, 174); ctx.stroke();
+    return { canvas, ctx, width, height, top: 220, left: 88, right: width - 88, bottom: height - 72 };
+  }
+
+  function roundedRect(ctx, x, y, width, height, radius, fill, stroke = null) {
+    const r = Math.min(radius, width / 2, height / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y); ctx.arcTo(x + width, y, x + width, y + height, r); ctx.arcTo(x + width, y + height, x, y + height, r); ctx.arcTo(x, y + height, x, y, r); ctx.arcTo(x, y, x + width, y, r); ctx.closePath();
+    if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke(); }
+  }
+
+  function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 3) {
+    const words = String(text || '').split(/\s+/);
+    const lines = [];
+    let line = '';
+    words.forEach((word) => {
+      const test = line ? `${line} ${word}` : word;
+      if (ctx.measureText(test).width > maxWidth && line) { lines.push(line); line = word; }
+      else line = test;
+    });
+    if (line) lines.push(line);
+    lines.slice(0, maxLines).forEach((item, index) => ctx.fillText(index === maxLines - 1 && lines.length > maxLines ? `${item}…` : item, x, y + index * lineHeight));
+  }
+
+  function drawEmpty(ctx, width, height, message = 'Nessun dato nel periodo selezionato') {
+    ctx.fillStyle = COLORS.muted;
+    ctx.font = '400 28px Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(message, width / 2, height / 2);
+    ctx.textAlign = 'left';
+  }
+
+  function drawOverview(context) {
+    const base = canvasBase('Panoramica del periodo', context.label, 1600, 1040);
+    const { ctx, canvas } = base;
+    const emotion = context.stats.mostEmotion[0] ? EMOTIONS[context.stats.mostEmotion[0]] : null;
+    const cards = [
+      ['Sonno medio', context.stats.sleepCount ? formatMinutes(context.stats.sleepAverage) : '—', `${context.stats.sleepCount} notti registrate`, '#F4EFF7'],
+      ['Acqua media', context.stats.waterCount ? formatWater(Math.round(context.stats.waterAverage)) : '—', context.stats.waterCount ? waterLiters(context.stats.waterAverage, Store.getState().settings.bottleMl) : 'Nessun dato', '#EEF4F8'],
+      ['Ore lavorate', context.stats.workTotal ? formatMinutes(context.stats.workTotal) : '—', `${context.stats.totalActivities} attività registrate`, '#F1EFF7'],
+      ['Emozione più frequente', emotion?.label || '—', emotion ? `${context.stats.mostEmotion[1]} giorni` : 'Nessun dato', emotion?.color ? `${emotion.color}26` : '#F7F4F9'],
+      ['Giornate con dati', String(context.stats.completedDays), `${context.dateEntries.length} giorni nel periodo`, '#F8F3F6']
+    ];
+    const positions = [[88, 235, 690, 245], [822, 235, 690, 245], [88, 520, 690, 245], [822, 520, 690, 245], [455, 805, 690, 170]];
+    cards.forEach(([label, value, note, fill], index) => {
+      const [x, y, w, h] = positions[index];
+      roundedRect(ctx, x, y, w, h, 28, fill, COLORS.line);
+      ctx.fillStyle = COLORS.muted; ctx.font = '600 25px Arial, sans-serif'; ctx.fillText(label, x + 32, y + 48);
+      ctx.fillStyle = COLORS.violet; ctx.font = index === 3 ? '700 42px Arial, sans-serif' : '700 52px Arial, sans-serif';
+      wrapCanvasText(ctx, value, x + 32, y + 115, w - 64, 50, 2);
+      ctx.fillStyle = COLORS.muted; ctx.font = '400 22px Arial, sans-serif'; ctx.fillText(note, x + 32, y + h - 30);
+    });
+    return canvas;
+  }
+
+  function drawLineTrend(context, type) {
+    const isSleep = type === 'sleep';
+    const title = isSleep ? 'Andamento del sonno' : 'Andamento dell’acqua';
+    const base = canvasBase(title, context.label, 1600, 1040);
+    const { ctx, canvas, left, right } = base;
+    const chart = { x: left + 70, y: 245, width: right - left - 95, height: 610 };
+    const values = context.dateEntries.map(({ day }) => isSleep ? (Number(day.sleep?.duration) || 0) : waterQuarters(day));
+    const valid = values.filter((value) => value > 0);
+    if (!valid.length) { drawEmpty(ctx, canvas.width, canvas.height); return canvas; }
+    const maxRaw = Math.max(...valid, isSleep ? 600 : 8);
+    const maxValue = isSleep ? Math.ceil(maxRaw / 60) * 60 : Math.ceil(maxRaw);
+    ctx.strokeStyle = COLORS.line; ctx.lineWidth = 2;
+    for (let line = 0; line <= 4; line += 1) {
+      const y = chart.y + chart.height * line / 4;
+      ctx.beginPath(); ctx.moveTo(chart.x, y); ctx.lineTo(chart.x + chart.width, y); ctx.stroke();
+      const value = maxValue * (1 - line / 4);
+      ctx.fillStyle = COLORS.muted; ctx.font = '400 20px Arial, sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText(isSleep ? `${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(value / 60)} h` : formatWater(value), chart.x - 16, y + 7);
+    }
+    ctx.textAlign = 'left';
+    const count = Math.max(1, values.length - 1);
+    const xFor = (index) => chart.x + chart.width * index / count;
+    const yFor = (value) => chart.y + chart.height - (value / maxValue) * chart.height;
+    if (isSleep) {
+      ctx.strokeStyle = COLORS.violet; ctx.lineWidth = 6; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      let drawing = false;
+      ctx.beginPath();
+      values.forEach((value, index) => {
+        if (!value) { drawing = false; return; }
+        const x = xFor(index); const y = yFor(value);
+        if (!drawing) { ctx.moveTo(x, y); drawing = true; } else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      values.forEach((value, index) => { if (!value) return; ctx.fillStyle = COLORS.white; ctx.strokeStyle = COLORS.violet; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(xFor(index), yFor(value), 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); });
+    } else {
+      const barSpace = chart.width / values.length;
+      const barWidth = Math.max(7, Math.min(42, barSpace * .58));
+      values.forEach((value, index) => {
+        const x = xFor(index) - barWidth / 2;
+        const height = value ? (value / maxValue) * chart.height : 0;
+        roundedRect(ctx, x, chart.y + chart.height - height, barWidth, height, Math.min(10, barWidth / 2), value ? COLORS.sky : '#EEF0F4');
+      });
+    }
+    const step = Math.max(1, Math.ceil(values.length / 9));
+    context.dateEntries.forEach(({ date }, index) => {
+      if (index % step !== 0 && index !== values.length - 1) return;
+      ctx.fillStyle = COLORS.muted; ctx.font = '400 19px Arial, sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(formatDate(date, { day: 'numeric', month: 'short' }), xFor(index), chart.y + chart.height + 42);
+    });
+    ctx.textAlign = 'left';
+    const avg = average(valid);
+    ctx.fillStyle = COLORS.violet; ctx.font = '700 30px Arial, sans-serif';
+    ctx.fillText(isSleep ? `Media: ${formatMinutes(avg)}` : `Media: ${formatWater(Math.round(avg))} · ${waterLiters(avg, Store.getState().settings.bottleMl)}`, left, 930);
+    return canvas;
+  }
+
+  function heatmapLevel(day, type) {
+    if (type === 'sleep') { const value = Number(day.sleep?.duration) || 0; return value ? (value <= 120 ? 1 : value <= 240 ? 2 : value <= 300 ? 3 : 4) : 0; }
+    if (type === 'water') { const value = waterQuarters(day); return value ? (value <= 2 ? 1 : value <= 4 ? 2 : value <= 7 ? 3 : 4) : 0; }
+    const value = workMinutes(day); return value === 0 ? 0 : value <= 120 ? 2 : value <= 180 ? 3 : 4;
+  }
+
+  function heatmapValue(day, type) {
+    if (type === 'sleep') return day.sleep?.duration ? formatMinutes(day.sleep.duration) : '—';
+    if (type === 'water') return waterQuarters(day) ? formatWater(waterQuarters(day)) : '—';
+    return workMinutes(day) ? formatMinutes(workMinutes(day)) : '—';
+  }
+
+  function drawCalendar(context, type) {
+    const titles = { sleep: 'Calendario del sonno', water: 'Calendario dell’acqua', work: 'Calendario delle ore lavorate' };
+    const monthTitle = formatDate(context.monthDate, { month: 'long', year: 'numeric' });
+    const base = canvasBase(titles[type], capitalizeFirstLetter(monthTitle), 1600, 1100);
+    const { ctx, canvas } = base;
+    const first = new Date(context.monthDate.getFullYear(), context.monthDate.getMonth(), 1);
+    const daysInMonth = new Date(context.monthDate.getFullYear(), context.monthDate.getMonth() + 1, 0).getDate();
+    const sunday = trackerSettings().weekStart === 'sunday';
+    const labels = sunday ? ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'] : ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
+    const offset = sunday ? first.getDay() : (first.getDay() + 6) % 7;
+    const x0 = 120; const y0 = 285; const gap = 14; const cellW = 180; const cellH = 112;
+    labels.forEach((label, index) => { ctx.fillStyle = COLORS.violet; ctx.font = '700 23px Arial, sans-serif'; ctx.textAlign = 'center'; ctx.fillText(label, x0 + index * (cellW + gap) + cellW / 2, 245); });
+    const palette = type === 'sleep' ? COLORS.sleep : type === 'water' ? COLORS.water : COLORS.work;
+    for (let number = 1; number <= daysInMonth; number += 1) {
+      const position = offset + number - 1;
+      const row = Math.floor(position / 7); const column = position % 7;
+      const date = new Date(context.monthDate.getFullYear(), context.monthDate.getMonth(), number);
+      const day = Store.getDay(Store.dateKey(date));
+      const level = heatmapLevel(day, type);
+      const x = x0 + column * (cellW + gap); const y = y0 + row * (cellH + gap);
+      roundedRect(ctx, x, y, cellW, cellH, 18, palette[level], COLORS.line);
+      ctx.fillStyle = COLORS.violet; ctx.font = '700 27px Arial, sans-serif'; ctx.textAlign = 'left'; ctx.fillText(String(number), x + 17, y + 34);
+      ctx.fillStyle = level >= 4 && type !== 'water' ? COLORS.white : COLORS.ink; ctx.font = '600 19px Arial, sans-serif';
+      wrapCanvasText(ctx, heatmapValue(day, type), x + 17, y + 76, cellW - 34, 22, 2);
+    }
+    ctx.textAlign = 'left';
+    ctx.fillStyle = COLORS.muted; ctx.font = '400 20px Arial, sans-serif'; ctx.fillText('Più intenso = valore più alto. Le celle bianche non contengono dati.', 120, 1040);
+    return canvas;
+  }
+
+  function drawHorizontalDistribution(context, type) {
+    const isEmotion = type === 'emotions';
+    const items = isEmotion
+      ? Object.entries(EMOTIONS).map(([key, item]) => ({ label: item.label, value: context.stats.emotionCounts[key] || 0, color: item.color, valueLabel: `${context.stats.emotionCounts[key] || 0}` }))
+      : Object.entries(context.stats.categoryMinutes).sort((a, b) => b[1] - a[1]).map(([label, value], index) => ({ label, value, color: [COLORS.rose, COLORS.violet, COLORS.sky, COLORS.lilac, COLORS.periwinkle, COLORS.pink][index % 6], valueLabel: value ? formatMinutes(value) : '—' }));
+    const height = Math.max(900, 330 + items.length * 90);
+    const base = canvasBase(isEmotion ? 'Distribuzione delle emozioni' : 'Distribuzione delle attività', context.label, 1600, height);
+    const { ctx, canvas } = base;
+    if (!items.length || !items.some((item) => item.value > 0)) { drawEmpty(ctx, canvas.width, canvas.height); return canvas; }
+    const max = Math.max(1, ...items.map((item) => item.value));
+    const labelX = 90; const barX = 520; const barWidth = 780; const valueX = 1450;
+    items.forEach((item, index) => {
+      const y = 260 + index * 90;
+      ctx.fillStyle = COLORS.ink; ctx.font = '600 24px Arial, sans-serif'; ctx.textAlign = 'left';
+      wrapCanvasText(ctx, item.label, labelX, y + 13, 390, 28, 2);
+      roundedRect(ctx, barX, y - 18, barWidth, 28, 14, '#EEEAF1');
+      if (item.value > 0) roundedRect(ctx, barX, y - 18, Math.max(12, barWidth * item.value / max), 28, 14, item.color);
+      ctx.fillStyle = COLORS.violet; ctx.font = '700 24px Arial, sans-serif'; ctx.textAlign = 'right'; ctx.fillText(item.valueLabel, valueX, y + 5);
+    });
+    ctx.textAlign = 'left';
+    return canvas;
+  }
+
+  function drawTetrGrid(context) {
+    const monthName = capitalizeFirstLetter(formatDate(context.monthDate, { month: 'long', year: 'numeric' }));
+    const base = canvasBase('Griglia Tetr-Emotion', monthName, 1500, 1450);
+    const { ctx, canvas } = base;
+    const matrix = Array.from({ length: 20 }, () => Array(10).fill(null));
+    const monthDays = Store.monthDays(Store.monthKey(context.monthDate)).filter((day) => day.tetr);
+    monthDays.forEach((day) => (day.tetr.cells || []).forEach(([row, col]) => { if (matrix[row] && col >= 0 && col < 10) matrix[row][col] = day.tetr; }));
+    const cell = 48; const boardX = 110; const boardY = 250;
+    roundedRect(ctx, boardX - 18, boardY - 18, cell * 10 + 36, cell * 20 + 36, 28, '#F8F6FA', COLORS.line);
+    matrix.forEach((row, rowIndex) => row.forEach((entry, colIndex) => {
+      const x = boardX + colIndex * cell; const y = boardY + rowIndex * cell;
+      ctx.fillStyle = entry?.color || '#FFFFFF'; ctx.fillRect(x + 2, y + 2, cell - 4, cell - 4);
+      ctx.strokeStyle = entry ? 'rgba(82,63,119,.24)' : 'rgba(82,63,119,.10)'; ctx.lineWidth = 2; ctx.strokeRect(x + 2, y + 2, cell - 4, cell - 4);
+    }));
+    ctx.fillStyle = COLORS.violet; ctx.font = '700 30px Arial, sans-serif'; ctx.fillText(`${monthDays.length} ${monthDays.length === 1 ? 'giorno rappresentato' : 'giorni rappresentati'}`, 720, 270);
+    const counts = Object.fromEntries(Object.keys(EMOTIONS).map((key) => [key, 0]));
+    monthDays.forEach((day) => { counts[day.tetr.emotionKey] = (counts[day.tetr.emotionKey] || 0) + 1; });
+    Object.entries(EMOTIONS).forEach(([key, emotion], index) => {
+      const y = 340 + index * 120;
+      roundedRect(ctx, 720, y - 35, 54, 54, 12, emotion.color, 'rgba(82,63,119,.18)');
+      ctx.fillStyle = COLORS.ink; ctx.font = '600 24px Arial, sans-serif'; wrapCanvasText(ctx, emotion.label, 800, y, 430, 28, 2);
+      ctx.fillStyle = COLORS.violet; ctx.font = '700 27px Arial, sans-serif'; ctx.textAlign = 'right'; ctx.fillText(String(counts[key] || 0), 1370, y);
+      ctx.textAlign = 'left';
+    });
+    return canvas;
+  }
+
+  function renderImageCanvas(key, context) {
+    if (key === 'overview') return drawOverview(context);
+    if (key === 'sleep-trend') return drawLineTrend(context, 'sleep');
+    if (key === 'sleep-calendar') return drawCalendar(context, 'sleep');
+    if (key === 'water-trend') return drawLineTrend(context, 'water');
+    if (key === 'water-calendar') return drawCalendar(context, 'water');
+    if (key === 'work-calendar') return drawCalendar(context, 'work');
+    if (key === 'activities') return drawHorizontalDistribution(context, 'activities');
+    if (key === 'emotions') return drawHorizontalDistribution(context, 'emotions');
+    if (key === 'tetr-grid') return drawTetrGrid(context);
+    throw new Error('Grafico non riconosciuto.');
+  }
+
+  function canvasBlob(canvas) {
+    return new Promise((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('Impossibile creare l’immagine PNG.')), 'image/png'));
+  }
+
+  async function buildImageFile(key, context) {
+    const canvas = renderImageCanvas(key, context);
+    const blob = await canvasBlob(canvas);
+    return { name: `${IMAGE_META[key].file}-${context.slug}.png`, blob };
+  }
+
+  function crc32Table() {
+    const table = new Uint32Array(256);
+    for (let n = 0; n < 256; n += 1) {
+      let c = n;
+      for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+      table[n] = c >>> 0;
+    }
+    return table;
+  }
+  const CRC_TABLE = crc32Table();
+  function crc32(bytes) {
+    let crc = 0xFFFFFFFF;
+    for (let index = 0; index < bytes.length; index += 1) crc = CRC_TABLE[(crc ^ bytes[index]) & 0xFF] ^ (crc >>> 8);
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+  function dosDateTime(date = new Date()) {
+    return {
+      time: ((date.getHours() & 31) << 11) | ((date.getMinutes() & 63) << 5) | ((Math.floor(date.getSeconds() / 2)) & 31),
+      date: (((date.getFullYear() - 1980) & 127) << 9) | (((date.getMonth() + 1) & 15) << 5) | (date.getDate() & 31)
+    };
+  }
+  function concatBytes(parts) {
+    const length = parts.reduce((sum, part) => sum + part.length, 0);
+    const output = new Uint8Array(length);
+    let offset = 0;
+    parts.forEach((part) => { output.set(part, offset); offset += part.length; });
+    return output;
+  }
+  function headerBytes(size, writer) {
+    const bytes = new Uint8Array(size); const view = new DataView(bytes.buffer); writer(view); return bytes;
+  }
+  async function createZip(files) {
+    const encoder = new TextEncoder();
+    const localParts = []; const centralParts = [];
+    let offset = 0;
+    const stamp = dosDateTime();
+    for (const file of files) {
+      const name = encoder.encode(file.name);
+      const data = new Uint8Array(await file.blob.arrayBuffer());
+      const checksum = crc32(data);
+      const localHeader = headerBytes(30, (view) => {
+        view.setUint32(0, 0x04034B50, true); view.setUint16(4, 20, true); view.setUint16(6, 0, true); view.setUint16(8, 0, true);
+        view.setUint16(10, stamp.time, true); view.setUint16(12, stamp.date, true); view.setUint32(14, checksum, true);
+        view.setUint32(18, data.length, true); view.setUint32(22, data.length, true); view.setUint16(26, name.length, true); view.setUint16(28, 0, true);
+      });
+      localParts.push(localHeader, name, data);
+      const centralHeader = headerBytes(46, (view) => {
+        view.setUint32(0, 0x02014B50, true); view.setUint16(4, 20, true); view.setUint16(6, 20, true); view.setUint16(8, 0, true); view.setUint16(10, 0, true);
+        view.setUint16(12, stamp.time, true); view.setUint16(14, stamp.date, true); view.setUint32(16, checksum, true);
+        view.setUint32(20, data.length, true); view.setUint32(24, data.length, true); view.setUint16(28, name.length, true); view.setUint16(30, 0, true);
+        view.setUint16(32, 0, true); view.setUint16(34, 0, true); view.setUint16(36, 0, true); view.setUint32(38, 0, true); view.setUint32(42, offset, true);
+      });
+      centralParts.push(centralHeader, name);
+      offset += localHeader.length + name.length + data.length;
+    }
+    const central = concatBytes(centralParts);
+    const end = headerBytes(22, (view) => {
+      view.setUint32(0, 0x06054B50, true); view.setUint16(4, 0, true); view.setUint16(6, 0, true); view.setUint16(8, files.length, true);
+      view.setUint16(10, files.length, true); view.setUint32(12, central.length, true); view.setUint32(16, offset, true); view.setUint16(20, 0, true);
+    });
+    return new Blob([concatBytes(localParts), central, end], { type: 'application/zip' });
+  }
+
+  async function copyForNotion() {
+    const context = createContext();
+    const markdown = buildMarkdown(context);
+    const html = markdownToHtml(markdown);
+    try {
+      if (navigator.clipboard?.write && window.ClipboardItem) {
+        await navigator.clipboard.write([new ClipboardItem({ 'text/plain': new Blob([markdown], { type: 'text/plain' }), 'text/html': new Blob([html], { type: 'text/html' }) })]);
+      } else if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(markdown);
+      else {
+        const field = document.createElement('textarea'); field.value = markdown; field.style.position = 'fixed'; field.style.opacity = '0'; document.body.append(field); field.select(); document.execCommand('copy'); field.remove();
+      }
+      feedback.textContent = 'Riepilogo copiato. Puoi incollarlo direttamente in una pagina Notion.';
+    } catch (error) {
+      feedback.textContent = 'Il browser non ha consentito la copia automatica. Scarica il file Markdown.';
+    }
+  }
+
+  function openDialog() {
+    const current = currentStatsRange();
+    startInput.value = current.startKey;
+    endInput.value = current.endKey;
+    periodControl.value = 'current';
+    updatePeriodCaption();
+    feedback.textContent = 'Seleziona le opzioni e scegli il formato da generare.';
+    if (!dialog.open) dialog.showModal();
+    pageFeedback.textContent = 'Finestra di esportazione aperta.';
+  }
+
+  window.addEventListener('tracker:open-notion-export', openDialog);
+  dialog.querySelector('[data-notion-close]')?.addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
+  periodControl.addEventListener('change', updatePeriodCaption);
+  startInput.addEventListener('change', updatePeriodCaption);
+  endInput.addEventListener('change', updatePeriodCaption);
+
+  dialog.querySelector('[data-notion-copy]')?.addEventListener('click', copyForNotion);
+  dialog.querySelector('[data-notion-markdown]')?.addEventListener('click', () => {
+    try {
+      const context = createContext();
+      downloadBlob(new Blob([buildMarkdown(context)], { type: 'text/markdown;charset=utf-8' }), `riepilogo-notion-${context.slug}.md`);
+      feedback.textContent = 'File Markdown scaricato.';
+    } catch (error) { feedback.textContent = error.message; }
+  });
+  dialog.querySelector('[data-notion-csv]')?.addEventListener('click', () => {
+    try {
+      const context = createContext();
+      downloadBlob(new Blob([buildCsv(context)], { type: 'text/csv;charset=utf-8' }), `database-giornaliero-${context.slug}.csv`);
+      feedback.textContent = 'CSV scaricato: puoi importarlo come database in Notion.';
+    } catch (error) { feedback.textContent = error.message; }
+  });
+
+  dialog.querySelectorAll('[data-notion-single-image]').forEach((button) => button.addEventListener('click', async () => {
+    try {
+      setBusy(true, `Preparazione di “${IMAGE_META[button.dataset.notionSingleImage].label}”…`);
+      const context = createContext();
+      const file = await buildImageFile(button.dataset.notionSingleImage, context);
+      downloadBlob(file.blob, file.name);
+      setBusy(false, `${IMAGE_META[button.dataset.notionSingleImage].label} scaricato in PNG.`);
+    } catch (error) { setBusy(false, error.message); }
+  }));
+
+  dialog.querySelector('[data-notion-images-selected]')?.addEventListener('click', async () => {
+    const keys = selectedImageKeys();
+    if (!keys.length) { feedback.textContent = 'Seleziona almeno un grafico.'; return; }
+    try {
+      setBusy(true, `Preparazione di ${keys.length} immagini…`);
+      const context = createContext();
+      for (let index = 0; index < keys.length; index += 1) {
+        const file = await buildImageFile(keys[index], context);
+        downloadBlob(file.blob, file.name);
+        await wait(220);
+      }
+      setBusy(false, `${keys.length} immagini PNG generate. Il browser potrebbe chiederti di consentire download multipli.`);
+    } catch (error) { setBusy(false, error.message); }
+  });
+
+  dialog.querySelector('[data-notion-images-zip]')?.addEventListener('click', async () => {
+    const keys = selectedImageKeys();
+    if (!keys.length) { feedback.textContent = 'Seleziona almeno un grafico.'; return; }
+    try {
+      setBusy(true, `Preparazione dello ZIP con ${keys.length} immagini…`);
+      const context = createContext();
+      const files = [];
+      for (let index = 0; index < keys.length; index += 1) {
+        feedback.textContent = `Creazione immagine ${index + 1} di ${keys.length}: ${IMAGE_META[keys[index]].label}`;
+        files.push(await buildImageFile(keys[index], context));
+      }
+      const zip = await createZip(files);
+      downloadBlob(zip, `grafici-notion-${context.slug}.zip`);
+      setBusy(false, `ZIP creato con ${keys.length} immagini PNG.`);
+    } catch (error) { setBusy(false, error.message); }
+  });
+})();

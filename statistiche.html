@@ -5,7 +5,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>Tracker personale — Statistiche</title>
-<link href="styles.css?v=20260727-23" rel="stylesheet"/>
+<link href="styles.css?v=20260727-24" rel="stylesheet"/>
   <meta name="robots" content="noindex, nofollow">
 </head>
 <body class="stats-page">
@@ -360,17 +360,107 @@
 </section>
 <section class="stats-export-band">
 <div class="stats-content stats-export-inner">
-<div><span class="stats-eyebrow">Riepilogo</span><h2>Porta con te i dati del periodo</h2><p>L’esportazione per Notion verrà progettata in seguito. I dati del tracker sono già salvati e disponibili nell’Archivio.</p></div>
-<button data-stats-export="" type="button">Esportazione per Notion <span>↗</span></button>
+<div><span class="stats-eyebrow">Esportazione</span><h2>Porta il riepilogo su Notion</h2><p>Copia una pagina già ordinata, scarica Markdown e CSV oppure salva i grafici del periodo come immagini PNG.</p></div>
+<button data-stats-export="" type="button">Esporta per Notion <span>↗</span></button>
 </div>
 <p aria-live="polite" class="stats-export-feedback" data-stats-export-feedback=""></p>
 </section>
+
+<dialog class="notion-export-dialog" data-notion-export-dialog aria-labelledby="notion-export-title">
+  <div class="notion-export-shell">
+    <header class="notion-export-header">
+      <div>
+        <span class="stats-eyebrow">Esportazione</span>
+        <h2 id="notion-export-title">Esporta per Notion</h2>
+        <p>Prepara il riepilogo del periodo e scegli quali grafici salvare come PNG.</p>
+      </div>
+      <button class="notion-export-close" data-notion-close type="button" aria-label="Chiudi">×</button>
+    </header>
+
+    <div class="notion-export-body">
+      <section class="notion-export-panel notion-export-period">
+        <div class="notion-export-panel-heading">
+          <div><span>01</span><h3>Periodo</h3></div>
+          <p data-notion-period-caption>Periodo attualmente mostrato nelle Statistiche.</p>
+        </div>
+        <div class="notion-export-period-grid">
+          <label>
+            <span>Periodo da esportare</span>
+            <select data-notion-period>
+              <option value="current">Periodo mostrato nelle Statistiche</option>
+              <option value="7">Ultimi 7 giorni</option>
+              <option value="30">Ultimi 30 giorni</option>
+              <option value="month">Questo mese</option>
+              <option value="previous">Mese precedente</option>
+              <option value="custom">Intervallo personalizzato</option>
+            </select>
+          </label>
+          <div class="notion-custom-dates" data-notion-custom-dates hidden>
+            <label><span>Dal</span><span class="notion-date-input"><input data-notion-start type="date" /></span></label>
+            <label><span>Al</span><span class="notion-date-input"><input data-notion-end type="date" /></span></label>
+          </div>
+        </div>
+      </section>
+
+      <section class="notion-export-panel">
+        <div class="notion-export-panel-heading">
+          <div><span>02</span><h3>Contenuto del riepilogo</h3></div>
+          <p>Scegli cosa includere nella pagina da copiare o nel file Markdown.</p>
+        </div>
+        <div class="notion-section-options">
+          <label class="notion-check"><input type="checkbox" value="overview" data-notion-section checked /><span><strong>Panoramica</strong><span>Medie e valori principali</span></span></label>
+          <label class="notion-check"><input type="checkbox" value="sleep" data-notion-section checked /><span><strong>Sonno</strong><span>Durata, qualità e orari</span></span></label>
+          <label class="notion-check"><input type="checkbox" value="water" data-notion-section checked /><span><strong>Cibo e acqua</strong><span>Idratazione e pasti</span></span></label>
+          <label class="notion-check"><input type="checkbox" value="day" data-notion-section checked /><span><strong>La mia giornata</strong><span>Attività e ore lavorate</span></span></label>
+          <label class="notion-check"><input type="checkbox" value="tetr" data-notion-section checked /><span><strong>Tetr-Emotion</strong><span>Conteggi e andamento emotivo</span></span></label>
+          <label class="notion-check"><input type="checkbox" value="diary" data-notion-section /><span><strong>Diario giornaliero</strong><span>Una sezione per ogni data</span></span></label>
+        </div>
+        <div class="notion-export-detail-row">
+          <label><span>Livello di dettaglio</span><select data-notion-detail><option value="summary">Sintetico</option><option value="full">Completo</option></select></label>
+          <label class="notion-inline-check"><input type="checkbox" data-notion-notes checked /><span>Includi le note salvate</span></label>
+        </div>
+      </section>
+
+      <section class="notion-export-panel">
+        <div class="notion-export-panel-heading">
+          <div><span>03</span><h3>Grafici PNG</h3></div>
+          <p>Ogni immagine avrà sfondo bianco, titolo, periodo e alta risoluzione.</p>
+        </div>
+        <div class="notion-image-list" data-notion-image-list>
+          <div class="notion-image-row"><label><input type="checkbox" value="overview" data-notion-image checked /><span><strong>Panoramica del periodo</strong><span>Card con i dati principali</span></span></label><button type="button" data-notion-single-image="overview">Scarica PNG</button></div>
+          <div class="notion-image-row"><label><input type="checkbox" value="sleep-trend" data-notion-image checked /><span><strong>Andamento del sonno</strong><span>Ore dormite giorno per giorno</span></span></label><button type="button" data-notion-single-image="sleep-trend">Scarica PNG</button></div>
+          <div class="notion-image-row"><label><input type="checkbox" value="sleep-calendar" data-notion-image checked /><span><strong>Calendario del sonno</strong><span>Vista mensile a intensità</span></span></label><button type="button" data-notion-single-image="sleep-calendar">Scarica PNG</button></div>
+          <div class="notion-image-row"><label><input type="checkbox" value="water-trend" data-notion-image checked /><span><strong>Andamento dell’acqua</strong><span>Quantità giornaliera</span></span></label><button type="button" data-notion-single-image="water-trend">Scarica PNG</button></div>
+          <div class="notion-image-row"><label><input type="checkbox" value="water-calendar" data-notion-image checked /><span><strong>Calendario dell’acqua</strong><span>Vista mensile a intensità</span></span></label><button type="button" data-notion-single-image="water-calendar">Scarica PNG</button></div>
+          <div class="notion-image-row"><label><input type="checkbox" value="work-calendar" data-notion-image checked /><span><strong>Calendario delle ore lavorate</strong><span>Vista mensile a intensità</span></span></label><button type="button" data-notion-single-image="work-calendar">Scarica PNG</button></div>
+          <div class="notion-image-row"><label><input type="checkbox" value="activities" data-notion-image checked /><span><strong>Distribuzione delle attività</strong><span>Tempo per categoria</span></span></label><button type="button" data-notion-single-image="activities">Scarica PNG</button></div>
+          <div class="notion-image-row"><label><input type="checkbox" value="emotions" data-notion-image checked /><span><strong>Distribuzione delle emozioni</strong><span>Conteggio Tetr-Emotion</span></span></label><button type="button" data-notion-single-image="emotions">Scarica PNG</button></div>
+          <div class="notion-image-row"><label><input type="checkbox" value="tetr-grid" data-notion-image checked /><span><strong>Griglia Tetr-Emotion</strong><span>Composizione del mese</span></span></label><button type="button" data-notion-single-image="tetr-grid">Scarica PNG</button></div>
+        </div>
+        <div class="notion-image-actions">
+          <button type="button" data-notion-images-selected>Scarica PNG selezionati</button>
+          <button type="button" class="is-primary" data-notion-images-zip>Scarica ZIP immagini</button>
+        </div>
+      </section>
+    </div>
+
+    <footer class="notion-export-footer">
+      <p aria-live="polite" data-notion-feedback>Seleziona le opzioni e scegli il formato da generare.</p>
+      <div>
+        <button type="button" data-notion-csv>Scarica CSV</button>
+        <button type="button" data-notion-markdown>Scarica Markdown</button>
+        <button type="button" class="is-primary" data-notion-copy>Copia per Notion</button>
+      </div>
+    </footer>
+  </div>
+</dialog>
+
 <footer class="site-footer stats-content">
 <span>Tracker personale · salvataggio attivo</span>
 <span>I dati vengono salvati automaticamente</span>
 </footer>
 </main>
-<script src="tracker-store.js?v=20260727-23"></script>
-<script src="app.js?v=20260727-23"></script>
+<script src="tracker-store.js?v=20260727-24"></script>
+<script src="app.js?v=20260727-24"></script>
 </body>
 </html>
