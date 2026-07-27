@@ -4722,3 +4722,52 @@ kbd { min-width: 34px; min-height: 32px; padding: 6px 9px; display: grid; place-
 .guide-warning { border-left: 4px solid #E3A2A8; }
 .guide-success { border-left: 4px solid #9A92DF; }
 .guide-code { margin-top: 18px; padding: 18px; overflow: auto; border-radius: 16px; color: #f8f4fb; background: #342c43; font: 14px/1.55 Consolas, Monaco, monospace; white-space: pre; }
+
+
+/* V21 — selezione del giorno in Tetr-Emotion e durata ore/minuti */
+.tetr-page-v16 .tetr-selected-day-block {
+  min-width: 0;
+  flex: 1;
+}
+.tetr-page-v16 .tetr-day-switcher {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 10px;
+}
+.tetr-page-v16 .tetr-day-switcher h2 {
+  margin: 0;
+  text-align: center;
+  font-size: 27px;
+}
+.tetr-page-v16 .tetr-day-switcher button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(82,63,119,.12);
+  border-radius: 14px;
+  color: var(--violet);
+  background: #f2edf5;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 760;
+  transition: transform 160ms ease, background 160ms ease, opacity 160ms ease;
+}
+.tetr-page-v16 .tetr-day-switcher button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: #e9e2ef;
+}
+.tetr-page-v16 .tetr-day-switcher button:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+.day-page .duration-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.day-page .day-summary-grid-compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 860px;
+}

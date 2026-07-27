@@ -3,11 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <link rel="icon" type="image/png" href="favicon.png">
-  
   <title>Tracker personale — Tetr-Emotion</title>
-  <link rel="stylesheet" href="styles.css?v=20260726-18">
+  <link rel="stylesheet" href="styles.css?v=20260727-21">
+  <meta name="robots" content="noindex, nofollow">
 </head>
 <body class="tetr-page tetr-page-v16">
   <header class="site-header">
@@ -89,9 +87,13 @@
 
           <div class="tetr-emotion-panel">
             <div class="tetr-card-heading tetr-emotion-heading">
-              <div>
-                <span class="tetr-kicker">Emozione di oggi</span>
-                <h2 data-tetr-today-date>Domenica 26 luglio</h2>
+              <div class="tetr-selected-day-block">
+                <span class="tetr-kicker">Emozione del giorno</span>
+                <div class="tetr-day-switcher" aria-label="Seleziona il giorno">
+                  <button type="button" data-tetr-day-shift="-1" aria-label="Giorno precedente">←</button>
+                  <h2 data-tetr-today-date>Domenica 26 luglio</h2>
+                  <button type="button" data-tetr-day-shift="1" aria-label="Giorno successivo">→</button>
+                </div>
               </div>
               <span class="tetr-one-piece">1 pezzo al giorno</span>
             </div>
@@ -183,7 +185,7 @@
   <div class="tetr-confirm-overlay" data-tetr-confirm-overlay hidden>
     <div class="tetr-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="tetr-confirm-title">
       <span class="tetr-kicker">Conferma posizione</span>
-      <h2 id="tetr-confirm-title">Salvare il pezzo di oggi?</h2>
+      <h2 id="tetr-confirm-title">Salvare il pezzo del giorno selezionato?</h2>
       <div class="tetr-confirm-piece" data-confirm-preview></div>
       <strong data-confirm-emotion>Produttiva</strong>
       <p>La nota potrà essere aggiunta o modificata anche dopo il salvataggio.</p>
@@ -194,7 +196,7 @@
     </div>
   </div>
 
-  <script src="tracker-store.js?v=20260726-18"></script>
-<script src="app.js?v=20260726-18"></script>
+  <script src="tracker-store.js?v=20260727-21"></script>
+<script src="app.js?v=20260727-21"></script>
 </body>
 </html>

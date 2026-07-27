@@ -254,7 +254,7 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
       article.dataset.activityId = activity.id;
       const categoryClass = categoryClassMap[activity.category] || 'category-other';
       article.innerHTML = `
-        <div class="activity-time"><strong>${escapeHtml(activity.time || '—')}</strong><span>${formatMinutes(activity.duration || 0)}</span></div>
+        <div class="activity-time"><strong>${escapeHtml(activity.time || '—')}</strong><span>${Number(activity.duration) ? formatMinutes(activity.duration) : 'Senza durata'}</span></div>
         <span class="timeline-dot ${categoryClass}" aria-hidden="true"></span>
         <div class="activity-card">
           <div class="activity-card-top">
@@ -277,15 +277,11 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
   function updateSummary() {
     const day = Store.getDay(key());
     const activities = day.activities || [];
-    const total = activities.reduce((sum, item) => sum + (Number(item.duration) || 0), 0);
-    const noDuration = activities.filter((item) => !(Number(item.duration) || 0)).length;
-    const totals = {};
-    activities.forEach((item) => { totals[item.category || 'Altro'] = (totals[item.category || 'Altro'] || 0) + (Number(item.duration) || 0); });
-    const top = Object.entries(totals).sort((a, b) => b[1] - a[1])[0]?.[0] || '—';
+    const categoryCounts = {};
+    activities.forEach((item) => { categoryCounts[item.category || 'Altro'] = (categoryCounts[item.category || 'Altro'] || 0) + 1; });
+    const top = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '—';
     page.querySelector('[data-summary-count]').textContent = String(activities.length);
-    page.querySelector('[data-summary-duration]').textContent = formatMinutes(total);
     page.querySelector('[data-summary-category]').textContent = top;
-    page.querySelector('[data-summary-undated]').textContent = String(noDuration);
   }
 
   function applyFilter() {
@@ -325,7 +321,7 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
       title,
       category: String(data.get('category') || 'Altro'),
       time: String(data.get('time') || ''),
-      duration: Math.max(0, Number(data.get('duration')) || 0),
+      duration: (Math.max(0, Number(data.get('durationHours')) || 0) * 60) + Math.max(0, Number(data.get('durationMinutes')) || 0),
       note: String(data.get('note') || '').trim()
     };
     Store.updateDay(key(), (day) => {
@@ -358,7 +354,8 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
       form.elements.activity.value = activity.title || '';
       form.elements.category.value = activity.category || 'Altro';
       form.elements.time.value = activity.time || '';
-      form.elements.duration.value = activity.duration || '';
+      form.elements.durationHours.value = activity.duration ? Math.floor(Number(activity.duration) / 60) : '';
+      form.elements.durationMinutes.value = activity.duration ? Number(activity.duration) % 60 : '';
       form.elements.note.value = activity.note || '';
       if (submitButton) submitButton.innerHTML = 'Salva modifica <span>✓</span>';
       form.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -731,7 +728,7 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
   const boardStatus = page.querySelector('[data-tetr-board-status]');
   const boardTitle = page.querySelector('[data-tetr-board-title]');
   const monthLabel = page.querySelector('[data-tetr-month]');
-  const todayDateLabel = page.querySelector('[data-tetr-today-date]');
+  const selectedDateLabel = page.querySelector('[data-tetr-today-date]');
   const currentEmotionLabel = page.querySelector('[data-current-emotion]');
   const currentPieceCopy = page.querySelector('[data-current-piece-copy]');
   const noteField = page.querySelector('[data-tetr-note]');
@@ -742,11 +739,15 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
   const confirmEmotion = page.querySelector('[data-confirm-emotion]');
   const confirmSaveButton = page.querySelector('[data-confirm-save]');
   const lastPieceActions = page.querySelector('[data-last-piece-actions]');
+  const nextDayButton = page.querySelector('[data-tetr-day-shift="1"]');
   if (!boardElement) return;
 
   const today = new Date();
+  today.setHours(12, 0, 0, 0);
   const todayKey = Store.dateKey(today);
-  let selectedMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  let selectedDate = dateFromQuery();
+  selectedDate.setHours(12, 0, 0, 0);
+  let selectedMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
   let board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
   let placedPieces = [];
   let selectedEmotion = 'productive';
@@ -771,8 +772,14 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     return y;
   };
   const monthKey = () => Store.monthKey(selectedMonth);
-  const currentMonth = () => Store.monthKey(today) === monthKey();
-  const todayEntry = () => Store.getDay(todayKey).tetr;
+  const selectedKey = () => Store.dateKey(selectedDate);
+  const selectedEntry = () => Store.getDay(selectedKey()).tetr;
+  const isFutureDay = () => selectedKey() > todayKey;
+  const canAddSelectedDay = () => {
+    if (selectedEntry() || isFutureDay()) return false;
+    const last = placedPieces.at(-1);
+    return !last || selectedKey() > last.date;
+  };
 
   function buildMini(container, pieceKey, color) {
     if (!container) return;
@@ -791,6 +798,14 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     buildMini(element, element.dataset.miniPiece, emotion?.color);
   });
 
+  function syncEmotionSelection(emotionKey) {
+    page.querySelectorAll('[data-emotion]').forEach((button) => {
+      const selected = button.dataset.emotion === emotionKey;
+      button.classList.toggle('is-selected', selected);
+      button.setAttribute('aria-checked', String(selected));
+    });
+  }
+
   function loadBoard() {
     board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
     placedPieces = [];
@@ -800,41 +815,37 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
       const emotion = EMOTIONS[entry.emotionKey];
       const cells = Array.isArray(entry.cells) ? entry.cells : [];
       if (cells.length !== 4 || !emotion) return;
-      entry.pieceId = index + 1;
       cells.forEach(([row, col]) => {
         if (board[row] && col >= 0 && col < COLS) board[row][col] = { ...entry, label: emotion.label, color: emotion.color, piece: emotion.piece };
       });
       placedPieces.push(entry);
     });
-    selectedNoteDate = todayEntry() ? todayKey : null;
-    if (selectedNoteDate) noteField.value = todayEntry()?.note || '';
-    else noteField.value = '';
+
+    const entry = selectedEntry();
+    selectedNoteDate = entry ? selectedKey() : null;
+    noteField.value = entry?.note || '';
     const last = placedPieces.at(-1);
-    const canEditLast = currentMonth() && last?.date === todayKey;
+    const canEditLast = Boolean(entry && last?.date === selectedKey());
     lastPieceActions.hidden = !canEditLast;
-    noteSaveButton.disabled = !selectedNoteDate;
-    noteSaveButton.textContent = selectedNoteDate && Store.getDay(selectedNoteDate).tetr?.note ? 'Aggiorna nota' : 'Salva nota';
+    noteSaveButton.disabled = !entry;
+    noteSaveButton.textContent = entry?.note ? 'Aggiorna nota' : 'Salva nota';
   }
 
   function setCurrent(emotionKey, { preserveNote = true } = {}) {
-    if (!currentMonth() || todayEntry()) return;
+    if (!canAddSelectedDay()) return;
     selectedEmotion = emotionKey;
     const emotion = EMOTIONS[emotionKey];
     const shape = BASE_SHAPES[emotion.piece].map((point) => [...point]);
     const bounds = getBounds(shape);
     current = { emotionKey, shape, x: Math.floor((COLS - bounds.width) / 2), y: 0 };
-    page.querySelectorAll('[data-emotion]').forEach((button) => {
-      const selected = button.dataset.emotion === emotionKey;
-      button.classList.toggle('is-selected', selected);
-      button.setAttribute('aria-checked', String(selected));
-    });
+    syncEmotionSelection(emotionKey);
     if (!preserveNote) noteField.value = '';
     currentEmotionLabel.textContent = emotion.label;
     currentPieceCopy.textContent = 'Clicca una colonna per scegliere la posizione. Doppio clic per ruotare e premi Invio per confermare.';
     confirmEmotion.textContent = emotion.label;
     buildMini(confirmPreview, emotion.piece, emotion.color);
     placeButton.disabled = false;
-    feedback.textContent = `${emotion.label} selezionata.`;
+    feedback.textContent = `${emotion.label} selezionata per il ${formatDate(selectedDate, { day: 'numeric', month: 'long' })}.`;
     renderBoard();
   }
 
@@ -872,14 +883,15 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     renderSummary();
   }
 
-  function renderMonth() {
+  function renderLabels() {
     const formatted = formatDate(selectedMonth, { month: 'long', year: 'numeric' });
     const monthName = formatted.replace(/\s\d{4}$/, '');
     monthLabel.textContent = formatted;
     boardTitle.textContent = `La composizione di ${monthName}`;
     page.querySelector('#tetr-summary-title').textContent = `Le emozioni di ${monthName}`;
-    todayDateLabel.textContent = currentMonth() ? formatDate(today, { weekday: 'long', day: 'numeric', month: 'long' }) : `Vista in sola lettura · ${monthName}`;
-    page.querySelectorAll('[data-emotion]').forEach((button) => { button.disabled = !currentMonth() || Boolean(todayEntry()); });
+    selectedDateLabel.textContent = formatDate(selectedDate, { weekday: 'long', day: 'numeric', month: 'long' });
+    if (nextDayButton) nextDayButton.disabled = selectedKey() >= todayKey;
+    page.querySelectorAll('[data-emotion]').forEach((button) => { button.disabled = !canAddSelectedDay(); });
   }
 
   function renderSummary() {
@@ -905,19 +917,31 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     });
   }
 
-  function initializeMonth() {
+  function initializeDay() {
     current = null;
-    loadBoard(); renderMonth(); renderBoard();
-    if (currentMonth() && !todayEntry()) setCurrent(selectedEmotion, { preserveNote: false });
-    else if (todayEntry()) {
-      const emotion = EMOTIONS[todayEntry().emotionKey];
+    loadBoard();
+    renderLabels();
+    renderBoard();
+    const entry = selectedEntry();
+    if (canAddSelectedDay()) {
+      setCurrent(selectedEmotion, { preserveNote: false });
+    } else if (entry) {
+      selectedEmotion = entry.emotionKey;
+      syncEmotionSelection(entry.emotionKey);
+      const emotion = EMOTIONS[entry.emotionKey];
       currentEmotionLabel.textContent = emotion?.label || 'Emozione registrata';
-      currentPieceCopy.textContent = 'Il pezzo di oggi è già stato salvato. La nota può essere aggiornata anche in seguito.';
-      feedback.textContent = 'Griglia caricata dai dati salvati.';
+      currentPieceCopy.textContent = 'Il pezzo di questa giornata è già stato salvato. La nota può essere aggiornata anche in seguito.';
+      feedback.textContent = 'Giornata caricata dai dati salvati.';
+    } else if (isFutureDay()) {
+      syncEmotionSelection(null);
+      currentEmotionLabel.textContent = 'Giornata futura';
+      currentPieceCopy.textContent = 'Puoi consultare la data, ma il pezzo si potrà inserire quando arriverà questa giornata.';
+      feedback.textContent = 'Non è possibile registrare emozioni nei giorni futuri.';
     } else {
-      currentEmotionLabel.textContent = 'Mese archiviato';
-      currentPieceCopy.textContent = 'Questa griglia è consultabile in sola lettura.';
-      feedback.textContent = 'Stai visualizzando un mese precedente.';
+      syncEmotionSelection(null);
+      currentEmotionLabel.textContent = 'Giornata precedente';
+      currentPieceCopy.textContent = 'Per mantenere valida la composizione, non puoi aggiungere un pezzo prima di quelli già posizionati dopo questa data.';
+      feedback.textContent = 'Puoi comunque consultare la griglia e le giornate già registrate.';
     }
   }
 
@@ -945,33 +969,29 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     const dropY = getDropY(current);
     const cells = current.shape.map(([dx, dy]) => [dropY + dy, current.x + dx]);
     const rotationShape = current.shape.map((point) => [...point]);
-    Store.updateDay(todayKey, (day) => ({ ...day, tetr: {
+    const dateKey = selectedKey();
+    Store.updateDay(dateKey, (day) => ({ ...day, tetr: {
       emotionKey: current.emotionKey, piece: emotion.piece, color: emotion.color, colorName: emotion.colorName,
       shape: rotationShape, x: current.x, y: dropY, cells, note: noteField.value.trim(), createdAt: new Date().toISOString()
     } }), 'tetr-save');
     confirmOverlay.hidden = true;
-    feedback.textContent = `${emotion.label} salvata. La nota resta modificabile.`;
-    initializeMonth();
+    feedback.textContent = `${emotion.label} salvata per il ${formatDate(selectedDate, { day: 'numeric', month: 'long' })}.`;
+    initializeDay();
   }
   function updateNote() {
     if (!selectedNoteDate) return;
     const noteDate = selectedNoteDate;
     Store.updateDay(noteDate, (day) => ({ ...day, tetr: day.tetr ? { ...day.tetr, note: noteField.value.trim() } : null }), 'tetr-note');
     feedback.textContent = noteField.value.trim() ? 'Nota salvata.' : 'Nota rimossa. Potrai aggiungerla nuovamente.';
-    initializeMonth();
-    if (Store.getDay(noteDate).tetr) {
-      selectedNoteDate = noteDate;
-      noteField.value = Store.getDay(noteDate).tetr.note || '';
-      noteSaveButton.disabled = false;
-      noteSaveButton.textContent = noteField.value ? 'Aggiorna nota' : 'Salva nota';
-    }
+    initializeDay();
   }
   function removeLast({ restore = false } = {}) {
     const last = placedPieces.at(-1);
-    if (!last || last.date !== todayKey) return;
-    const old = Store.getDay(todayKey).tetr;
-    Store.updateDay(todayKey, (day) => ({ ...day, tetr: null }), 'tetr-remove');
-    initializeMonth();
+    const dateKey = selectedKey();
+    if (!last || last.date !== dateKey) return;
+    const old = Store.getDay(dateKey).tetr;
+    Store.updateDay(dateKey, (day) => ({ ...day, tetr: null }), 'tetr-remove');
+    initializeDay();
     if (restore && old) {
       setCurrent(old.emotionKey);
       current.shape = (old.shape || BASE_SHAPES[old.piece]).map((point) => [...point]);
@@ -986,11 +1006,9 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     const cell = event.target.closest('.tetr-cell'); if (!cell) return;
     if (current) moveCurrentToColumn(Number(cell.dataset.x));
     else if (cell.dataset.date) {
-      selectedNoteDate = cell.dataset.date;
-      noteField.value = Store.getDay(selectedNoteDate).tetr?.note || '';
-      noteSaveButton.disabled = false;
-      noteSaveButton.textContent = noteField.value ? 'Aggiorna nota' : 'Salva nota';
-      feedback.textContent = `Nota del ${formatDate(selectedNoteDate, { day: 'numeric', month: 'long' })} selezionata.`;
+      selectedDate = new Date(`${cell.dataset.date}T12:00:00`);
+      selectedMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+      initializeDay();
     }
   });
   boardElement.addEventListener('dblclick', (event) => { if (event.target.closest('.tetr-cell') && current) { event.preventDefault(); rotateCurrent(); } });
@@ -1015,8 +1033,26 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     tooltip.hidden = false; tooltip.style.left = `${event.clientX + 16}px`; tooltip.style.top = `${event.clientY + 16}px`;
   });
   boardElement.addEventListener('mouseleave', () => { highlightWholePiece(null); tooltip.hidden = true; });
-  page.querySelectorAll('[data-tetr-month-shift]').forEach((button) => button.addEventListener('click', () => { selectedMonth.setMonth(selectedMonth.getMonth() + Number(button.dataset.tetrMonthShift)); initializeMonth(); }));
-  page.querySelector('[data-tetr-today]').addEventListener('click', () => { selectedMonth = new Date(today.getFullYear(), today.getMonth(), 1); initializeMonth(); });
+
+  page.querySelectorAll('[data-tetr-day-shift]').forEach((button) => button.addEventListener('click', () => {
+    const shift = Number(button.dataset.tetrDayShift);
+    if (shift > 0 && selectedKey() >= todayKey) return;
+    selectedDate.setDate(selectedDate.getDate() + shift);
+    selectedMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+    initializeDay();
+  }));
+  page.querySelectorAll('[data-tetr-month-shift]').forEach((button) => button.addEventListener('click', () => {
+    const target = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + Number(button.dataset.tetrMonthShift), 1);
+    const lastDay = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+    selectedDate = new Date(target.getFullYear(), target.getMonth(), Math.min(selectedDate.getDate(), lastDay), 12);
+    selectedMonth = target;
+    initializeDay();
+  }));
+  page.querySelector('[data-tetr-today]').addEventListener('click', () => {
+    selectedDate = new Date(today);
+    selectedMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    initializeDay();
+  });
   document.addEventListener('keydown', (event) => {
     if (event.target.matches('input, textarea, select, button') || !current || !confirmOverlay.hidden) return;
     if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'Enter'].includes(event.key)) event.preventDefault();
@@ -1025,9 +1061,9 @@ function tetrominoMarkup(tetr, unit = 8, extraClass = '') {
     if (event.key === 'ArrowUp') rotateCurrent();
     if (event.key === 'Enter') openConfirmation();
   });
-  initializeMonth();
+  initializeDay();
   window.addEventListener('tracker:data-changed', (event) => {
-    if (['remote-pull', 'import', 'reset'].includes(event.detail?.reason)) initializeMonth();
+    if (['remote-pull', 'import', 'reset'].includes(event.detail?.reason)) initializeDay();
   });
 })();
 

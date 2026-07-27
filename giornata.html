@@ -3,11 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <link rel="icon" type="image/png" href="favicon.png">
-  
   <title>Tracker personale — La mia giornata</title>
-  <link rel="stylesheet" href="styles.css?v=20260726-18">
+  <link rel="stylesheet" href="styles.css?v=20260727-21">
+  <meta name="robots" content="noindex, nofollow">
 </head>
 <body class="day-page">
   <header class="site-header">
@@ -100,8 +98,11 @@
           </label>
 
           <label class="field">
-            <span>Durata</span>
-            <div class="duration-input"><input type="number" name="duration" min="0" step="5" placeholder="0"><span>min</span></div>
+            <span>Durata facoltativa</span>
+            <div class="duration-fields">
+              <div class="duration-input"><input type="number" name="durationHours" min="0" step="1" placeholder="0"><span>ore</span></div>
+              <div class="duration-input"><input type="number" name="durationMinutes" min="0" max="59" step="5" placeholder="0"><span>min</span></div>
+            </div>
           </label>
 
           <label class="field field-wide">
@@ -201,7 +202,7 @@
         <p>Una lettura rapida di ciò che hai registrato, senza trasformare la giornata in una lista di obiettivi.</p>
       </div>
 
-      <div class="day-summary-grid">
+      <div class="day-summary-grid day-summary-grid-compact">
         <article class="day-summary-card accent-rose">
           <span class="day-summary-icon">▣</span>
           <span>Attività registrate</span>
@@ -209,25 +210,11 @@
           <span class="secondary-text">Voci presenti nella giornata</span>
           <i></i>
         </article>
-        <article class="day-summary-card accent-lilac">
-          <span class="day-summary-icon">◷</span>
-          <span>Tempo registrato</span>
-          <strong data-summary-duration>3 h 15 min</strong>
-          <span class="secondary-text">Somma delle durate inserite</span>
-          <i></i>
-        </article>
         <article class="day-summary-card accent-sky">
           <span class="day-summary-icon">✦</span>
           <span>Categoria più presente</span>
           <strong data-summary-category>Creatività</strong>
-          <span class="secondary-text">In base al tempo registrato</span>
-          <i></i>
-        </article>
-        <article class="day-summary-card accent-periwinkle">
-          <span class="day-summary-icon">○</span>
-          <span>Voci senza durata</span>
-          <strong data-summary-undated>0</strong>
-          <span class="secondary-text">Attività annotate senza tempo</span>
+          <span class="secondary-text">In base al numero di attività</span>
           <i></i>
         </article>
       </div>
@@ -256,7 +243,7 @@
     </footer>
   </main>
 
-  <script src="tracker-store.js?v=20260726-18"></script>
-<script src="app.js?v=20260726-18"></script>
+  <script src="tracker-store.js?v=20260727-21"></script>
+<script src="app.js?v=20260727-21"></script>
 </body>
 </html>
