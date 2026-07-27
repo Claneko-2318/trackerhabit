@@ -132,12 +132,32 @@ function waterLiters(quarters, bottleMl = 750) {
   return `${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 3 }).format(liters)} l`;
 }
 
+function sleepEnergy(sleep) {
+  const value = Number(sleep?.energy ?? sleep?.quality);
+  return Number.isFinite(value) && value >= 1 && value <= 5 ? value : null;
+}
+
+function beverageGlasses(day) {
+  return (day?.beverages || []).reduce((total, entry) => total + (Number(entry.glasses) || 0), 0);
+}
+
+function beverageMilliliters(day) {
+  const defaultGlass = Number(trackerSettings().glassMl) || 220;
+  return (day?.beverages || []).reduce((total, entry) => total + (Number(entry.glasses) || 0) * (Number(entry.mlPerGlass) || defaultGlass), 0);
+}
+
+function beverageSummary(day) {
+  const glasses = beverageGlasses(day);
+  if (!glasses) return 'Nessuna bevanda extra';
+  return `${glasses} ${glasses === 1 ? 'bicchiere' : 'bicchieri'} · circa ${new Intl.NumberFormat('it-IT').format(beverageMilliliters(day))} ml`;
+}
+
 function uid(prefix = 'item') {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 function dayHasData(day) {
-  return Boolean(day?.sleep || Object.values(day?.meals || {}).some(Boolean) || (day?.water || []).length || (day?.activities || []).length || day?.dailyNote || day?.tetr);
+  return Boolean(day?.sleep || Object.values(day?.meals || {}).some(Boolean) || (day?.water || []).length || (day?.beverages || []).length || (day?.activities || []).length || day?.dailyNote || day?.tetr);
 }
 
 function getDateRange(periodValue) {
@@ -191,6 +211,7 @@ function applyGlobalSettings() {
   const lineAlpha = ({ 1: .10, 2: .18, 3: .28 })[Number(appearance.tetrGridLines) || 1];
   document.documentElement.style.setProperty('--tetr-board-surface', backgrounds[appearance.tetrGridBackground] || backgrounds.rose);
   document.documentElement.style.setProperty('--tetr-board-line', `rgba(82,63,119,${lineAlpha})`);
+  document.documentElement.style.setProperty('--tetr-piece-border-width', appearance.tetrBorders === false ? '0px' : '1px');
 }
 applyGlobalSettings();
 window.addEventListener('tracker:data-changed', (event) => {
@@ -492,26 +513,23 @@ window.addEventListener('tracker:data-changed', (event) => {
 
   function applySleepSettings() {
     const settings = trackerSettings().tracker?.sleep || {};
-    const showAsleep = settings.asleep !== false;
     const showRiseDelay = settings.riseDelay !== false;
     const showAwakenings = settings.awakenings !== false;
-    const showQuality = settings.quality !== false;
-    const asleepLabel = form?.elements.asleep?.closest('label');
+    const showEnergy = settings.energy !== false;
     const upLabel = form?.elements.up?.closest('label');
     const awakeningsCard = page.querySelector('.sleep-awakenings-card');
-    const qualityScale = page.querySelector('.quality-scale');
-    const qualityHeading = page.querySelector('.sleep-quality-card h3');
-    setSleepElementVisible(asleepLabel, showAsleep);
+    const energyScale = page.querySelector('.quality-scale');
+    const energyHeading = page.querySelector('.sleep-quality-card h3');
     setSleepElementVisible(upLabel, showRiseDelay);
     setSleepElementVisible(awakeningsCard, showAwakenings);
-    setSleepElementVisible(qualityScale, showQuality);
-    if (qualityHeading) qualityHeading.textContent = showQuality ? 'Come hai dormito?' : 'Nota sul sonno';
+    setSleepElementVisible(energyScale, showEnergy);
+    if (energyHeading) energyHeading.textContent = showEnergy ? 'Come ti sei svegliata?' : 'Nota sul sonno';
     const summaryCards = [...page.querySelectorAll('.sleep-summary-card')];
     setSleepElementVisible(summaryCards[1], showRiseDelay);
     setSleepElementVisible(summaryCards[2], showRiseDelay);
     setSleepElementVisible(summaryCards[3], showAwakenings);
     const insightRows = page.querySelectorAll('.sleep-insight-list > div');
-    setSleepElementVisible(insightRows[2], showQuality);
+    setSleepElementVisible(insightRows[2], showEnergy);
   }
 
   function key() { return Store.dateKey(selectedDate); }
@@ -523,35 +541,29 @@ window.addEventListener('tracker:data-changed', (event) => {
     if (hint) hint.textContent = `Notte tra ${formatDate(previous, { weekday: 'long' }).toLowerCase()} e ${formatDate(selectedDate, { weekday: 'long' }).toLowerCase()}`;
   }
 
-  function awakeningRow(awakening = { time: '', duration: 5 }) {
+  function awakeningRow(awakening = { time: '' }) {
     const row = document.createElement('div');
     row.className = 'awakening-row';
     row.innerHTML = `<label><span>Orario</span><span class="sleep-time-wrap"><input type="time" name="awakeningTime[]" value="${escapeHtml(awakening.time || '')}"></span></label>
-      <label><span>Durata</span><span class="sleep-duration-wrap"><input type="number" name="awakeningDuration[]" min="0" step="1" value="${Number(awakening.duration) || 0}"><em>min</em></span></label>
       <button class="awakening-remove" type="button" data-remove-awakening aria-label="Rimuovi risveglio">×</button>`;
     return row;
   }
 
   function awakeningsFromForm() {
     return [...awakeningList.querySelectorAll('.awakening-row')].map((row) => ({
-      time: row.querySelector('input[name="awakeningTime[]"]')?.value || '',
-      duration: Math.max(0, Number(row.querySelector('input[name="awakeningDuration[]"]')?.value) || 0)
-    }));
+      time: row.querySelector('input[name="awakeningTime[]"]')?.value || ''
+    })).filter((item) => item.time);
   }
 
   function sleepCalculations() {
     const settings = trackerSettings().tracker?.sleep || {};
     const bedtime = form.elements.bedtime.value;
-    const asleep = settings.asleep === false ? bedtime : (form.elements.asleep.value || bedtime);
     const wake = form.elements.wake.value;
     const up = settings.riseDelay === false ? wake : (form.elements.up.value || wake);
-    const awakeningMinutes = settings.awakenings === false ? 0 : awakeningsFromForm().reduce((sum, item) => sum + item.duration, 0);
-    const baseSleep = timeDifference(asleep, wake);
     return {
-      duration: baseSleep === null ? null : Math.max(0, baseSleep - awakeningMinutes),
+      duration: timeDifference(bedtime, wake),
       bedDuration: timeDifference(bedtime, up),
-      riseDelay: timeDifference(wake, up),
-      awakeningMinutes
+      riseDelay: timeDifference(wake, up)
     };
   }
 
@@ -561,7 +573,6 @@ window.addEventListener('tracker:data-changed', (event) => {
     page.querySelector('[data-bed-duration]').textContent = formatMinutes(calculations.bedDuration);
     page.querySelector('[data-rise-delay]').textContent = formatMinutes(calculations.riseDelay);
     page.querySelector('[data-awakening-count]').textContent = String(awakeningsFromForm().length);
-    page.querySelector('[data-awakening-total]').textContent = formatMinutes(calculations.awakeningMinutes);
   }
 
   function renderSleepStats() {
@@ -604,12 +615,12 @@ window.addEventListener('tracker:data-changed', (event) => {
       return Math.round(minutes.reduce((sum, value) => sum + value, 0) / minutes.length) % 1440;
     };
     const clockLabel = (minutes) => minutes === null ? '—' : `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
-    const bedtimeValues = recorded.map(({ sleep }) => sleep.bedtime || sleep.asleep).filter(Boolean);
+    const bedtimeValues = recorded.map(({ sleep }) => sleep.bedtime).filter(Boolean);
     const wakeValues = recorded.map(({ sleep }) => sleep.wake).filter(Boolean);
     const bedtimeAverage = averageClock(bedtimeValues, true);
     const wakeAverage = averageClock(wakeValues);
-    const qualities = recorded.map(({ sleep }) => Number(sleep.quality)).filter((value) => Number.isFinite(value) && value > 0);
-    const qualityAverage = qualities.length ? qualities.reduce((sum, value) => sum + value, 0) / qualities.length : null;
+    const energies = recorded.map(({ sleep }) => sleepEnergy(sleep)).filter((value) => value !== null);
+    const energyAverage = energies.length ? energies.reduce((sum, value) => sum + value, 0) / energies.length : null;
     const wakeMinutes = wakeValues.map(parseTime).filter((value) => value !== null);
     const wakeSpread = wakeMinutes.length > 1 ? Math.max(...wakeMinutes) - Math.min(...wakeMinutes) : 0;
     const durationSpread = durations.length > 1 ? Math.max(...durations) - Math.min(...durations) : 0;
@@ -633,7 +644,7 @@ window.addEventListener('tracker:data-changed', (event) => {
       const values = insightCard.querySelectorAll('.sleep-insight-list strong');
       if (values[0]) values[0].textContent = clockLabel(bedtimeAverage);
       if (values[1]) values[1].textContent = clockLabel(wakeAverage);
-      if (values[2]) values[2].textContent = qualityAverage === null ? '—' : `${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(qualityAverage)} / 5`;
+      if (values[2]) values[2].textContent = energyAverage === null ? '—' : `${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(energyAverage)} / 5`;
     }
 
     const recentList = page.querySelector('.recent-nights-list');
@@ -645,7 +656,7 @@ window.addEventListener('tracker:data-changed', (event) => {
       recentList.innerHTML = recent.length ? recent.map((day) => {
         const date = new Date(`${day.date}T12:00:00`);
         const sleep = day.sleep;
-        return `<article class="recent-night-row"><div class="recent-night-date"><strong>${date.getDate()}</strong><span>${formatDate(date, { month: 'long' })}</span></div><div><span class="recent-night-label">Sonno</span><strong>${formatMinutes(sleep.duration)}</strong></div><div><span class="recent-night-label">Orari</span><strong>${sleep.asleep || sleep.bedtime || '—'} — ${sleep.wake || '—'}</strong></div><div><span class="recent-night-label">Qualità</span><strong>${sleep.quality ? `${sleep.quality} / 5` : '—'}</strong></div><button type="button" data-recent-sleep-date="${day.date}" aria-label="Apri la notte del ${formatDate(date, { day: 'numeric', month: 'long' })}">→</button></article>`;
+        return `<article class="recent-night-row"><div class="recent-night-date"><strong>${date.getDate()}</strong><span>${formatDate(date, { month: 'long' })}</span></div><div><span class="recent-night-label">Sonno</span><strong>${formatMinutes(sleep.duration)}</strong></div><div><span class="recent-night-label">Orari</span><strong>${sleep.bedtime || '—'} — ${sleep.wake || '—'}</strong></div><div><span class="recent-night-label">Energie</span><strong>${sleepEnergy(sleep) ? `${sleepEnergy(sleep)} / 5` : '—'}</strong></div><button type="button" data-recent-sleep-date="${day.date}" aria-label="Apri la notte del ${formatDate(date, { day: 'numeric', month: 'long' })}">→</button></article>`;
       }).join('') : '<div class="tracker-empty-state"><strong>Nessuna notte registrata</strong><span>Le ultime notti compariranno qui dopo il primo salvataggio.</span></div>';
     }
   }
@@ -654,9 +665,10 @@ window.addEventListener('tracker:data-changed', (event) => {
     const sleep = Store.getDay(key()).sleep;
     form.reset();
     awakeningList.innerHTML = '';
-    const values = sleep || { bedtime: '', asleep: '', wake: '', up: '', quality: '', note: '', awakenings: [] };
-    ['bedtime', 'asleep', 'wake', 'up'].forEach((name) => { form.elements[name].value = values[name] || ''; });
-    form.querySelectorAll('input[name="quality"]').forEach((radio) => { radio.checked = String(radio.value) === String(values.quality || ''); });
+    const values = sleep || { bedtime: '', wake: '', up: '', energy: '', note: '', awakenings: [] };
+    ['bedtime', 'wake', 'up'].forEach((name) => { form.elements[name].value = values[name] || ''; });
+    const savedEnergy = sleepEnergy(values);
+    form.querySelectorAll('input[name="energy"]').forEach((radio) => { radio.checked = String(radio.value) === String(savedEnergy || ''); });
     form.elements.sleepNote.value = values.note || '';
     (values.awakenings || []).forEach((item) => awakeningList.append(awakeningRow(item)));
     applySleepSettings();
@@ -675,21 +687,19 @@ window.addEventListener('tracker:data-changed', (event) => {
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     const calculations = sleepCalculations();
-    const quality = form.querySelector('input[name="quality"]:checked')?.value || '';
+    const energy = form.querySelector('input[name="energy"]:checked')?.value || '';
     Store.updateDay(key(), (day) => ({
       ...day,
       sleep: {
         bedtime: form.elements.bedtime.value,
-        asleep: form.elements.asleep.value,
         wake: form.elements.wake.value,
         up: form.elements.up.value,
-        quality: quality ? Number(quality) : null,
+        energy: energy ? Number(energy) : null,
         note: form.elements.sleepNote.value.trim(),
         awakenings: awakeningsFromForm(),
         duration: calculations.duration,
         bedDuration: calculations.bedDuration,
-        riseDelay: calculations.riseDelay,
-        awakeningMinutes: calculations.awakeningMinutes
+        riseDelay: calculations.riseDelay
       }
     }), 'sleep-save');
     feedback.textContent = 'Notte salvata correttamente.';
@@ -717,7 +727,12 @@ window.addEventListener('tracker:data-changed', (event) => {
   let selectedDate = dateFromQuery();
   const mealCards = [...page.querySelectorAll('[data-meal-card]')];
   const waterHistory = page.querySelector('[data-water-history]');
+  const beverageList = page.querySelector('[data-beverage-list]');
+  const beverageName = page.querySelector('[data-beverage-name]');
+  const beverageGlassesInput = page.querySelector('[data-beverage-glasses]');
+  const beverageFeedback = page.querySelector('[data-beverage-feedback]');
   const bottleMl = () => Number(Store.getState().settings.bottleMl) || 750;
+  const glassMl = () => Number(Store.getState().settings.glassMl) || 220;
   const quarterMl = () => bottleMl() / 4;
 
   function applyFoodSettings() {
@@ -730,6 +745,8 @@ window.addEventListener('tracker:data-changed', (event) => {
     page.querySelectorAll('[data-water-ml-short], [data-water-liters], .water-actions button span').forEach((element) => { element.hidden = !showEquivalence; });
     const capacity = page.querySelector('.bottle-capacity');
     if (capacity) capacity.textContent = `${bottleMl()} ml`;
+    const glassCapacity = page.querySelector('[data-glass-capacity]');
+    if (glassCapacity) glassCapacity.textContent = `circa ${glassMl()} ml per bicchiere`;
     const buttons = [...page.querySelectorAll('[data-water-add]')];
     const division = settings.waterDivision || 'quarters';
     if (division === 'halves') {
@@ -790,6 +807,15 @@ window.addEventListener('tracker:data-changed', (event) => {
       waterHistory.append(row);
     });
     updateSummary(day);
+  }
+  function renderBeverages(day) {
+    if (!beverageList) return;
+    const entries = day.beverages || [];
+    beverageList.innerHTML = entries.length ? entries.map((entry) => {
+      const glasses = Math.max(1, Number(entry.glasses) || 1);
+      const ml = glasses * (Number(entry.mlPerGlass) || glassMl());
+      return `<div class="other-drink-row" data-beverage-id="${escapeHtml(entry.id)}"><span class="other-drink-icon">◌</span><div><strong>${escapeHtml(entry.name || 'Altra bevanda')}</strong><span>${glasses} ${glasses === 1 ? 'bicchiere' : 'bicchieri'} · circa ${new Intl.NumberFormat('it-IT').format(ml)} ml</span></div><button type="button" data-delete-beverage aria-label="Elimina ${escapeHtml(entry.name || 'bevanda')}">×</button></div>`;
+    }).join('') : '<div class="other-drinks-empty"><span>Nessuna bevanda extra registrata.</span></div>';
   }
   function updateSummary(day = Store.getDay(key())) {
     const allowedMeals = visibleMealOrder();
@@ -862,7 +888,7 @@ window.addEventListener('tracker:data-changed', (event) => {
   function loadDay() {
     const day = Store.getDay(key());
     applyFoodSettings();
-    renderDate(); renderMeals(day); renderWater(day); renderWeeklyStats();
+    renderDate(); renderMeals(day); renderWater(day); renderBeverages(day); renderWeeklyStats();
     page.querySelector('[data-meal-feedback]').textContent = dayHasData(day) ? 'Dati caricati e pronti per essere aggiornati.' : 'Nessun pasto registrato per questa giornata.';
     page.querySelector('[data-water-feedback]').textContent = `${trackerSettings().waterDivision === 'halves' ? 'Ogni metà' : 'Ogni quarto'} corrisponde a ${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(trackerSettings().waterDivision === 'halves' ? quarterMl() * 2 : quarterMl())} ml.`;
   }
@@ -890,6 +916,24 @@ window.addEventListener('tracker:data-changed', (event) => {
   page.querySelector('[data-water-undo]')?.addEventListener('click', () => {
     Store.updateDay(key(), (day) => ({ ...day, water: day.water.slice(0, -1) }), 'water-undo');
     renderWater(Store.getDay(key())); renderWeeklyStats();
+  });
+  page.querySelector('[data-add-beverage]')?.addEventListener('click', () => {
+    const name = beverageName?.value.trim() || '';
+    const glasses = Math.max(1, Math.min(20, Number(beverageGlassesInput?.value) || 1));
+    if (!name) { if (beverageFeedback) beverageFeedback.textContent = 'Scrivi il nome della bevanda.'; beverageName?.focus(); return; }
+    Store.updateDay(key(), (day) => ({ ...day, beverages: [...(day.beverages || []), { id: uid('beverage'), name, glasses, mlPerGlass: glassMl(), createdAt: new Date().toISOString() }] }), 'beverage-add');
+    if (beverageName) beverageName.value = '';
+    if (beverageGlassesInput) beverageGlassesInput.value = '1';
+    renderBeverages(Store.getDay(key()));
+    if (beverageFeedback) beverageFeedback.textContent = `${name}: ${glasses} ${glasses === 1 ? 'bicchiere aggiunto' : 'bicchieri aggiunti'}.`;
+  });
+  beverageList?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-delete-beverage]');
+    if (!button) return;
+    const id = button.closest('[data-beverage-id]')?.dataset.beverageId;
+    Store.updateDay(key(), (day) => ({ ...day, beverages: (day.beverages || []).filter((entry) => entry.id !== id) }), 'beverage-delete');
+    renderBeverages(Store.getDay(key()));
+    if (beverageFeedback) beverageFeedback.textContent = 'Bevanda rimossa.';
   });
   page.querySelectorAll('[data-food-date-shift]').forEach((button) => button.addEventListener('click', () => { selectedDate.setDate(selectedDate.getDate() + Number(button.dataset.foodDateShift)); loadDay(); }));
   page.querySelector('[data-food-today]')?.addEventListener('click', () => { selectedDate = new Date(); loadDay(); });
@@ -1066,7 +1110,7 @@ window.addEventListener('tracker:data-changed', (event) => {
           cell.dataset.pieceId = locked.pieceId;
           cell.dataset.date = locked.date;
           const dateLabel = formatDate(locked.date, { weekday: 'long', day: 'numeric', month: 'long' });
-          cell.dataset.tooltip = `${dateLabel}|${locked.label}|Tetramino ${locked.piece}${locked.note ? `|${locked.note}` : ''}`;
+          cell.dataset.tooltip = `${locked.label}|${locked.note || ''}`;
           if (locked.date === todayKey && tetrSettings().highlightToday !== false) cell.classList.add('is-today-piece');
         } else if (current && currentCells.has(key)) {
           cell.classList.add('is-current'); cell.style.setProperty('--cell-color', EMOTIONS[current.emotionKey].color);
@@ -1228,7 +1272,7 @@ window.addEventListener('tracker:data-changed', (event) => {
     if (!cell) { highlightWholePiece(null); tooltip.hidden = true; return; }
     if (trackerSettings().appearance?.tetrHover !== false) highlightWholePiece(cell.dataset.pieceId); else highlightWholePiece(null);
     const parts = cell.dataset.tooltip.split('|');
-    tooltip.innerHTML = `<strong>${parts[0]}</strong><span>${parts[1]} · ${parts[2]}</span>${parts[3] ? `<span class="tetr-tooltip-note">${escapeHtml(parts[3])}</span>` : ''}`;
+    tooltip.innerHTML = `<strong>${escapeHtml(parts[0])}</strong>${parts[1] ? `<span class="tetr-tooltip-note">${escapeHtml(parts[1])}</span>` : ''}`;
     tooltip.hidden = false; tooltip.style.left = `${event.clientX + 16}px`; tooltip.style.top = `${event.clientY + 16}px`;
   });
   boardElement.addEventListener('mouseleave', () => { highlightWholePiece(null); tooltip.hidden = true; });
@@ -1276,7 +1320,7 @@ window.addEventListener('tracker:data-changed', (event) => {
   function completionStatus(day) {
     const missing = [];
     if (!day.sleep) missing.push('sonno');
-    if (!waterQuarters(day) && !Object.values(day.meals || {}).some(Boolean)) missing.push('cibo e acqua');
+    if (!waterQuarters(day) && !Object.values(day.meals || {}).some(Boolean) && !(day.beverages || []).length) missing.push('cibo e acqua');
     if (!(day.activities || []).length) missing.push('giornata');
     if (!day.tetr) missing.push('Tetr-Emotion');
     return { complete: missing.length === 0, missing };
@@ -1312,14 +1356,17 @@ window.addEventListener('tracker:data-changed', (event) => {
       if (tag) tag.textContent = saved ? 'Salvato' : 'Da compilare';
     };
 
-    setCard(sleepCard, day.sleep ? formatMinutes(day.sleep.duration) : '—', day.sleep ? `Qualità ${day.sleep.quality || '—'}/5` : 'Nessuna notte registrata', Boolean(day.sleep));
+    setCard(sleepCard, day.sleep ? formatMinutes(day.sleep.duration) : '—', day.sleep ? `Energie ${sleepEnergy(day.sleep) || '—'}/5` : 'Nessuna notte registrata', Boolean(day.sleep));
     const mealCount = Object.values(day.meals || {}).filter((value) => String(value).trim()).length;
     const quarters = waterQuarters(day);
-    setCard(foodCard, `${mealCount} pasti · ${waterLiters(quarters, state.settings.bottleMl)}`, quarters || mealCount ? 'Dati aggiornati oggi' : 'Nessun dato registrato', Boolean(quarters || mealCount));
+    const extraGlasses = beverageGlasses(day);
+    const foodValue = `${mealCount} pasti · ${waterLiters(quarters, state.settings.bottleMl)}`;
+    const foodDetail = extraGlasses ? `${extraGlasses} ${extraGlasses === 1 ? 'bicchiere extra' : 'bicchieri extra'}` : (quarters || mealCount ? 'Dati aggiornati oggi' : 'Nessun dato registrato');
+    setCard(foodCard, foodValue, foodDetail, Boolean(quarters || mealCount || extraGlasses));
     const totalActivity = (day.activities || []).reduce((sum, item) => sum + (Number(item.duration) || 0), 0);
     setCard(dayCard, `${(day.activities || []).length} attività`, totalActivity ? `${formatMinutes(totalActivity)} di tempo registrato` : 'Nessuna durata registrata', Boolean((day.activities || []).length));
     const emotion = day.tetr ? EMOTIONS[day.tetr.emotionKey] : null;
-    setCard(tetrCard, emotion?.label || '—', emotion ? `Tetramino ${emotion.piece} · emozione di oggi` : 'Emozione non registrata', Boolean(emotion));
+    setCard(tetrCard, emotion?.label || '—', emotion ? 'Emozione di oggi' : 'Emozione non registrata', Boolean(emotion));
     if (tetrCard) {
       const icon = tetrCard.querySelector('.summary-tetr-icon');
       if (icon) icon.innerHTML = emotion ? tetrominoMarkup(day.tetr, 11) : '<span class="empty-tetr-piece">—</span>';
@@ -1328,8 +1375,8 @@ window.addEventListener('tracker:data-changed', (event) => {
     const quick = [...page.querySelectorAll('.complete-panel-items .quick-status')];
     const statuses = [
       { done: Boolean(day.sleep), title: day.sleep ? 'Sonno registrato' : 'Registra il sonno', detail: day.sleep ? formatMinutes(day.sleep.duration) : 'Ultima notte mancante' },
-      { done: Boolean(quarters), title: quarters ? 'Acqua aggiornata' : 'Aggiorna l’acqua', detail: quarters ? formatWater(quarters) : 'Nessuna bevuta registrata' },
-      { done: Boolean(day.tetr), title: day.tetr ? 'Tetr-Emotion registrata' : 'Aggiungi Tetr-Emotion', detail: emotion ? `${emotion.label} · tetramino ${emotion.piece}` : 'Manca il pezzo di oggi' }
+      { done: Boolean(quarters || extraGlasses), title: quarters ? 'Acqua aggiornata' : (extraGlasses ? 'Bevande registrate' : 'Aggiorna cibo e acqua'), detail: quarters ? formatWater(quarters) : (extraGlasses ? `${extraGlasses} bicchieri extra` : 'Nessuna bevuta registrata') },
+      { done: Boolean(day.tetr), title: day.tetr ? 'Tetr-Emotion registrata' : 'Aggiungi Tetr-Emotion', detail: emotion ? emotion.label : 'Manca il pezzo di oggi' }
     ];
     quick.forEach((item, index) => {
       const status = statuses[index];
@@ -1395,7 +1442,7 @@ window.addEventListener('tracker:data-changed', (event) => {
         const statusText = status.complete ? 'Giornata completa' : `Manca ${status.missing[0] || 'qualche dato'}`;
         return `<a class="recent-row" href="archivio.html?date=${recentDay.date}">
           <div class="recent-date"><strong>${date.getDate()}</strong><span>${formatDate(date, { weekday: 'long' })} · ${formatDate(date, { month: 'long' })}</span></div>
-          <div class="recent-chips"><span>${recentDay.sleep ? formatMinutes(recentDay.sleep.duration) : 'Sonno —'}</span><span>${waterLiters(waterQuarters(recentDay), state.settings.bottleMl)}</span><span>${meals} ${meals === 1 ? 'pasto' : 'pasti'}</span><span>${recentDay.activities.length} attività</span><span class="recent-emotion-chip${emotionData ? '' : ' is-missing'}">${emotionData ? `${tetrominoMarkup(recentDay.tetr, 7)}${emotionData.label}` : 'Tetr-Emotion non inserita'}</span></div>
+          <div class="recent-chips"><span>${recentDay.sleep ? formatMinutes(recentDay.sleep.duration) : 'Sonno —'}</span><span>${waterLiters(waterQuarters(recentDay), state.settings.bottleMl)}</span><span>${beverageGlasses(recentDay)} bicch. extra</span><span>${meals} ${meals === 1 ? 'pasto' : 'pasti'}</span><span>${recentDay.activities.length} attività</span><span class="recent-emotion-chip${emotionData ? '' : ' is-missing'}">${emotionData ? `${tetrominoMarkup(recentDay.tetr, 7)}${emotionData.label}` : 'Tetr-Emotion non inserita'}</span></div>
           <div class="recent-status"><span>${statusText}</span><b>→</b></div>
         </a>`;
       }).join('') : '<div class="tracker-empty-state"><strong>Nessuna giornata salvata</strong><span>Le giornate compariranno qui dopo le prime registrazioni.</span></div>';
@@ -1456,7 +1503,7 @@ window.addEventListener('tracker:data-changed', (event) => {
     const topCategory = Object.entries(categories).sort((a, b) => b[1] - a[1])[0] || [null, 0];
     const recurring = Object.values(titles).sort((a, b) => b.count - a.count)[0] || null;
     const completedDays = days.filter(dayHasData).length;
-    const qualityValues = days.map((day) => Number(day.sleep?.quality)).filter((value) => value > 0);
+    const energyValues = days.map((day) => sleepEnergy(day.sleep)).filter((value) => value !== null);
     const bedValues = days.map((day) => day.sleep?.bedtime).filter(Boolean);
     const wakeValues = days.map((day) => day.sleep?.wake).filter(Boolean);
     const riseValues = days.map((day) => Number(day.sleep?.riseDelay)).filter((value) => Number.isFinite(value));
@@ -1466,7 +1513,8 @@ window.addEventListener('tracker:data-changed', (event) => {
       workTotal: workValues.reduce((a, b) => a + b, 0), workAverage: average(workValues),
       activityTotal: activityValues.reduce((a, b) => a + b, 0), totalActivities, completedDays, categories, topCategory, recurring, fullest,
       mostEmotion, emotionCounts,
-      quality: average(qualityValues), qualityCount: qualityValues.length,
+      energy: average(energyValues), energyCount: energyValues.length,
+      beverageGlasses: days.reduce((sum, day) => sum + beverageGlasses(day), 0), beverageDays: days.filter((day) => beverageGlasses(day) > 0).length,
       bedtime: averageClock(bedValues, true), bedtimeCount: bedValues.length,
       wake: averageClock(wakeValues), wakeCount: wakeValues.length,
       riseDelay: average(riseValues), riseCount: riseValues.length
@@ -1700,10 +1748,12 @@ window.addEventListener('tracker:data-changed', (event) => {
     page.querySelector('[data-detail-wake-average]').textContent = current.wake !== null ? timeLabel(current.wake) : '—';
     page.querySelector('[data-detail-wake-note]').textContent = current.wakeCount ? `${current.wakeCount} risvegli considerati` : 'Nessun dato';
     page.querySelector('[data-detail-rise-average]').textContent = current.riseCount ? formatMinutes(current.riseDelay) : '—';
-    page.querySelector('[data-detail-quality-average]').textContent = current.qualityCount ? `${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(current.quality)} / 5` : '—';
-    page.querySelector('[data-detail-quality-note]').textContent = current.qualityCount ? `${current.qualityCount} notti con valutazione` : 'Nessuna valutazione';
+    page.querySelector('[data-detail-quality-average]').textContent = current.energyCount ? `${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(current.energy)} / 5` : '—';
+    page.querySelector('[data-detail-quality-note]').textContent = current.energyCount ? `${current.energyCount} notti con energia registrata` : 'Nessuna energia registrata';
     renderSleepChart(range);
     renderWaterBars(range, current);
+    const beverageMetric = page.querySelector('[data-detail-beverage-total]');
+    if (beverageMetric) beverageMetric.textContent = current.beverageGlasses ? `${current.beverageGlasses} ${current.beverageGlasses === 1 ? 'bicchiere' : 'bicchieri'}` : '—';
     renderActivityDetails(current);
     renderComparison(range, current, previous, previousStart, previousEnd);
   }
@@ -1743,10 +1793,10 @@ window.addEventListener('tracker:data-changed', (event) => {
   function workMinutes(day) { return (day.activities || []).filter((item) => isWorkCategory(item.category)).reduce((sum, item) => sum + (Number(item.duration) || 0), 0); }
   function matches(day) {
     const query = search.value.trim().toLowerCase();
-    const hasFilter = activeFilter === 'all' || (activeFilter === 'sleep' && day.sleep) || (activeFilter === 'food' && (Object.values(day.meals || {}).some(Boolean) || day.water.length)) || (activeFilter === 'day' && (day.activities.length || day.dailyNote)) || (activeFilter === 'tetr' && day.tetr);
+    const hasFilter = activeFilter === 'all' || (activeFilter === 'sleep' && day.sleep) || (activeFilter === 'food' && (Object.values(day.meals || {}).some(Boolean) || day.water.length || (day.beverages || []).length)) || (activeFilter === 'day' && (day.activities.length || day.dailyNote)) || (activeFilter === 'tetr' && day.tetr);
     if (!hasFilter) return false;
     if (!query) return true;
-    const text = [day.date, day.dailyNote, day.sleep?.note, ...Object.values(day.meals || {}), ...day.activities.flatMap((item) => [item.title, item.note, item.category]), day.tetr?.note, day.tetr ? EMOTIONS[day.tetr.emotionKey]?.label : ''].join(' ').toLowerCase();
+    const text = [day.date, day.dailyNote, day.sleep?.note, ...Object.values(day.meals || {}), ...(day.beverages || []).flatMap((item) => [item.name, item.glasses]), ...day.activities.flatMap((item) => [item.title, item.note, item.category]), day.tetr?.note, day.tetr ? EMOTIONS[day.tetr.emotionKey]?.label : ''].join(' ').toLowerCase();
     return text.includes(query);
   }
   function renderMonthLabel() { page.querySelector('[data-archive-month-label]').textContent = formatDate(selectedMonth, { month: 'long', year: 'numeric' }); }
@@ -1770,6 +1820,7 @@ window.addEventListener('tracker:data-changed', (event) => {
       const metrics = [];
       if (day.sleep && (activeFilter === 'all' || activeFilter === 'sleep')) metrics.push(`<span class="archive-day-metric metric-sleep"><i>☾</i><span>${formatMinutes(day.sleep.duration)}</span></span>`);
       if (day.water.length && (activeFilter === 'all' || activeFilter === 'food')) metrics.push(`<span class="archive-day-metric metric-water"><i>◔</i><span>${formatWater(waterQuarters(day))}</span></span>`);
+      if ((day.beverages || []).length && (activeFilter === 'all' || activeFilter === 'food')) metrics.push(`<span class="archive-day-metric metric-drink"><i>◌</i><span>${beverageGlasses(day)} ${beverageGlasses(day) === 1 ? 'bicchiere' : 'bicchieri'}</span></span>`);
       if (day.activities.length && (activeFilter === 'all' || activeFilter === 'day')) metrics.push(`<span class="archive-day-metric metric-day"><i>▣</i><span>${day.activities.length} attività</span></span>`);
       if (day.tetr && (activeFilter === 'all' || activeFilter === 'tetr')) metrics.push(`<span class="archive-day-metric metric-tetr ${activeFilter === 'all' ? 'is-compact' : ''}" title="${EMOTIONS[day.tetr.emotionKey].label}">${tetrominoMarkup(day.tetr, 6)}${activeFilter === 'tetr' ? `<span>${EMOTIONS[day.tetr.emotionKey].label}</span>` : ''}</span>`);
       button.innerHTML = `<span class="archive-day-number">${number}</span><span class="archive-day-metrics">${metrics.join('')}</span>`;
@@ -1779,14 +1830,14 @@ window.addEventListener('tracker:data-changed', (event) => {
   }
   function renderList() {
     const days = Store.monthDays(Store.monthKey(selectedMonth)).filter((day) => dayHasData(day) && matches(day));
-    list.innerHTML = days.length ? days.map((day) => `<button type="button" class="archive-list-row" data-date="${day.date}"><span><strong>${formatDate(day.date, { weekday: 'long', day: 'numeric', month: 'long' })}</strong><span>${day.dailyNote || 'Nessuna nota generale'}</span></span><span class="archive-list-metrics"><span>☾ ${day.sleep ? formatMinutes(day.sleep.duration) : '—'}</span><span>◔ ${formatWater(waterQuarters(day))}</span><span>▣ ${day.activities.length}</span><span class="archive-list-emotion">${day.tetr ? `${tetrominoMarkup(day.tetr, 5)} ${EMOTIONS[day.tetr.emotionKey].label}` : '—'}</span></span></button>`).join('') : '<div class="tracker-empty-state"><strong>Nessun risultato</strong><span>Prova a cambiare mese, filtro o ricerca.</span></div>';
+    list.innerHTML = days.length ? days.map((day) => `<button type="button" class="archive-list-row" data-date="${day.date}"><span><strong>${formatDate(day.date, { weekday: 'long', day: 'numeric', month: 'long' })}</strong><span>${day.dailyNote || 'Nessuna nota generale'}</span></span><span class="archive-list-metrics"><span>☾ ${day.sleep ? formatMinutes(day.sleep.duration) : '—'}</span><span>◔ ${formatWater(waterQuarters(day))}</span><span>◌ ${beverageGlasses(day)} bicch.</span><span>▣ ${day.activities.length}</span><span class="archive-list-emotion">${day.tetr ? `${tetrominoMarkup(day.tetr, 5)} ${EMOTIONS[day.tetr.emotionKey].label}` : '—'}</span></span></button>`).join('') : '<div class="tracker-empty-state"><strong>Nessun risultato</strong><span>Prova a cambiare mese, filtro o ricerca.</span></div>';
   }
   function renderDetail() {
     const day = Store.getDay(selectedDate);
     page.querySelector('[data-archive-detail-date]').textContent = formatDate(selectedDate);
     page.querySelector('[data-archive-detail-intro]').textContent = dayHasData(day) ? 'Riepilogo dei dati salvati per questa giornata.' : 'Questa giornata non contiene ancora dati.';
     page.querySelector('[data-detail-sleep-duration]').textContent = day.sleep ? formatMinutes(day.sleep.duration) : '—';
-    page.querySelector('[data-detail-sleep-quality]').textContent = day.sleep?.quality ? `${day.sleep.quality} / 5` : '—';
+    page.querySelector('[data-detail-sleep-quality]').textContent = sleepEnergy(day.sleep) ? `${sleepEnergy(day.sleep)} / 5` : '—';
     page.querySelector('[data-detail-sleep-awakenings]').textContent = String(day.sleep?.awakenings?.length || 0);
     page.querySelector('[data-detail-bedtime]').textContent = day.sleep?.bedtime || '—';
     page.querySelector('[data-detail-wakeup]').textContent = day.sleep?.wake || '—';
@@ -1800,6 +1851,18 @@ window.addEventListener('tracker:data-changed', (event) => {
     mealList.innerHTML = savedMeals.length
       ? savedMeals.map((meal) => `<div class="archive-meal"><strong>${meal.label}</strong><p>${escapeHtml(meal.text)}</p></div>`).join('')
       : '<div class="archive-meal"><strong>Nessun pasto registrato</strong><p>Per questa giornata non hai ancora annotato cosa hai mangiato.</p></div>';
+    const beverageHolder = page.querySelector('[data-detail-beverages]');
+    if (beverageHolder) {
+      const drinks = day.beverages || [];
+      beverageHolder.innerHTML = drinks.length
+        ? `<div class="archive-beverage-heading"><strong>Altre bevande</strong><span>${beverageSummary(day)}</span></div>${drinks.map((drink) => {
+            const glasses = Math.max(1, Number(drink.glasses) || 1);
+            const ml = glasses * (Number(drink.mlPerGlass) || Number(Store.getState().settings.glassMl) || 220);
+            return `<div class="archive-beverage"><strong>${escapeHtml(drink.name || 'Altra bevanda')}</strong><p>${glasses} ${glasses === 1 ? 'bicchiere' : 'bicchieri'} · circa ${new Intl.NumberFormat('it-IT').format(ml)} ml</p></div>`;
+          }).join('')}`
+        : '';
+      beverageHolder.hidden = !drinks.length;
+    }
     page.querySelector('[data-detail-activity-count]').textContent = String(day.activities.length);
     page.querySelector('[data-detail-work]').textContent = formatMinutes(workMinutes(day));
     const activities = page.querySelector('[data-detail-activities]');
@@ -1812,7 +1875,8 @@ window.addEventListener('tracker:data-changed', (event) => {
     page.querySelector('[data-detail-note]').textContent = day.dailyNote || 'Nessuna nota salvata.';
     const emotion = day.tetr ? EMOTIONS[day.tetr.emotionKey] : null;
     page.querySelector('[data-detail-tetr-emotion]').textContent = emotion?.label || '—';
-    page.querySelector('[data-detail-tetr-meta]').textContent = emotion ? `Tetramino ${emotion.piece} · ${emotion.colorName}` : 'Nessun pezzo registrato';
+    const tetrMeta = page.querySelector('[data-detail-tetr-meta]');
+    if (tetrMeta) { tetrMeta.textContent = ''; tetrMeta.hidden = true; }
     page.querySelector('[data-detail-tetr-note]').textContent = day.tetr?.note || 'Nessuna nota salvata.';
     ['[data-detail-tetr-piece]', '[data-detail-tetr-large]'].forEach((selector) => { const holder = page.querySelector(selector); if (holder) holder.innerHTML = day.tetr ? tetrominoMarkup(day.tetr, selector.includes('large') ? 13 : 8) : '—'; });
     const monthName = formatDate(new Date(`${selectedDate.slice(0, 7)}-01T12:00:00`), { month: 'long' });
@@ -1891,6 +1955,8 @@ window.addEventListener('tracker:data-changed', (event) => {
       const backgrounds = { rose: '#F7F4FA', white: '#FFFFFF', lilac: '#F2EFF8' };
       preview.style.setProperty('--preview-grid-background', backgrounds[bg]);
       preview.style.setProperty('--preview-grid-line', `rgba(82,63,119,${({1:.10,2:.18,3:.28})[value]})`);
+      const borders = page.querySelector('[data-setting-appearance="tetrBorders"]')?.checked !== false;
+      preview.classList.toggle('preview-borders-off', !borders);
     }
   }
 
@@ -1926,6 +1992,7 @@ window.addEventListener('tracker:data-changed', (event) => {
   gradient.addEventListener('input', renderGradient);
   tetrLines?.addEventListener('input', renderTetrPreview);
   page.querySelector('[data-setting-tetr-bg]')?.addEventListener('change', renderTetrPreview);
+  page.querySelector('[data-setting-appearance="tetrBorders"]')?.addEventListener('change', renderTetrPreview);
   page.querySelectorAll('[data-single-choice]').forEach((group) => group.querySelectorAll('.settings-choice').forEach((choice) => choice.addEventListener('click', () => { group.querySelectorAll('.settings-choice').forEach((item) => item.classList.remove('active')); choice.classList.add('active'); })));
   page.querySelectorAll('[data-segmented]').forEach((group) => group.querySelectorAll('button').forEach((button) => button.addEventListener('click', () => { group.querySelectorAll('button').forEach((item) => item.classList.remove('active')); button.classList.add('active'); })));
   page.querySelector('[data-add-category]')?.addEventListener('click', () => {
@@ -1955,6 +2022,8 @@ window.addEventListener('tracker:data-changed', (event) => {
     page.querySelector('[data-setting-week-start]').value = settings.weekStart || 'monday';
     page.querySelector('[data-setting-date-format]').value = settings.dateFormat || 'long-weekday';
     page.querySelector('[data-setting-bottle]').value = settings.bottleMl || 750;
+    const glassInput = page.querySelector('[data-setting-glass]');
+    if (glassInput) glassInput.value = settings.glassMl || 220;
     page.querySelector('[data-setting-water-division]').value = settings.waterDivision || 'quarters';
     page.querySelector('[data-setting-water-equivalence]').checked = settings.showWaterEquivalence !== false;
     page.querySelectorAll('[data-setting-home]').forEach((input) => { input.checked = settings.home?.[input.dataset.settingHome] !== false; });
@@ -2000,6 +2069,7 @@ window.addEventListener('tracker:data-changed', (event) => {
       weekStart: page.querySelector('[data-setting-week-start]').value,
       dateFormat: page.querySelector('[data-setting-date-format]').value,
       bottleMl: Math.max(100, Number(page.querySelector('[data-setting-bottle]').value) || 750),
+      glassMl: Math.max(100, Math.min(500, Number(page.querySelector('[data-setting-glass]')?.value) || 220)),
       waterDivision: page.querySelector('[data-setting-water-division]').value,
       showWaterEquivalence: page.querySelector('[data-setting-water-equivalence]').checked,
       home: Object.fromEntries([...page.querySelectorAll('[data-setting-home]')].map((input) => [input.dataset.settingHome, input.checked])),
@@ -2009,7 +2079,7 @@ window.addEventListener('tracker:data-changed', (event) => {
         scene: chosenScene,
         gradient: Number(gradient.value),
         textMode: page.querySelector('[data-text-mode].active')?.dataset.textMode || 'normal',
-        decorations: page.querySelector('[data-decoration-mode].active')?.dataset.decorationMode || 'full',
+        decorations: oldState.settings.appearance?.decorations || 'full',
         tetrGridBackground: page.querySelector('[data-setting-tetr-bg]').value,
         tetrGridLines: Number(tetrLines.value),
         ...Object.fromEntries([...page.querySelectorAll('[data-setting-appearance]')].map((input) => [input.dataset.settingAppearance, input.checked]))
@@ -2049,7 +2119,7 @@ window.addEventListener('tracker:data-changed', (event) => {
     if (event.target.closest('[data-connection-url], [data-import-file]')) return;
     if (event.target.matches('input, select, textarea')) queueAutomaticSettingsSave();
   });
-  page.querySelectorAll('[data-scene-choice], [data-text-mode], [data-decoration-mode], [data-segmented] button').forEach((control) => {
+  page.querySelectorAll('[data-scene-choice], [data-text-mode], [data-segmented] button').forEach((control) => {
     control.addEventListener('click', queueAutomaticSettingsSave);
   });
 
@@ -2084,11 +2154,11 @@ window.addEventListener('tracker:data-changed', (event) => {
     else if (action === 'reset') {
       if (confirm('Ripristinare le impostazioni predefinite? I dati giornalieri resteranno invariati.')) {
         Store.saveSettings({
-          city: 'Roma, Italia', weatherUnit: 'celsius', weatherRefresh: '60', clockFormat: '24', weekStart: 'monday', dateFormat: 'long-weekday', bottleMl: 750, waterDivision: 'quarters', showWaterEquivalence: true,
+          city: 'Roma, Italia', weatherUnit: 'celsius', weatherRefresh: '60', clockFormat: '24', weekStart: 'monday', dateFormat: 'long-weekday', bottleMl: 750, glassMl: 220, waterDivision: 'quarters', showWaterEquivalence: true,
           home: { weather:true, summary:true, reminders:true, sections:true, trends:true, recentDays:true, tetrToday:true, tetrWeek:true, tetrReminder:true },
           appearance: { autoScenes:true, scene:'afternoon', gradient:62, textMode:'normal', decorations:'full', tetrGridBackground:'rose', tetrGridLines:1, tetrBorders:true, tetrHover:true },
           tracker: {
-            sleep: { asleep:true, awakenings:true, quality:true, riseDelay:true },
+            sleep: { awakenings:true, energy:true, riseDelay:true },
             tetr: { ghost:true, keyboard:true, confirm:true, note:true, highlightToday:true },
             categories: [
               { id:'work', name:'Lavoro', color:'violet', icon:'◷', visible:true }, { id:'creative', name:'Creatività', color:'rose', icon:'✦', visible:true }, { id:'home', name:'Casa', color:'violet', icon:'⌂', visible:true },
@@ -2227,7 +2297,7 @@ if (Store?.getScriptUrl()) {
     const water = days.map(waterQuarters).filter((value) => value > 0);
     const work = days.map(workMinutes).filter((value) => value > 0);
     const activities = days.map(activityMinutes).filter((value) => value > 0);
-    const quality = days.map((day) => Number(day.sleep?.quality)).filter((value) => value > 0);
+    const energy = days.map((day) => sleepEnergy(day.sleep)).filter((value) => value !== null);
     const bedtimes = days.map((day) => day.sleep?.bedtime).filter(Boolean);
     const wakes = days.map((day) => day.sleep?.wake).filter(Boolean);
     const rise = days.map((day) => Number(day.sleep?.riseDelay)).filter((value) => Number.isFinite(value));
@@ -2240,7 +2310,7 @@ if (Store?.getScriptUrl()) {
     days.forEach((day) => {
       if (day.tetr?.emotionKey && emotionCounts[day.tetr.emotionKey] !== undefined) emotionCounts[day.tetr.emotionKey] += 1;
       Object.keys(mealCounts).forEach((key) => { if (String(day.meals?.[key] || '').trim()) mealCounts[key] += 1; });
-      awakenings += Number(day.sleep?.awakenings) || 0;
+      awakenings += Array.isArray(day.sleep?.awakenings) ? day.sleep.awakenings.length : 0;
       (day.activities || []).forEach((item) => {
         const category = item.category || 'Altro';
         categoryMinutes[category] = (categoryMinutes[category] || 0) + (Number(item.duration) || 0);
@@ -2255,7 +2325,8 @@ if (Store?.getScriptUrl()) {
       waterAverage: average(water), waterTotal: water.reduce((sum, value) => sum + value, 0), waterCount: water.length, waterMax: Math.max(0, ...water),
       workTotal: work.reduce((sum, value) => sum + value, 0), workAverage: average(work),
       activityTotal: activities.reduce((sum, value) => sum + value, 0), totalActivities, categoryMinutes, categoryCounts, topCategory,
-      qualityAverage: average(quality), qualityCount: quality.length, bedtime: averageClock(bedtimes, true), wake: averageClock(wakes), riseAverage: average(rise), awakenings,
+      energyAverage: average(energy), energyCount: energy.length, bedtime: averageClock(bedtimes, true), wake: averageClock(wakes), riseAverage: average(rise), awakenings,
+      beverageGlasses: days.reduce((sum, day) => sum + beverageGlasses(day), 0), beverageMl: days.reduce((sum, day) => sum + beverageMilliliters(day), 0),
       emotionCounts, mostEmotion, mealCounts, completedDays: days.filter(dayHasData).length
     };
   }
@@ -2324,14 +2395,14 @@ if (Store?.getScriptUrl()) {
     if (sections.has('sleep')) {
       lines.push('## Sonno', '',
         `- Sonno medio: **${stats.sleepCount ? formatMinutes(stats.sleepAverage) : '—'}**`,
-        `- Qualità media: **${stats.qualityCount ? `${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(stats.qualityAverage)} / 5` : '—'}**`,
+        `- Energie medie al risveglio: **${stats.energyCount ? `${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(stats.energyAverage)} / 5` : '—'}**`,
         `- Orario medio a letto: **${clockLabel(stats.bedtime)}**`,
         `- Sveglia media: **${clockLabel(stats.wake)}**`,
         `- Tempo medio per alzarti: **${stats.riseAverage ? formatMinutes(stats.riseAverage) : '—'}**`,
         `- Risvegli complessivi: **${stats.awakenings}**`, '');
       if (full) {
-        lines.push('| Data | Durata | A letto | Addormentata | Sveglia | Qualità | Risvegli |', '|---|---:|---:|---:|---:|---:|---:|');
-        context.dateEntries.filter(({ day }) => day.sleep).forEach(({ date, day }) => lines.push(`| ${formatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' })} | ${formatMinutes(day.sleep.duration)} | ${day.sleep.bedtime || '—'} | ${day.sleep.asleep || '—'} | ${day.sleep.wake || '—'} | ${day.sleep.quality || '—'} | ${day.sleep.awakenings || 0} |`));
+        lines.push('| Data | Durata | A letto | Sveglia | Energie | Risvegli |', '|---|---:|---:|---:|---:|---:|');
+        context.dateEntries.filter(({ day }) => day.sleep).forEach(({ date, day }) => lines.push(`| ${formatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' })} | ${formatMinutes(day.sleep.duration)} | ${day.sleep.bedtime || '—'} | ${day.sleep.wake || '—'} | ${sleepEnergy(day.sleep) || '—'} | ${Array.isArray(day.sleep.awakenings) ? day.sleep.awakenings.length : 0} |`));
         lines.push('');
       }
     }
@@ -2340,13 +2411,14 @@ if (Store?.getScriptUrl()) {
       lines.push('## Cibo e acqua', '',
         `- Acqua media: **${stats.waterCount ? `${formatWater(Math.round(stats.waterAverage))} · ${waterLiters(stats.waterAverage, Store.getState().settings.bottleMl)}` : '—'}**`,
         `- Acqua totale: **${waterLiters(stats.waterTotal, Store.getState().settings.bottleMl)}**`,
+        `- Altre bevande: **${stats.beverageGlasses} ${stats.beverageGlasses === 1 ? 'bicchiere' : 'bicchieri'} · circa ${new Intl.NumberFormat('it-IT').format(stats.beverageMl)} ml**`,
         `- Colazioni registrate: **${stats.mealCounts.breakfast}**`,
         `- Pranzi registrati: **${stats.mealCounts.lunch}**`,
         `- Cene registrate: **${stats.mealCounts.dinner}**`,
         `- Giornate con spuntini: **${stats.mealCounts.snacks}**`, '');
       if (full) {
-        lines.push('| Data | Acqua | Colazione | Pranzo | Cena | Spuntini |', '|---|---:|---|---|---|---|');
-        context.dateEntries.filter(({ day }) => waterQuarters(day) || Object.values(day.meals || {}).some(Boolean)).forEach(({ date, day }) => lines.push(`| ${formatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' })} | ${formatWater(waterQuarters(day))} | ${day.meals?.breakfast || '—'} | ${day.meals?.lunch || '—'} | ${day.meals?.dinner || '—'} | ${day.meals?.snacks || '—'} |`));
+        lines.push('| Data | Acqua | Altre bevande | Colazione | Pranzo | Cena | Spuntini |', '|---|---:|---|---|---|---|---|');
+        context.dateEntries.filter(({ day }) => waterQuarters(day) || (day.beverages || []).length || Object.values(day.meals || {}).some(Boolean)).forEach(({ date, day }) => lines.push(`| ${formatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' })} | ${formatWater(waterQuarters(day))} | ${(day.beverages || []).map((drink) => `${drink.name}: ${drink.glasses} bicch.`).join('; ') || '—'} | ${day.meals?.breakfast || '—'} | ${day.meals?.lunch || '—'} | ${day.meals?.dinner || '—'} | ${day.meals?.snacks || '—'} |`));
         lines.push('');
       }
     }
@@ -2445,11 +2517,11 @@ if (Store?.getScriptUrl()) {
 
   function buildCsv(context) {
     const bottleMl = Store.getState().settings.bottleMl;
-    const headers = ['Data', 'Sonno minuti', 'A letto', 'Addormentata', 'Sveglia', 'Tempo per alzarsi minuti', 'Qualità sonno', 'Risvegli', 'Acqua quarti', 'Acqua ml', 'Colazione', 'Pranzo', 'Cena', 'Spuntini', 'Lavoro minuti', 'Attività', 'Emozione', 'Nota Tetr-Emotion', 'Nota giornata'];
+    const headers = ['Data', 'Sonno minuti', 'A letto', 'Sveglia', 'Tempo per alzarsi minuti', 'Energie al risveglio', 'Risvegli', 'Acqua quarti', 'Acqua ml', 'Altre bevande', 'Bicchieri altre bevande', 'Colazione', 'Pranzo', 'Cena', 'Spuntini', 'Lavoro minuti', 'Attività', 'Emozione', 'Nota Tetr-Emotion', 'Nota giornata'];
     const rows = context.dateEntries.map(({ key, day }) => {
       const quarters = waterQuarters(day);
       const emotion = day.tetr ? EMOTIONS[day.tetr.emotionKey]?.label : '';
-      return [key, day.sleep?.duration || '', day.sleep?.bedtime || '', day.sleep?.asleep || '', day.sleep?.wake || '', day.sleep?.riseDelay ?? '', day.sleep?.quality || '', day.sleep?.awakenings ?? '', quarters || '', quarters ? Math.round(quarters * bottleMl / 4) : '', day.meals?.breakfast || '', day.meals?.lunch || '', day.meals?.dinner || '', day.meals?.snacks || '', workMinutes(day) || '', activityDescription(day), emotion || '', day.tetr?.note || '', day.dailyNote || ''];
+      return [key, day.sleep?.duration || '', day.sleep?.bedtime || '', day.sleep?.wake || '', day.sleep?.riseDelay ?? '', sleepEnergy(day.sleep) || '', Array.isArray(day.sleep?.awakenings) ? day.sleep.awakenings.length : '', quarters || '', quarters ? Math.round(quarters * bottleMl / 4) : '', (day.beverages || []).map((drink) => `${drink.name}: ${drink.glasses}`).join('; '), beverageGlasses(day) || '', day.meals?.breakfast || '', day.meals?.lunch || '', day.meals?.dinner || '', day.meals?.snacks || '', workMinutes(day) || '', activityDescription(day), emotion || '', day.tetr?.note || '', day.dailyNote || ''];
     });
     return '\uFEFF' + [headers, ...rows].map((row) => row.map(escapeCsv).join(';')).join('\r\n');
   }
@@ -2544,9 +2616,10 @@ if (Store?.getScriptUrl()) {
   function drawLineTrend(context, type) {
     const isSleep = type === 'sleep';
     const title = isSleep ? 'Andamento del sonno' : 'Andamento dell’acqua';
-    const base = canvasBase(title, context.label, 1600, 1040);
+    const base = canvasBase(title, context.label, 1600, 1180);
     const { ctx, canvas, left, right } = base;
-    const chart = { x: left + 70, y: 245, width: right - left - 95, height: 610 };
+    const chartOffset = isSleep ? 70 : 190;
+    const chart = { x: left + chartOffset, y: 245, width: right - left - chartOffset - 25, height: 610 };
     const values = context.dateEntries.map(({ day }) => isSleep ? (Number(day.sleep?.duration) || 0) : waterQuarters(day));
     const valid = values.filter((value) => value > 0);
     if (!valid.length) { drawEmpty(ctx, canvas.width, canvas.height); return canvas; }
@@ -2586,14 +2659,15 @@ if (Store?.getScriptUrl()) {
     }
     const step = Math.max(1, Math.ceil(values.length / 9));
     context.dateEntries.forEach(({ date }, index) => {
-      if (index % step !== 0 && index !== values.length - 1) return;
+      const lastIndex = values.length - 1;
+      if (index !== lastIndex && (index % step !== 0 || lastIndex - index < Math.max(2, step / 2))) return;
       ctx.fillStyle = COLORS.muted; ctx.font = '400 19px Arial, sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(formatDate(date, { day: 'numeric', month: 'short' }), xFor(index), chart.y + chart.height + 42);
     });
     ctx.textAlign = 'left';
     const avg = average(valid);
     ctx.fillStyle = COLORS.violet; ctx.font = '700 30px Arial, sans-serif';
-    ctx.fillText(isSleep ? `Media: ${formatMinutes(avg)}` : `Media: ${formatWater(Math.round(avg))} · ${waterLiters(avg, Store.getState().settings.bottleMl)}`, left, 930);
+    ctx.fillText(isSleep ? `Media: ${formatMinutes(avg)}` : `Media: ${formatWater(Math.round(avg))} · ${waterLiters(avg, Store.getState().settings.bottleMl)}`, left, 1100);
     return canvas;
   }
 

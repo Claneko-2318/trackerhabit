@@ -30,20 +30,41 @@
       sleep: null,
       meals: {},
       water: [],
+      beverages: [],
       activities: [],
       dailyNote: '',
       tetr: null
     };
   }
 
+  function defaultCategories() {
+    return [
+      { id: 'work', name: 'Lavoro', color: 'violet', icon: '◷', visible: true },
+      { id: 'creative', name: 'Creatività', color: 'rose', icon: '✦', visible: true },
+      { id: 'home', name: 'Casa', color: 'violet', icon: '⌂', visible: true },
+      { id: 'errands', name: 'Commissioni', color: 'sky', icon: '⌖', visible: true },
+      { id: 'leisure', name: 'Svago', color: 'lilac', icon: '☾', visible: true },
+      { id: 'personal', name: 'Cura personale', color: 'periwinkle', icon: '♡', visible: true },
+      { id: 'other', name: 'Altro', color: 'neutral', icon: '•', visible: true }
+    ];
+  }
+
   function defaultState() {
     return {
-      version: 1,
+      version: 2,
       updatedAt: new Date().toISOString(),
       settingsUpdatedAt: '',
       settings: {
         city: 'Roma, Italia',
+        weatherUnit: 'celsius',
+        weatherRefresh: '60',
+        clockFormat: '24',
+        weekStart: 'monday',
+        dateFormat: 'long-weekday',
         bottleMl: 750,
+        glassMl: 220,
+        waterDivision: 'quarters',
+        showWaterEquivalence: true,
         home: {
           weather: true,
           summary: true,
@@ -61,7 +82,17 @@
           gradient: 62,
           textMode: 'normal',
           decorations: 'full',
-          tetrGridBackground: '#F7F3FA'
+          tetrGridBackground: 'rose',
+          tetrGridLines: 1,
+          tetrBorders: true,
+          tetrHover: true
+        },
+        tracker: {
+          sleep: { awakenings: true, energy: true, riseDelay: true },
+          tetr: { ghost: true, keyboard: true, confirm: true, note: true, highlightToday: true },
+          categories: defaultCategories(),
+          showWorkInStats: true,
+          food: { breakfast: true, lunch: true, dinner: true, snacks: true }
         }
       },
       days: {}
@@ -78,7 +109,27 @@
         ...base.settings,
         ...(input.settings || {}),
         home: { ...base.settings.home, ...(input.settings?.home || {}) },
-        appearance: { ...base.settings.appearance, ...(input.settings?.appearance || {}) }
+        appearance: { ...base.settings.appearance, ...(input.settings?.appearance || {}) },
+        tracker: {
+          ...base.settings.tracker,
+          ...(input.settings?.tracker || {}),
+          sleep: {
+            ...base.settings.tracker.sleep,
+            ...(input.settings?.tracker?.sleep || {}),
+            energy: input.settings?.tracker?.sleep?.energy ?? input.settings?.tracker?.sleep?.quality ?? base.settings.tracker.sleep.energy
+          },
+          tetr: { ...base.settings.tracker.tetr, ...(input.settings?.tracker?.tetr || {}) },
+          food: { ...base.settings.tracker.food, ...(input.settings?.tracker?.food || {}) },
+          categories: Array.isArray(input.settings?.tracker?.categories)
+            ? input.settings.tracker.categories.map((item, index) => ({
+                id: item?.id || `category-${index + 1}`,
+                name: String(item?.name || `Categoria ${index + 1}`),
+                color: item?.color || 'neutral',
+                icon: item?.icon || '•',
+                visible: item?.visible !== false
+              }))
+            : base.settings.tracker.categories
+        }
       },
       days: {}
     };
@@ -89,6 +140,7 @@
         ...(day || {}),
         meals: { ...((day || {}).meals || {}) },
         water: Array.isArray(day?.water) ? day.water : [],
+        beverages: Array.isArray(day?.beverages) ? day.beverages : [],
         activities: Array.isArray(day?.activities) ? day.activities : []
       };
     });
@@ -234,6 +286,7 @@
       updatedAt: new Date().toISOString(),
       meals: { ...((nextDay || {}).meals || {}) },
       water: Array.isArray(nextDay?.water) ? nextDay.water : [],
+      beverages: Array.isArray(nextDay?.beverages) ? nextDay.beverages : [],
       activities: Array.isArray(nextDay?.activities) ? nextDay.activities : []
     };
     writeLocal(reason);
@@ -272,7 +325,21 @@
       ...state.settings,
       ...(nextSettings || {}),
       home: { ...state.settings.home, ...(nextSettings?.home || {}) },
-      appearance: { ...state.settings.appearance, ...(nextSettings?.appearance || {}) }
+      appearance: { ...state.settings.appearance, ...(nextSettings?.appearance || {}) },
+      tracker: {
+        ...state.settings.tracker,
+        ...(nextSettings?.tracker || {}),
+        sleep: {
+          ...state.settings.tracker.sleep,
+          ...(nextSettings?.tracker?.sleep || {}),
+          energy: nextSettings?.tracker?.sleep?.energy ?? nextSettings?.tracker?.sleep?.quality ?? state.settings.tracker.sleep.energy
+        },
+        tetr: { ...state.settings.tracker.tetr, ...(nextSettings?.tracker?.tetr || {}) },
+        food: { ...state.settings.tracker.food, ...(nextSettings?.tracker?.food || {}) },
+        categories: Array.isArray(nextSettings?.tracker?.categories)
+          ? clone(nextSettings.tracker.categories)
+          : state.settings.tracker.categories
+      }
     };
     state.settingsUpdatedAt = new Date().toISOString();
     writeLocal('settings-update');

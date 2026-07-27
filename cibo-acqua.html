@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tracker personale — Cibo e acqua</title>
-  <link rel="stylesheet" href="styles.css?v=20260727-24">
+  <link rel="stylesheet" href="styles.css?v=20260727-25">
   <meta name="robots" content="noindex, nofollow">
 </head>
 <body class="food-page">
@@ -220,6 +220,20 @@
             </div>
           </div>
           <p class="water-feedback" data-water-feedback aria-live="polite">Ogni quarto corrisponde a 187,5 ml; nell’interfaccia viene arrotondato.</p>
+
+          <section class="other-drinks" aria-labelledby="other-drinks-title">
+            <div class="other-drinks-heading">
+              <div><span class="food-mini-kicker">Altre bevande</span><h4 id="other-drinks-title">Bicchieri fuori dall’acqua</h4></div>
+              <span data-glass-capacity>circa 220 ml</span>
+            </div>
+            <div class="other-drink-form">
+              <label><span>Bevanda</span><input type="text" maxlength="60" placeholder="Es. tè, succo, latte…" data-beverage-name></label>
+              <label><span>Bicchieri</span><input type="number" min="1" max="20" step="1" value="1" data-beverage-glasses></label>
+              <button type="button" data-add-beverage>Aggiungi</button>
+            </div>
+            <div class="other-drinks-list" data-beverage-list></div>
+            <p class="other-drinks-feedback" data-beverage-feedback aria-live="polite">Le altre bevande restano separate dal conteggio dell’acqua.</p>
+          </section>
         </aside>
       </div>
     </section>
@@ -276,7 +290,7 @@
     </footer>
   </main>
 
-  <script src="tracker-store.js?v=20260727-24"></script>
-<script src="app.js?v=20260727-24"></script>
+  <script src="tracker-store.js?v=20260727-25"></script>
+<script src="app.js?v=20260727-25"></script>
 </body>
 </html>

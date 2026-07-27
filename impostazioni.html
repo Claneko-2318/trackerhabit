@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Impostazioni desktop del tracker personale.">
   <title>Tracker personale — Impostazioni</title>
-  <link rel="stylesheet" href="styles.css?v=20260727-24">
+  <link rel="stylesheet" href="styles.css?v=20260727-25">
   <meta name="robots" content="noindex, nofollow">
 </head>
 <body class="settings-page">
@@ -200,15 +200,6 @@
           </div>
         </div>
       </article>
-
-      <article class="settings-card settings-card-wide">
-        <div class="settings-card-heading"><span class="settings-card-icon icon-lilac">✦</span><div><h3>Decorazioni</h3><p>Stelle, bagliori e piccoli elementi floreali.</p></div></div>
-        <div class="settings-segmented" data-segmented>
-          <button type="button" class="active" data-decoration-mode="full">Complete</button>
-          <button type="button" data-decoration-mode="light">Leggere</button>
-          <button type="button" data-decoration-mode="none">Nessuna</button>
-        </div>
-      </article>
     </section>
 
     <section class="settings-panel" role="tabpanel" data-settings-panel="tracker" hidden>
@@ -221,6 +212,7 @@
         <article class="settings-card">
           <div class="settings-card-heading"><span class="settings-card-icon icon-sky">◒</span><div><h3>Acqua</h3><p>La pagina usa la tua borraccia come unità principale.</p></div></div>
           <label class="settings-field"><span>Capienza della borraccia</span><div class="settings-unit-input"><input type="number" value="750" min="100" step="50" data-setting-bottle><span>ml</span></div></label>
+          <label class="settings-field"><span>Capienza indicativa di un bicchiere</span><div class="settings-unit-input"><input type="number" value="220" min="100" max="500" step="10" data-setting-glass><span>ml</span></div></label>
           <label class="settings-field"><span>Divisione</span><select data-setting-water-division><option value="quarters" selected>Quarti di borraccia</option><option value="halves">Metà borraccia</option></select></label>
           <label class="settings-switch-row"><span><strong>Mostra equivalenza</strong><span class="secondary-text">Visualizza anche ml e litri</span></span><input type="checkbox" checked data-setting-water-equivalence><i aria-hidden="true"></i></label>
         </article>
@@ -228,9 +220,8 @@
         <article class="settings-card">
           <div class="settings-card-heading"><span class="settings-card-icon icon-lilac">☾</span><div><h3>Sonno</h3><p>Scegli quali dettagli registrare ogni notte.</p></div></div>
           <div class="settings-switch-list">
-            <label class="settings-switch-row"><span><strong>Ora in cui mi sono addormentata</strong></span><input type="checkbox" checked data-setting-sleep="asleep"><i aria-hidden="true"></i></label>
             <label class="settings-switch-row"><span><strong>Risvegli notturni</strong></span><input type="checkbox" checked data-setting-sleep="awakenings"><i aria-hidden="true"></i></label>
-            <label class="settings-switch-row"><span><strong>Qualità percepita</strong></span><input type="checkbox" checked data-setting-sleep="quality"><i aria-hidden="true"></i></label>
+            <label class="settings-switch-row"><span><strong>Energie al risveglio</strong></span><input type="checkbox" checked data-setting-sleep="energy"><i aria-hidden="true"></i></label>
             <label class="settings-switch-row"><span><strong>Tempo tra sveglia e alzata</strong></span><input type="checkbox" checked data-setting-sleep="riseDelay"><i aria-hidden="true"></i></label>
           </div>
         </article>
@@ -357,7 +348,7 @@
 </main>
 
 <footer class="site-footer settings-footer"><span>Tracker personale · salvataggio attivo</span><a href="index.html">Torna alla homepage</a></footer>
-<script src="tracker-store.js?v=20260727-24"></script>
-<script src="app.js?v=20260727-24"></script>
+<script src="tracker-store.js?v=20260727-25"></script>
+<script src="app.js?v=20260727-25"></script>
 </body>
 </html>

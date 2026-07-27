@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tracker personale — Sonno</title>
-  <link rel="stylesheet" href="styles.css?v=20260727-24">
+  <link rel="stylesheet" href="styles.css?v=20260727-25">
   <meta name="robots" content="noindex, nofollow">
 </head>
 <body class="sleep-page">
@@ -86,10 +86,6 @@
               <span>A letto</span>
               <span class="sleep-time-wrap"><input type="time" name="bedtime" value="23:48"></span>
             </label>
-            <label class="sleep-field">
-              <span>Mi sono addormentata</span>
-              <span class="sleep-time-wrap"><input type="time" name="asleep" value="00:12"></span>
-            </label>
           </article>
 
           <article class="sleep-input-card sleep-morning-card">
@@ -118,24 +114,23 @@
             <div class="awakening-list" data-awakening-list>
               <div class="awakening-row">
                 <label><span>Orario</span><span class="sleep-time-wrap"><input type="time" name="awakeningTime[]" value="03:20"></span></label>
-                <label><span>Durata</span><span class="sleep-duration-wrap"><input type="number" name="awakeningDuration[]" min="0" step="1" value="12"><em>min</em></span></label>
                 <button class="awakening-remove" type="button" data-remove-awakening aria-label="Rimuovi risveglio">×</button>
               </div>
             </div>
-            <p class="sleep-helper">Inserisci solo i risvegli che ricordi. La durata viene sottratta dal sonno stimato.</p>
+            <p class="sleep-helper">Inserisci soltanto l’orario dei risvegli che ricordi.</p>
           </article>
 
           <article class="sleep-input-card sleep-quality-card">
             <div class="sleep-card-heading">
               <span class="sleep-card-icon" aria-hidden="true">♡</span>
-              <div><span class="secondary-text">Percezione</span><h3>Come hai dormito?</h3></div>
+              <div><span class="secondary-text">Energie</span><h3>Come ti sei svegliata?</h3></div>
             </div>
-            <div class="quality-scale" role="radiogroup" aria-label="Qualità percepita del sonno">
-              <label><input type="radio" name="quality" value="1"><span>1</span><span class="secondary-text">Pessimo</span></label>
-              <label><input type="radio" name="quality" value="2"><span>2</span><span class="secondary-text">Poco</span></label>
-              <label><input type="radio" name="quality" value="3"><span>3</span><span class="secondary-text">Medio</span></label>
-              <label><input type="radio" name="quality" value="4" checked><span>4</span><span class="secondary-text">Buono</span></label>
-              <label><input type="radio" name="quality" value="5"><span>5</span><span class="secondary-text">Ottimo</span></label>
+            <div class="quality-scale" role="radiogroup" aria-label="Energie percepite al risveglio">
+              <label><input type="radio" name="energy" value="1"><span>1</span><span class="secondary-text">Stanca</span></label>
+              <label><input type="radio" name="energy" value="2"><span>2</span><span class="secondary-text">Poche energie</span></label>
+              <label><input type="radio" name="energy" value="3"><span>3</span><span class="secondary-text">Nella media</span></label>
+              <label><input type="radio" name="energy" value="4" checked><span>4</span><span class="secondary-text">Energica</span></label>
+              <label><input type="radio" name="energy" value="5"><span>5</span><span class="secondary-text">Molte energie</span></label>
             </div>
             <label class="sleep-field sleep-note-field">
               <span>Nota facoltativa</span>
@@ -166,7 +161,7 @@
             <span class="sleep-summary-symbol">☾</span>
             <span>Sonno stimato</span>
             <strong data-sleep-duration>7 h 11 min</strong>
-            <span class="secondary-text">esclusi i risvegli registrati</span>
+            <span class="secondary-text">dall’orario a letto fino alla sveglia</span>
           </article>
           <article class="sleep-summary-card">
             <span class="sleep-summary-symbol">⌂</span>
@@ -184,7 +179,7 @@
             <span class="sleep-summary-symbol">✦</span>
             <span>Risvegli</span>
             <strong data-awakening-count>1</strong>
-            <span class="secondary-text"><span data-awakening-total>12 min</span> totali registrati</span>
+            <span class="secondary-text">orari ricordati durante la notte</span>
           </article>
         </div>
       </div>
@@ -223,7 +218,7 @@
           <div class="sleep-insight-list">
             <div><span>Ora media a letto</span><strong>23:54</strong></div>
             <div><span>Ora media sveglia</span><strong>07:18</strong></div>
-            <div><span>Qualità media</span><strong>3,8 / 5</strong></div>
+            <div><span>Energie medie</span><strong>3,8 / 5</strong></div>
           </div>
         </aside>
       </div>
@@ -244,21 +239,21 @@
             <div class="recent-night-date"><strong>26</strong><span>Luglio</span></div>
             <div><span class="recent-night-label">Sonno</span><strong>7 h 11 min</strong></div>
             <div><span class="recent-night-label">Orari</span><strong>00:12 — 07:35</strong></div>
-            <div><span class="recent-night-label">Qualità</span><strong>4 / 5</strong></div>
+            <div><span class="recent-night-label">Energie</span><strong>4 / 5</strong></div>
             <button type="button" aria-label="Apri notte del 26 luglio">→</button>
           </article>
           <article class="recent-night-row">
             <div class="recent-night-date"><strong>25</strong><span>Luglio</span></div>
             <div><span class="recent-night-label">Sonno</span><strong>7 h 21 min</strong></div>
             <div><span class="recent-night-label">Orari</span><strong>23:55 — 07:28</strong></div>
-            <div><span class="recent-night-label">Qualità</span><strong>4 / 5</strong></div>
+            <div><span class="recent-night-label">Energie</span><strong>4 / 5</strong></div>
             <button type="button" aria-label="Apri notte del 25 luglio">→</button>
           </article>
           <article class="recent-night-row">
             <div class="recent-night-date"><strong>24</strong><span>Luglio</span></div>
             <div><span class="recent-night-label">Sonno</span><strong>6 h 55 min</strong></div>
             <div><span class="recent-night-label">Orari</span><strong>00:20 — 07:27</strong></div>
-            <div><span class="recent-night-label">Qualità</span><strong>3 / 5</strong></div>
+            <div><span class="recent-night-label">Energie</span><strong>3 / 5</strong></div>
             <button type="button" aria-label="Apri notte del 24 luglio">→</button>
           </article>
         </div>
@@ -271,7 +266,7 @@
     </footer>
   </main>
 
-  <script src="tracker-store.js?v=20260727-24"></script>
-<script src="app.js?v=20260727-24"></script>
+  <script src="tracker-store.js?v=20260727-25"></script>
+<script src="app.js?v=20260727-25"></script>
 </body>
 </html>
