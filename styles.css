@@ -5596,3 +5596,65 @@ body.tetr-borders-off .tetromino > i {
 
   .site-footer { padding-bottom: 28px !important; }
 }
+
+/* =========================================================
+   V27 — correzione viewport mobile reale
+   ========================================================= */
+@media (max-width: 1024px) {
+  html,
+  body,
+  .settings-page,
+  .guide-page {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  img, svg, canvas, video { max-width: 100%; }
+  .navbar {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+  main, section, article, .site-main, .settings-main { max-width: 100%; }
+}
+
+@media (max-width: 560px) {
+  html { font-size: 16px; }
+  body {
+    overflow-x: hidden !important;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+  .content-wrap,
+  .sleep-content,
+  .food-content,
+  .day-content,
+  .tetr-content,
+  .stats-content,
+  .archive-content,
+  .settings-content {
+    width: calc(100% - 32px) !important;
+    max-width: calc(100% - 32px) !important;
+    margin-left: 16px !important;
+    margin-right: 16px !important;
+  }
+  .sleep-form-card,
+  .food-entry-card,
+  .day-form-card,
+  .stats-card,
+  .archive-card,
+  .settings-card,
+  .tetr-studio-card,
+  .water-panel,
+  .meal-card {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  input, select, textarea, button {
+    max-width: 100%;
+    font-size: 16px;
+  }
+  .archive-calendar-shell,
+  .stats-calendar-shell,
+  .stats-chart-shell { max-width: 100%; }
+}
