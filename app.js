@@ -2942,3 +2942,64 @@ if (Store?.getScriptUrl()) {
     } catch (error) { setBusy(false, error.message); }
   });
 })();
+
+/* =========================================================
+   V26 — navigazione responsive mobile/tablet verticale
+   ========================================================= */
+function initResponsiveNavigation() {
+  if (document.querySelector('.mobile-bottom-nav')) return;
+
+  const path = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+  const primary = [
+    ['index.html', 'Home', '<path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/>'],
+    ['giornata.html', 'Giornata', '<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M8 11h8M8 15h5"/>'],
+    ['sonno.html', 'Sonno', '<path d="M20 15.5A8 8 0 0 1 8.5 4a8.3 8.3 0 1 0 11.5 11.5Z"/>'],
+    ['cibo-acqua.html', 'Cibo e acqua', '<path d="M8 3v8M5 3v5a3 3 0 0 0 6 0V3M8 11v10M16 3v18M16 3c3 2 3 7 0 9"/>']
+  ];
+  const secondary = [
+    ['tetr-emotion.html', 'Tetr-Emotion', '▦'],
+    ['statistiche.html', 'Statistiche', '▥'],
+    ['archivio.html', 'Archivio', '◫'],
+    ['impostazioni.html', 'Impostazioni', '⚙']
+  ];
+  const isSecondary = secondary.some(([href]) => href === path);
+
+  const nav = document.createElement('nav');
+  nav.className = 'mobile-bottom-nav';
+  nav.setAttribute('aria-label', 'Navigazione mobile');
+  nav.innerHTML = primary.map(([href, label, icon]) => `
+    <a class="mobile-nav-item${path === href ? ' is-active' : ''}" href="${href}"${path === href ? ' aria-current="page"' : ''}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">${icon}</svg>
+      <span>${label}</span>
+    </a>`).join('') + `
+    <button class="mobile-nav-item${isSecondary ? ' is-active' : ''}" type="button" data-mobile-more aria-expanded="false" aria-controls="mobile-more-sheet">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>
+      <span>Altro</span>
+    </button>`;
+
+  const backdrop = document.createElement('button');
+  backdrop.type = 'button';
+  backdrop.className = 'mobile-sheet-backdrop';
+  backdrop.setAttribute('aria-label', 'Chiudi il menu');
+
+  const sheet = document.createElement('section');
+  sheet.className = 'mobile-more-sheet';
+  sheet.id = 'mobile-more-sheet';
+  sheet.setAttribute('aria-label', 'Altre sezioni');
+  sheet.innerHTML = `
+    <div class="mobile-more-title"><strong>Altre sezioni</strong><button class="mobile-sheet-close" type="button" aria-label="Chiudi">×</button></div>
+    <div class="mobile-more-grid">
+      ${secondary.map(([href, label, icon]) => `<a class="mobile-more-link${path === href ? ' is-active' : ''}" href="${href}"${path === href ? ' aria-current="page"' : ''}><span class="mobile-more-icon" aria-hidden="true">${icon}</span><span>${label}</span></a>`).join('')}
+    </div>`;
+
+  document.body.append(backdrop, sheet, nav);
+  const trigger = nav.querySelector('[data-mobile-more]');
+  const close = () => { document.body.classList.remove('mobile-more-open'); trigger.setAttribute('aria-expanded', 'false'); };
+  const open = () => { document.body.classList.add('mobile-more-open'); trigger.setAttribute('aria-expanded', 'true'); sheet.querySelector('.mobile-sheet-close')?.focus(); };
+  trigger.addEventListener('click', () => document.body.classList.contains('mobile-more-open') ? close() : open());
+  backdrop.addEventListener('click', close);
+  sheet.querySelector('.mobile-sheet-close')?.addEventListener('click', close);
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') close(); });
+}
+
+document.addEventListener('DOMContentLoaded', initResponsiveNavigation);
