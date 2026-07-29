@@ -561,10 +561,13 @@ window.addEventListener('tracker:data-changed', (event) => {
     const bedtime = form.elements.bedtime.value;
     const wake = form.elements.wake.value;
     const up = settings.riseDelay === false ? wake : (form.elements.up.value || wake);
+    const napStart = form.elements.napStart?.value || '';
+    const napEnd = form.elements.napEnd?.value || '';
     return {
       duration: timeDifference(bedtime, wake),
       bedDuration: timeDifference(bedtime, up),
-      riseDelay: timeDifference(wake, up)
+      riseDelay: timeDifference(wake, up),
+      napDuration: napStart && napEnd ? timeDifference(napStart, napEnd) : null
     };
   }
 
@@ -574,6 +577,8 @@ window.addEventListener('tracker:data-changed', (event) => {
     page.querySelector('[data-bed-duration]').textContent = formatMinutes(calculations.bedDuration);
     page.querySelector('[data-rise-delay]').textContent = formatMinutes(calculations.riseDelay);
     page.querySelector('[data-awakening-count]').textContent = String(awakeningsFromForm().length);
+    const napDuration = page.querySelector('[data-nap-duration]');
+    if (napDuration) napDuration.textContent = calculations.napDuration === null ? '—' : formatMinutes(calculations.napDuration);
   }
 
   function renderSleepStats() {
@@ -666,8 +671,10 @@ window.addEventListener('tracker:data-changed', (event) => {
     const sleep = Store.getDay(key()).sleep;
     form.reset();
     awakeningList.innerHTML = '';
-    const values = sleep || { bedtime: '', wake: '', up: '', energy: '', note: '', awakenings: [] };
+    const values = sleep || { bedtime: '', wake: '', up: '', energy: '', note: '', awakenings: [], nap: null };
     ['bedtime', 'wake', 'up'].forEach((name) => { form.elements[name].value = values[name] || ''; });
+    if (form.elements.napStart) form.elements.napStart.value = values.nap?.start || '';
+    if (form.elements.napEnd) form.elements.napEnd.value = values.nap?.end || '';
     const savedEnergy = sleepEnergy(values);
     form.querySelectorAll('input[name="energy"]').forEach((radio) => { radio.checked = String(radio.value) === String(savedEnergy || ''); });
     form.elements.sleepNote.value = values.note || '';
@@ -700,7 +707,12 @@ window.addEventListener('tracker:data-changed', (event) => {
         awakenings: awakeningsFromForm(),
         duration: calculations.duration,
         bedDuration: calculations.bedDuration,
-        riseDelay: calculations.riseDelay
+        riseDelay: calculations.riseDelay,
+        nap: (form.elements.napStart?.value || form.elements.napEnd?.value) ? {
+          start: form.elements.napStart?.value || '',
+          end: form.elements.napEnd?.value || '',
+          duration: calculations.napDuration
+        } : null
       }
     }), 'sleep-save');
     feedback.textContent = 'Notte salvata correttamente.';
@@ -778,7 +790,7 @@ window.addEventListener('tracker:data-changed', (event) => {
     return ({ Colazione: 'breakfast', Pranzo: 'lunch', Cena: 'dinner', Spuntino: 'snacks' })[name] || String(name).toLowerCase();
   }
 
-  const FOOD_ICONS = ['🍝','🍚','🍞','🥐','🥗','🥦','🥕','🍅','🍎','🍑','🍌','🍓','🥛','🧀','🥚','🍗','🐟','🍪','🍰','🍫','🥣','🍲','🥪','🍕','🥔','🌰','🥒','🫘','🍋',''];
+  const FOOD_ICONS = ['🍝','🍚','🍞','🥐','🥗','🥦','🥕','🍅','🍎','🍑','🍌','🍓','🥛','🧀','🥚','🍗','🐟','🍪','🍰','🍫','🥣','🍲','🥪','🍕','🥔','🌰','🥒','🫘','🍋','🥤','🧃','☕','🍵',''];
   let editingFoodId = null;
 
   function foodLibrary() {
@@ -846,6 +858,16 @@ window.addEventListener('tracker:data-changed', (event) => {
       });
     });
   }
+
+  document.addEventListener('pointerdown', (event) => {
+    page.querySelectorAll('[data-food-suggestions]').forEach((list) => {
+      const picker = list.closest('[data-food-picker]');
+      if (picker && !picker.contains(event.target)) list.hidden = true;
+    });
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') page.querySelectorAll('[data-food-suggestions]').forEach((list) => { list.hidden = true; });
+  });
 
   const libraryList = page.querySelector('[data-food-library-list]');
   const librarySearch = page.querySelector('[data-food-library-search]');
@@ -1957,10 +1979,12 @@ window.addEventListener('tracker:data-changed', (event) => {
   function workMinutes(day) { return (day.activities || []).filter((item) => isWorkCategory(item.category)).reduce((sum, item) => sum + (Number(item.duration) || 0), 0); }
   function matches(day) {
     const query = search.value.trim().toLowerCase();
-    const hasFilter = activeFilter === 'all' || (activeFilter === 'sleep' && day.sleep) || (activeFilter === 'food' && (Object.values(day.meals || {}).some(Boolean) || day.water.length || (day.beverages || []).length)) || (activeFilter === 'day' && (day.activities.length || day.dailyNote)) || (activeFilter === 'tetr' && day.tetr);
+    const hasFilter = activeFilter === 'all' || (activeFilter === 'sleep' && day.sleep) || (activeFilter === 'food' && (Object.values(day.meals || {}).some(Boolean) || Object.values(day.mealItems || {}).some((ids) => Array.isArray(ids) && ids.length) || day.water.length || (day.beverages || []).length)) || (activeFilter === 'day' && (day.activities.length || day.dailyNote)) || (activeFilter === 'tetr' && day.tetr);
     if (!hasFilter) return false;
     if (!query) return true;
-    const text = [day.date, day.dailyNote, day.sleep?.note, ...Object.values(day.meals || {}), ...(day.beverages || []).flatMap((item) => [item.name, item.glasses]), ...day.activities.flatMap((item) => [item.title, item.note, item.category]), day.tetr?.note, day.tetr ? EMOTIONS[day.tetr.emotionKey]?.label : ''].join(' ').toLowerCase();
+    const library = Store.getState().settings.tracker?.foodLibrary || [];
+    const selectedFoods = Object.values(day.mealItems || {}).flatMap((ids) => (ids || []).map((id) => library.find((item) => item.id === id)?.name || ''));
+    const text = [day.date, day.dailyNote, day.sleep?.note, ...Object.values(day.meals || {}), ...selectedFoods, ...(day.beverages || []).flatMap((item) => [item.name, item.glasses]), ...day.activities.flatMap((item) => [item.title, item.note, item.category]), day.tetr?.note, day.tetr ? EMOTIONS[day.tetr.emotionKey]?.label : ''].join(' ').toLowerCase();
     return text.includes(query);
   }
   function renderMonthLabel() { page.querySelector('[data-archive-month-label]').textContent = formatDate(selectedMonth, { month: 'long', year: 'numeric' }); }
@@ -2006,6 +2030,8 @@ window.addEventListener('tracker:data-changed', (event) => {
     page.querySelector('[data-detail-bedtime]').textContent = day.sleep?.bedtime || '—';
     page.querySelector('[data-detail-wakeup]').textContent = day.sleep?.wake || '—';
     page.querySelector('[data-detail-rise]').textContent = day.sleep?.up || '—';
+    const napDetail = page.querySelector('[data-detail-nap]');
+    if (napDetail) napDetail.textContent = day.sleep?.nap?.start && day.sleep?.nap?.end ? `${day.sleep.nap.start} — ${day.sleep.nap.end} (${formatMinutes(day.sleep.nap.duration)})` : '—';
     page.querySelector('[data-detail-water]').textContent = formatWater(waterQuarters(day));
     page.querySelector('[data-detail-water-ml]').textContent = waterLiters(waterQuarters(day), Store.getState().settings.bottleMl);
     const mealList = page.querySelector('[data-detail-meals]');
@@ -2014,7 +2040,7 @@ window.addEventListener('tracker:data-changed', (event) => {
       .filter((meal) => meal.text);
     mealList.innerHTML = savedMeals.length
       ? savedMeals.map((meal) => `<div class="archive-meal"><strong>${meal.label}</strong><p>${escapeHtml(meal.text)}</p></div>`).join('')
-      : '<div class="archive-meal"><strong>Nessun pasto registrato</strong><p>Per questa giornata non hai ancora annotato cosa hai mangiato.</p></div>';
+      : (Object.values(day.mealItems || {}).some((ids) => Array.isArray(ids) && ids.length) ? '' : '<div class="archive-meal"><strong>Nessun pasto registrato</strong><p>Per questa giornata non hai ancora annotato cosa hai mangiato.</p></div>');
     const foodItemsHolder = page.querySelector('[data-detail-food-items]');
     if (foodItemsHolder) {
       const library = Store.getState().settings.tracker?.foodLibrary || [];
@@ -2472,6 +2498,7 @@ if (Store?.getScriptUrl()) {
     const bedtimes = days.map((day) => day.sleep?.bedtime).filter(Boolean);
     const wakes = days.map((day) => day.sleep?.wake).filter(Boolean);
     const rise = days.map((day) => Number(day.sleep?.riseDelay)).filter((value) => Number.isFinite(value));
+    const naps = days.map((day) => Number(day.sleep?.nap?.duration)).filter((value) => Number.isFinite(value) && value > 0);
     const emotionCounts = Object.fromEntries(Object.keys(EMOTIONS).map((key) => [key, 0]));
     const categoryMinutes = {};
     const categoryCounts = {};
@@ -2496,7 +2523,7 @@ if (Store?.getScriptUrl()) {
       waterAverage: average(water), waterTotal: water.reduce((sum, value) => sum + value, 0), waterCount: water.length, waterMax: Math.max(0, ...water),
       workTotal: work.reduce((sum, value) => sum + value, 0), workAverage: average(work),
       activityTotal: activities.reduce((sum, value) => sum + value, 0), totalActivities, categoryMinutes, categoryCounts, topCategory,
-      energyAverage: average(energy), energyCount: energy.length, bedtime: averageClock(bedtimes, true), wake: averageClock(wakes), riseAverage: average(rise), awakenings,
+      energyAverage: average(energy), energyCount: energy.length, bedtime: averageClock(bedtimes, true), wake: averageClock(wakes), riseAverage: average(rise), awakenings, napAverage: average(naps), napCount: naps.length,
       beverageGlasses: days.reduce((sum, day) => sum + beverageGlasses(day), 0), beverageMl: days.reduce((sum, day) => sum + beverageMilliliters(day), 0),
       emotionCounts, mostEmotion, mealCounts, completedDays: days.filter(dayHasData).length
     };
@@ -2567,6 +2594,7 @@ if (Store?.getScriptUrl()) {
       lines.push('## Sonno', '',
         `- Sonno medio: **${stats.sleepCount ? formatMinutes(stats.sleepAverage) : '—'}**`,
         `- Energie medie al risveglio: **${stats.energyCount ? `${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(stats.energyAverage)} / 5` : '—'}**`,
+        `- Riposi pomeridiani: **${stats.napCount}**${stats.napCount ? ` · durata media ${formatMinutes(stats.napAverage)}` : ''}`,
         `- Orario medio a letto: **${clockLabel(stats.bedtime)}**`,
         `- Sveglia media: **${clockLabel(stats.wake)}**`,
         `- Tempo medio per alzarti: **${stats.riseAverage ? formatMinutes(stats.riseAverage) : '—'}**`,
@@ -2688,11 +2716,11 @@ if (Store?.getScriptUrl()) {
 
   function buildCsv(context) {
     const bottleMl = Store.getState().settings.bottleMl;
-    const headers = ['Data', 'Sonno minuti', 'A letto', 'Sveglia', 'Tempo per alzarsi minuti', 'Energie al risveglio', 'Risvegli', 'Acqua quarti', 'Acqua ml', 'Altre bevande', 'Bicchieri altre bevande', 'Colazione', 'Pranzo', 'Cena', 'Spuntini', 'Lavoro minuti', 'Attività', 'Emozione', 'Nota Tetr-Emotion', 'Nota giornata'];
+    const headers = ['Data', 'Sonno minuti', 'A letto', 'Sveglia', 'Tempo per alzarsi minuti', 'Energie al risveglio', 'Risvegli', 'Riposo pomeridiano inizio', 'Riposo pomeridiano fine', 'Riposo pomeridiano minuti', 'Acqua quarti', 'Acqua ml', 'Altre bevande', 'Bicchieri altre bevande', 'Colazione', 'Pranzo', 'Cena', 'Spuntini', 'Lavoro minuti', 'Attività', 'Emozione', 'Nota Tetr-Emotion', 'Nota giornata'];
     const rows = context.dateEntries.map(({ key, day }) => {
       const quarters = waterQuarters(day);
       const emotion = day.tetr ? EMOTIONS[day.tetr.emotionKey]?.label : '';
-      return [key, day.sleep?.duration || '', day.sleep?.bedtime || '', day.sleep?.wake || '', day.sleep?.riseDelay ?? '', sleepEnergy(day.sleep) || '', Array.isArray(day.sleep?.awakenings) ? day.sleep.awakenings.length : '', quarters || '', quarters ? Math.round(quarters * bottleMl / 4) : '', (day.beverages || []).map((drink) => `${drink.name}: ${drink.glasses}`).join('; '), beverageGlasses(day) || '', day.meals?.breakfast || '', day.meals?.lunch || '', day.meals?.dinner || '', day.meals?.snacks || '', workMinutes(day) || '', activityDescription(day), emotion || '', day.tetr?.note || '', day.dailyNote || ''];
+      return [key, day.sleep?.duration || '', day.sleep?.bedtime || '', day.sleep?.wake || '', day.sleep?.riseDelay ?? '', sleepEnergy(day.sleep) || '', Array.isArray(day.sleep?.awakenings) ? day.sleep.awakenings.length : '', day.sleep?.nap?.start || '', day.sleep?.nap?.end || '', day.sleep?.nap?.duration ?? '', quarters || '', quarters ? Math.round(quarters * bottleMl / 4) : '', (day.beverages || []).map((drink) => `${drink.name}: ${drink.glasses}`).join('; '), beverageGlasses(day) || '', day.meals?.breakfast || '', day.meals?.lunch || '', day.meals?.dinner || '', day.meals?.snacks || '', workMinutes(day) || '', activityDescription(day), emotion || '', day.tetr?.note || '', day.dailyNote || ''];
     });
     return '\uFEFF' + [headers, ...rows].map((row) => row.map(escapeCsv).join(';')).join('\r\n');
   }

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tracker personale — Sonno</title>
-  <link rel="stylesheet" href="styles.css?v=20260728-27">
+  <link rel="stylesheet" href="styles.css?v=20260729-30">
   <meta name="robots" content="noindex, nofollow">
 </head>
 <body class="sleep-page">
@@ -120,6 +120,24 @@
             <p class="sleep-helper">Inserisci soltanto l’orario dei risvegli che ricordi.</p>
           </article>
 
+          <article class="sleep-input-card sleep-nap-card">
+            <div class="sleep-card-heading">
+              <span class="sleep-card-icon" aria-hidden="true">☁</span>
+              <div><span class="secondary-text">Durante il giorno</span><h3>Riposo pomeridiano</h3></div>
+            </div>
+            <div class="sleep-nap-fields">
+              <label class="sleep-field">
+                <span>Mi sono riposata alle</span>
+                <span class="sleep-time-wrap"><input type="time" name="napStart"></span>
+              </label>
+              <label class="sleep-field">
+                <span>Mi sono svegliata alle</span>
+                <span class="sleep-time-wrap"><input type="time" name="napEnd"></span>
+              </label>
+            </div>
+            <p class="sleep-helper">Lascia vuoti entrambi i campi quando non hai fatto un riposo pomeridiano.</p>
+          </article>
+
           <article class="sleep-input-card sleep-quality-card">
             <div class="sleep-card-heading">
               <span class="sleep-card-icon" aria-hidden="true">♡</span>
@@ -174,6 +192,12 @@
             <span>Tempo per alzarti</span>
             <strong data-rise-delay>17 min</strong>
             <span class="secondary-text">dalla sveglia all’alzata</span>
+          </article>
+          <article class="sleep-summary-card">
+            <span class="sleep-summary-symbol">☁</span>
+            <span>Riposo pomeridiano</span>
+            <strong data-nap-duration>—</strong>
+            <span class="secondary-text">durata del riposo durante il giorno</span>
           </article>
           <article class="sleep-summary-card">
             <span class="sleep-summary-symbol">✦</span>
@@ -266,7 +290,7 @@
     </footer>
   </main>
 
-  <script src="tracker-store.js?v=20260728-27"></script>
-<script src="app.js?v=20260728-27"></script>
+  <script src="tracker-store.js?v=20260729-30"></script>
+<script src="app.js?v=20260729-30"></script>
 </body>
 </html>

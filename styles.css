@@ -5812,3 +5812,12 @@ body.tetr-borders-off .tetromino > i {
     margin-bottom: 72px;
   }
 }
+
+/* V30 — food archive, drink category, nap and picker behavior */
+.sleep-nap-card { grid-column: 1 / -1; }
+.sleep-nap-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+.archive-food-items { display:grid; gap:12px; margin:18px 0; }
+.archive-food-group > strong { display:block; margin-bottom:8px; }
+.archive-food-group > div { display:flex; flex-wrap:wrap; gap:8px; }
+.archive-food-chip { display:inline-flex; align-items:center; gap:7px; padding:8px 11px; border-radius:999px; background:#f6eef6; color:#523f77; font-size:0.95rem; }
+@media (max-width: 700px) { .sleep-nap-fields { grid-template-columns:1fr; } }
