@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tracker personale — Sonno</title>
-  <link rel="stylesheet" href="styles.css?v=20260729-30">
+  <link rel="stylesheet" href="styles.css?v=20260729-31">
   <meta name="robots" content="noindex, nofollow">
 </head>
 <body class="sleep-page">
@@ -120,6 +120,24 @@
             <p class="sleep-helper">Inserisci soltanto l’orario dei risvegli che ricordi.</p>
           </article>
 
+          <article class="sleep-input-card sleep-quality-card">
+            <div class="sleep-card-heading">
+              <span class="sleep-card-icon" aria-hidden="true">♡</span>
+              <div><span class="secondary-text">Energie</span><h3>Come ti sei svegliata?</h3></div>
+            </div>
+            <div class="quality-scale" role="radiogroup" aria-label="Energie percepite al risveglio">
+              <label><input type="radio" name="energy" value="1"><span>1</span><span class="secondary-text">Stanca</span></label>
+              <label><input type="radio" name="energy" value="2"><span>2</span><span class="secondary-text">Poche energie</span></label>
+              <label><input type="radio" name="energy" value="3"><span>3</span><span class="secondary-text">Nella media</span></label>
+              <label><input type="radio" name="energy" value="4" checked><span>4</span><span class="secondary-text">Energica</span></label>
+              <label><input type="radio" name="energy" value="5"><span>5</span><span class="secondary-text">Molte energie</span></label>
+            </div>
+            <label class="sleep-field sleep-note-field">
+              <span>Nota facoltativa</span>
+              <textarea name="sleepNote" rows="3" placeholder="Sogni, rumori, temperatura, come ti senti al risveglio…"></textarea>
+            </label>
+          </article>
+
           <article class="sleep-input-card sleep-nap-card">
             <div class="sleep-card-heading">
               <span class="sleep-card-icon" aria-hidden="true">☁</span>
@@ -138,23 +156,6 @@
             <p class="sleep-helper">Lascia vuoti entrambi i campi quando non hai fatto un riposo pomeridiano.</p>
           </article>
 
-          <article class="sleep-input-card sleep-quality-card">
-            <div class="sleep-card-heading">
-              <span class="sleep-card-icon" aria-hidden="true">♡</span>
-              <div><span class="secondary-text">Energie</span><h3>Come ti sei svegliata?</h3></div>
-            </div>
-            <div class="quality-scale" role="radiogroup" aria-label="Energie percepite al risveglio">
-              <label><input type="radio" name="energy" value="1"><span>1</span><span class="secondary-text">Stanca</span></label>
-              <label><input type="radio" name="energy" value="2"><span>2</span><span class="secondary-text">Poche energie</span></label>
-              <label><input type="radio" name="energy" value="3"><span>3</span><span class="secondary-text">Nella media</span></label>
-              <label><input type="radio" name="energy" value="4" checked><span>4</span><span class="secondary-text">Energica</span></label>
-              <label><input type="radio" name="energy" value="5"><span>5</span><span class="secondary-text">Molte energie</span></label>
-            </div>
-            <label class="sleep-field sleep-note-field">
-              <span>Nota facoltativa</span>
-              <textarea name="sleepNote" rows="3" placeholder="Sogni, rumori, temperatura, come ti senti al risveglio…"></textarea>
-            </label>
-          </article>
         </div>
 
         <div class="sleep-form-footer">
@@ -290,7 +291,7 @@
     </footer>
   </main>
 
-  <script src="tracker-store.js?v=20260729-30"></script>
-<script src="app.js?v=20260729-30"></script>
+  <script src="tracker-store.js?v=20260729-31"></script>
+<script src="app.js?v=20260729-31"></script>
 </body>
 </html>
