@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tracker personale — Cibo e acqua</title>
-  <link rel="stylesheet" href="styles.css?v=20260728-27">
+  <link rel="stylesheet" href="styles.css?v=20260729-28">
   <meta name="robots" content="noindex, nofollow">
 </head>
 <body class="food-page">
@@ -126,7 +126,7 @@
                 <div><span class="secondary-text">Mattina</span><h4>Colazione</h4></div>
                 <span class="meal-status" data-meal-status>Registrata</span>
               </div>
-              <label class="meal-text-field"><span>Cosa hai mangiato?</span><textarea rows="4" data-meal-text>Yogurt con cereali e una pesca.</textarea></label>
+              <div class="food-picker" data-food-picker></div><label class="meal-text-field"><span>Nota libera sul pasto</span><textarea rows="4" data-meal-text>Yogurt con cereali e una pesca.</textarea></label>
               <button class="meal-save-button" type="button" data-save-meal>Aggiorna</button>
             </article>
 
@@ -136,7 +136,7 @@
                 <div><span class="secondary-text">Mezzogiorno</span><h4>Pranzo</h4></div>
                 <span class="meal-status" data-meal-status>Registrato</span>
               </div>
-              <label class="meal-text-field"><span>Cosa hai mangiato?</span><textarea rows="4" data-meal-text>Pasta al pomodoro, mozzarella e una pesca.</textarea></label>
+              <div class="food-picker" data-food-picker></div><label class="meal-text-field"><span>Nota libera sul pasto</span><textarea rows="4" data-meal-text>Pasta al pomodoro, mozzarella e una pesca.</textarea></label>
               <button class="meal-save-button" type="button" data-save-meal>Aggiorna</button>
             </article>
 
@@ -146,7 +146,7 @@
                 <div><span class="secondary-text">Sera</span><h4>Cena</h4></div>
                 <span class="meal-status" data-meal-status>Registrata</span>
               </div>
-              <label class="meal-text-field"><span>Cosa hai mangiato?</span><textarea rows="4" data-meal-text>Frittata con zucchine e pane.</textarea></label>
+              <div class="food-picker" data-food-picker></div><label class="meal-text-field"><span>Nota libera sul pasto</span><textarea rows="4" data-meal-text>Frittata con zucchine e pane.</textarea></label>
               <button class="meal-save-button" type="button" data-save-meal>Aggiorna</button>
             </article>
 
@@ -156,7 +156,7 @@
                 <div><span class="secondary-text">Durante il giorno</span><h4>Spuntini</h4></div>
                 <span class="meal-status" data-meal-status>Da compilare</span>
               </div>
-              <label class="meal-text-field"><span>Cosa hai mangiato?</span><textarea rows="4" data-meal-text placeholder="Es. biscotti, frutta, qualcosa preso fuori…"></textarea></label>
+              <div class="food-picker" data-food-picker></div><label class="meal-text-field"><span>Nota libera sul pasto</span><textarea rows="4" data-meal-text placeholder="Es. biscotti, frutta, qualcosa preso fuori…"></textarea></label>
               <button class="meal-save-button" type="button" data-save-meal>Registra spuntino</button>
             </article>
           </div>
@@ -238,6 +238,30 @@
       </div>
     </section>
 
+    <section class="food-library-section food-content" data-food-library-section>
+      <div class="section-heading-row">
+        <div><span class="section-kicker">La tua raccolta</span><h2>Libreria dei cibi</h2><p>Gli alimenti aggiunti compaiono nei suggerimenti dei pasti.</p></div>
+        <button class="secondary-button" type="button" data-open-food-library-add>+ Nuovo alimento</button>
+      </div>
+      <div class="food-library-tools">
+        <label><span>Cerca nella libreria</span><input type="search" data-food-library-search placeholder="Cerca un alimento…"></label>
+        <label><span>Categoria</span><select data-food-library-filter><option value="">Tutte</option><option>Primo</option><option>Secondo</option><option>Contorno</option><option>Frutta</option><option>Dolce</option><option>Snack</option><option>Altro</option></select></label>
+      </div>
+      <div class="food-library-grid" data-food-library-list></div>
+      <div class="food-library-editor" data-food-library-editor hidden>
+        <h3 data-food-editor-title>Nuovo alimento</h3>
+        <div class="food-editor-grid">
+          <label><span>Nome</span><input type="text" data-food-editor-name placeholder="Es. Riso con zucchine"></label>
+          <label><span>Icona</span><input type="text" data-food-editor-icon maxlength="4" placeholder="🍚"></label>
+          <label><span>Categoria</span><select data-food-editor-category><option value="">Nessuna</option><option>Primo</option><option>Secondo</option><option>Contorno</option><option>Frutta</option><option>Dolce</option><option>Snack</option><option>Altro</option></select></label>
+          <label class="food-favorite-check"><input type="checkbox" data-food-editor-favorite> <span>Preferito</span></label>
+        </div>
+        <div class="food-icon-options" data-food-icon-options aria-label="Icone rapide"></div>
+        <div class="food-editor-actions"><button type="button" class="secondary-button" data-food-editor-cancel>Annulla</button><button type="button" class="primary-button" data-food-editor-save>Salva alimento</button></div>
+        <p class="food-feedback" data-food-editor-feedback aria-live="polite"></p>
+      </div>
+    </section>
+
     <section class="food-week-band" aria-labelledby="food-week-title">
       <div class="food-content">
         <div class="food-section-heading">
@@ -290,7 +314,7 @@
     </footer>
   </main>
 
-  <script src="tracker-store.js?v=20260728-27"></script>
-<script src="app.js?v=20260728-27"></script>
+  <script src="tracker-store.js?v=20260729-28"></script>
+<script src="app.js?v=20260729-28"></script>
 </body>
 </html>

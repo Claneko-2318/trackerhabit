@@ -29,6 +29,7 @@
       updatedAt: '',
       sleep: null,
       meals: {},
+      mealItems: {},
       water: [],
       beverages: [],
       activities: [],
@@ -92,7 +93,8 @@
           tetr: { ghost: true, keyboard: true, confirm: true, note: true, highlightToday: true },
           categories: defaultCategories(),
           showWorkInStats: true,
-          food: { breakfast: true, lunch: true, dinner: true, snacks: true }
+          food: { breakfast: true, lunch: true, dinner: true, snacks: true },
+          foodLibrary: []
         }
       },
       days: {}
@@ -120,6 +122,15 @@
           },
           tetr: { ...base.settings.tracker.tetr, ...(input.settings?.tracker?.tetr || {}) },
           food: { ...base.settings.tracker.food, ...(input.settings?.tracker?.food || {}) },
+          foodLibrary: Array.isArray(input.settings?.tracker?.foodLibrary) ? input.settings.tracker.foodLibrary.map((item, index) => ({
+            id: item?.id || `food-${index + 1}`,
+            name: String(item?.name || '').trim(),
+            icon: String(item?.icon || ''),
+            category: String(item?.category || ''),
+            favorite: item?.favorite === true,
+            active: item?.active !== false,
+            createdAt: item?.createdAt || ''
+          })).filter((item) => item.name) : [],
           categories: Array.isArray(input.settings?.tracker?.categories)
             ? input.settings.tracker.categories.map((item, index) => ({
                 id: item?.id || `category-${index + 1}`,
@@ -139,6 +150,7 @@
         ...emptyDay(key),
         ...(day || {}),
         meals: { ...((day || {}).meals || {}) },
+        mealItems: Object.fromEntries(Object.entries((day || {}).mealItems || {}).map(([meal, ids]) => [meal, Array.isArray(ids) ? ids : []])),
         water: Array.isArray(day?.water) ? day.water : [],
         beverages: Array.isArray(day?.beverages) ? day.beverages : [],
         activities: Array.isArray(day?.activities) ? day.activities : []
@@ -336,6 +348,9 @@
         },
         tetr: { ...state.settings.tracker.tetr, ...(nextSettings?.tracker?.tetr || {}) },
         food: { ...state.settings.tracker.food, ...(nextSettings?.tracker?.food || {}) },
+        foodLibrary: Array.isArray(nextSettings?.tracker?.foodLibrary)
+          ? clone(nextSettings.tracker.foodLibrary)
+          : state.settings.tracker.foodLibrary,
         categories: Array.isArray(nextSettings?.tracker?.categories)
           ? clone(nextSettings.tracker.categories)
           : state.settings.tracker.categories
