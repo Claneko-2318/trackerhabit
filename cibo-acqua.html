@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tracker personale — Cibo e acqua</title>
-  <link rel="stylesheet" href="styles.css?v=20260729-28">
+  <link rel="stylesheet" href="styles.css?v=20260729-29">
   <meta name="robots" content="noindex, nofollow">
 </head>
 <body class="food-page">
@@ -126,8 +126,12 @@
                 <div><span class="secondary-text">Mattina</span><h4>Colazione</h4></div>
                 <span class="meal-status" data-meal-status>Registrata</span>
               </div>
-              <div class="food-picker" data-food-picker></div><label class="meal-text-field"><span>Nota libera sul pasto</span><textarea rows="4" data-meal-text>Yogurt con cereali e una pesca.</textarea></label>
-              <button class="meal-save-button" type="button" data-save-meal>Aggiorna</button>
+              <div class="food-picker" data-food-picker></div>
+              <button class="meal-note-toggle" type="button" data-toggle-meal-note>+ Aggiungi una nota facoltativa</button>
+              <div class="meal-note-panel" data-meal-note-panel hidden>
+                <label class="meal-text-field"><span>Nota sul pasto</span><textarea rows="3" data-meal-text placeholder="Aggiungi un dettaglio facoltativo…"></textarea></label>
+                <button class="meal-save-button" type="button" data-save-meal>Salva nota</button>
+              </div>
             </article>
 
             <article class="meal-card is-saved" data-meal-card data-meal-name="Pranzo">
@@ -136,8 +140,12 @@
                 <div><span class="secondary-text">Mezzogiorno</span><h4>Pranzo</h4></div>
                 <span class="meal-status" data-meal-status>Registrato</span>
               </div>
-              <div class="food-picker" data-food-picker></div><label class="meal-text-field"><span>Nota libera sul pasto</span><textarea rows="4" data-meal-text>Pasta al pomodoro, mozzarella e una pesca.</textarea></label>
-              <button class="meal-save-button" type="button" data-save-meal>Aggiorna</button>
+              <div class="food-picker" data-food-picker></div>
+              <button class="meal-note-toggle" type="button" data-toggle-meal-note>+ Aggiungi una nota facoltativa</button>
+              <div class="meal-note-panel" data-meal-note-panel hidden>
+                <label class="meal-text-field"><span>Nota sul pasto</span><textarea rows="3" data-meal-text placeholder="Aggiungi un dettaglio facoltativo…"></textarea></label>
+                <button class="meal-save-button" type="button" data-save-meal>Salva nota</button>
+              </div>
             </article>
 
             <article class="meal-card is-saved" data-meal-card data-meal-name="Cena">
@@ -146,8 +154,12 @@
                 <div><span class="secondary-text">Sera</span><h4>Cena</h4></div>
                 <span class="meal-status" data-meal-status>Registrata</span>
               </div>
-              <div class="food-picker" data-food-picker></div><label class="meal-text-field"><span>Nota libera sul pasto</span><textarea rows="4" data-meal-text>Frittata con zucchine e pane.</textarea></label>
-              <button class="meal-save-button" type="button" data-save-meal>Aggiorna</button>
+              <div class="food-picker" data-food-picker></div>
+              <button class="meal-note-toggle" type="button" data-toggle-meal-note>+ Aggiungi una nota facoltativa</button>
+              <div class="meal-note-panel" data-meal-note-panel hidden>
+                <label class="meal-text-field"><span>Nota sul pasto</span><textarea rows="3" data-meal-text placeholder="Aggiungi un dettaglio facoltativo…"></textarea></label>
+                <button class="meal-save-button" type="button" data-save-meal>Salva nota</button>
+              </div>
             </article>
 
             <article class="meal-card" data-meal-card data-meal-name="Spuntino">
@@ -156,8 +168,12 @@
                 <div><span class="secondary-text">Durante il giorno</span><h4>Spuntini</h4></div>
                 <span class="meal-status" data-meal-status>Da compilare</span>
               </div>
-              <div class="food-picker" data-food-picker></div><label class="meal-text-field"><span>Nota libera sul pasto</span><textarea rows="4" data-meal-text placeholder="Es. biscotti, frutta, qualcosa preso fuori…"></textarea></label>
-              <button class="meal-save-button" type="button" data-save-meal>Registra spuntino</button>
+              <div class="food-picker" data-food-picker></div>
+              <button class="meal-note-toggle" type="button" data-toggle-meal-note>+ Aggiungi una nota facoltativa</button>
+              <div class="meal-note-panel" data-meal-note-panel hidden>
+                <label class="meal-text-field"><span>Nota sul pasto</span><textarea rows="3" data-meal-text placeholder="Aggiungi un dettaglio facoltativo…"></textarea></label>
+                <button class="meal-save-button" type="button" data-save-meal>Salva nota</button>
+              </div>
             </article>
           </div>
           <p class="food-feedback" data-meal-feedback aria-live="polite">I pasti vengono salvati automaticamente per la data selezionata.</p>
@@ -314,7 +330,7 @@
     </footer>
   </main>
 
-  <script src="tracker-store.js?v=20260729-28"></script>
-<script src="app.js?v=20260729-28"></script>
+  <script src="tracker-store.js?v=20260729-29"></script>
+<script src="app.js?v=20260729-29"></script>
 </body>
 </html>

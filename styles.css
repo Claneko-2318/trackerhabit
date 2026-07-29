@@ -5729,3 +5729,86 @@ body.tetr-borders-off .tetromino > i {
   .food-editor-actions button { width: 100%; }
   .food-history-search-card { padding: 18px; }
 }
+
+/* V29 — libreria cibi: selezione evidente e spaziature corrette */
+.food-page .food-library-section {
+  margin-top: 72px;
+  margin-bottom: 96px;
+}
+.food-page .food-week-band {
+  margin-top: 0;
+}
+.stats-page .stats-food-history-section {
+  margin-top: 72px;
+  margin-bottom: 96px;
+}
+.food-page .food-picker {
+  margin: 18px 0 12px;
+  display: grid;
+  gap: 14px;
+}
+.food-page .selected-food-block {
+  padding: 14px;
+  border: 1px solid #ded6e8;
+  border-radius: 16px;
+  background: #fbf9fd;
+}
+.food-page .selected-food-title {
+  display: block;
+  margin-bottom: 10px;
+  color: #523f77;
+  font-weight: 800;
+}
+.food-page .selected-food-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 32px;
+  align-items: center;
+}
+.food-page .selected-food-empty {
+  color: #756b82;
+  font-size: 0.96rem;
+}
+.food-page .food-picker-search > span,
+.food-page .meal-text-field > span:first-child {
+  font-size: 0.95rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #523f77;
+}
+.food-page .meal-note-toggle {
+  width: 100%;
+  border: 1px dashed #c9bdd8;
+  border-radius: 14px;
+  background: #fff;
+  padding: 11px 14px;
+  color: #6f5989;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+}
+.food-page .meal-note-toggle:hover {
+  background: #faf7fc;
+}
+.food-page .meal-note-panel {
+  margin-top: 12px;
+  padding-top: 2px;
+}
+.food-page .meal-note-panel[hidden] {
+  display: none !important;
+}
+.food-page .meal-text-field {
+  margin-top: 0;
+}
+.food-page .meal-text-field textarea {
+  min-height: 82px;
+}
+@media (max-width: 700px) {
+  .food-page .food-library-section,
+  .stats-page .stats-food-history-section {
+    margin-top: 48px;
+    margin-bottom: 72px;
+  }
+}

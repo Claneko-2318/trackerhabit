@@ -338,147 +338,6 @@ window.addEventListener('tracker:data-changed', (event) => {
     'Altro': 'category-other'
   };
 
-  const FOOD_ICONS = ['🍝','🍚','🍞','🥐','🥗','🥦','🥕','🍅','🍎','🍑','🍌','🍓','🥛','🧀','🥚','🍗','🐟','🍪','🍰','🍫','🥣','🍲','🥪','🍕','🥔','🌰','🥒','🫘','🍋',''];
-  let editingFoodId = null;
-
-  function foodLibrary() {
-    return Array.isArray(Store.getState().settings.tracker?.foodLibrary)
-      ? Store.getState().settings.tracker.foodLibrary
-      : [];
-  }
-  function saveFoodLibrary(items, reason = 'food-library-update') {
-    const settings = Store.getState().settings;
-    Store.saveSettings({ tracker: { ...settings.tracker, foodLibrary: items } });
-    window.dispatchEvent(new CustomEvent('tracker:food-library-changed', { detail: { reason } }));
-  }
-  function foodById(id) { return foodLibrary().find((item) => item.id === id); }
-  function foodUsage(id) {
-    let count = 0, lastDate = '';
-    Object.values(Store.getState().days || {}).forEach((day) => {
-      Object.values(day.mealItems || {}).forEach((ids) => {
-        if (Array.isArray(ids) && ids.includes(id)) { count += 1; if (!lastDate || day.date > lastDate) lastDate = day.date; }
-      });
-    });
-    return { count, lastDate };
-  }
-  function selectedFoodIds(day, meal) {
-    return Array.isArray(day.mealItems?.[meal]) ? day.mealItems[meal] : [];
-  }
-  function persistMealFood(meal, ids) {
-    Store.updateDay(key(), (day) => ({ ...day, mealItems: { ...(day.mealItems || {}), [meal]: [...new Set(ids)] } }), 'meal-food-update');
-  }
-  function foodChip(item, removable = false) {
-    return `<span class="selected-food-chip" data-food-chip-id="${escapeHtml(item.id)}"><span>${escapeHtml(item.icon || '•')}</span>${escapeHtml(item.name)}${removable ? '<button type="button" data-remove-food aria-label="Rimuovi alimento">×</button>' : ''}</span>`;
-  }
-  function renderFoodPickers(day) {
-    mealCards.forEach((card) => {
-      const meal = mealKey(card.dataset.mealName);
-      const holder = card.querySelector('[data-food-picker]');
-      if (!holder) return;
-      const ids = selectedFoodIds(day, meal);
-      const selected = ids.map(foodById).filter(Boolean);
-      holder.innerHTML = `
-        <label class="food-picker-search"><span>Aggiungi dalla libreria</span><input type="search" data-food-suggest-input placeholder="Cerca o scrivi un alimento…" autocomplete="off"></label>
-        <div class="food-suggestion-list" data-food-suggestions hidden></div>
-        <div class="selected-food-list" data-selected-foods>${selected.map((item) => foodChip(item, true)).join('') || '<span class="selected-food-empty">Nessun alimento selezionato.</span>'}</div>`;
-      const input = holder.querySelector('[data-food-suggest-input]');
-      const suggestions = holder.querySelector('[data-food-suggestions]');
-      function updateSuggestions() {
-        const query = input.value.trim().toLocaleLowerCase('it');
-        const matches = foodLibrary().filter((item) => item.active !== false && !ids.includes(item.id) && (!query || `${item.name} ${item.category}`.toLocaleLowerCase('it').includes(query))).sort((a,b) => Number(b.favorite)-Number(a.favorite) || a.name.localeCompare(b.name,'it')).slice(0,8);
-        suggestions.hidden = false;
-        suggestions.innerHTML = matches.map((item) => `<button type="button" data-select-food="${escapeHtml(item.id)}"><span>${escapeHtml(item.icon || '•')}</span><span><strong>${escapeHtml(item.name)}</strong><span class="food-suggestion-meta">${escapeHtml(item.category || 'Senza categoria')}</span></span></button>`).join('') + (query && !foodLibrary().some((item) => item.name.toLocaleLowerCase('it') === query) ? `<button type="button" class="food-add-suggestion" data-create-food-from-picker><span>＋</span><span><strong>Aggiungi “${escapeHtml(input.value.trim())}”</strong><span class="food-suggestion-meta">Scegli icona e categoria</span></span></button>` : '');
-        if (!suggestions.innerHTML) suggestions.innerHTML = '<p>Nessun altro alimento disponibile.</p>';
-      }
-      input.addEventListener('focus', updateSuggestions);
-      input.addEventListener('input', updateSuggestions);
-      suggestions.addEventListener('click', (event) => {
-        const select = event.target.closest('[data-select-food]');
-        if (select) { persistMealFood(meal, [...ids, select.dataset.selectFood]); renderFoodPickers(Store.getDay(key())); renderFoodLibrary(); return; }
-        if (event.target.closest('[data-create-food-from-picker]')) openFoodEditor(null, input.value.trim(), meal);
-      });
-      holder.querySelector('[data-selected-foods]').addEventListener('click', (event) => {
-        const chip = event.target.closest('[data-food-chip-id]');
-        if (event.target.closest('[data-remove-food]') && chip) { persistMealFood(meal, ids.filter((id) => id !== chip.dataset.foodChipId)); renderFoodPickers(Store.getDay(key())); renderFoodLibrary(); }
-      });
-    });
-  }
-
-  const libraryList = page.querySelector('[data-food-library-list]');
-  const librarySearch = page.querySelector('[data-food-library-search]');
-  const libraryFilter = page.querySelector('[data-food-library-filter]');
-  const editor = page.querySelector('[data-food-library-editor]');
-  let pendingMealAfterCreate = null;
-  function renderFoodLibrary() {
-    if (!libraryList) return;
-    const query = (librarySearch?.value || '').trim().toLocaleLowerCase('it');
-    const category = libraryFilter?.value || '';
-    const items = foodLibrary().filter((item) => item.active !== false && (!query || `${item.name} ${item.category}`.toLocaleLowerCase('it').includes(query)) && (!category || item.category === category)).sort((a,b) => Number(b.favorite)-Number(a.favorite) || a.name.localeCompare(b.name,'it'));
-    libraryList.innerHTML = items.length ? items.map((item) => {
-      const usage = foodUsage(item.id);
-      return `<article class="food-library-card" data-library-food-id="${escapeHtml(item.id)}"><div class="food-library-icon">${escapeHtml(item.icon || '•')}</div><div><div class="food-library-name"><strong>${escapeHtml(item.name)}</strong>${item.favorite ? '<span aria-label="Preferito">★</span>' : ''}</div><p>${escapeHtml(item.category || 'Senza categoria')} · ${usage.count} ${usage.count === 1 ? 'consumo' : 'consumi'}${usage.lastDate ? ` · Ultimo: ${formatDate(usage.lastDate,{day:'numeric',month:'short'})}` : ''}</p></div><div class="food-library-actions"><button type="button" data-toggle-food-favorite aria-label="Preferito">${item.favorite ? '★' : '☆'}</button><button type="button" data-edit-food>Modifica</button><button type="button" data-merge-food>Unisci</button><button type="button" data-delete-food>Elimina</button></div></article>`;
-    }).join('') : '<div class="food-library-empty"><strong>Nessun alimento trovato.</strong><p>Aggiungine uno mentre compili un pasto oppure usa “Nuovo alimento”.</p></div>';
-  }
-  function openFoodEditor(id = null, suggestedName = '', meal = null) {
-    if (!editor) return;
-    editingFoodId = id;
-    pendingMealAfterCreate = meal;
-    const item = id ? foodById(id) : null;
-    editor.hidden = false;
-    editor.querySelector('[data-food-editor-title]').textContent = item ? 'Modifica alimento' : 'Nuovo alimento';
-    editor.querySelector('[data-food-editor-name]').value = item?.name || suggestedName || '';
-    editor.querySelector('[data-food-editor-icon]').value = item?.icon || '';
-    editor.querySelector('[data-food-editor-category]').value = item?.category || '';
-    editor.querySelector('[data-food-editor-favorite]').checked = item?.favorite === true;
-    editor.querySelector('[data-food-icon-options]').innerHTML = FOOD_ICONS.map((icon) => `<button type="button" data-food-icon="${escapeHtml(icon)}" aria-label="${icon || 'Nessuna icona'}">${icon || '∅'}</button>`).join('');
-    editor.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    editor.querySelector('[data-food-editor-name]').focus();
-  }
-  function closeFoodEditor() { if (editor) editor.hidden = true; editingFoodId = null; pendingMealAfterCreate = null; }
-  page.querySelector('[data-open-food-library-add]')?.addEventListener('click', () => openFoodEditor());
-  editor?.querySelector('[data-food-icon-options]')?.addEventListener('click', (event) => { const button=event.target.closest('[data-food-icon]'); if(button) editor.querySelector('[data-food-editor-icon]').value=button.dataset.foodIcon; });
-  editor?.querySelector('[data-food-editor-cancel]')?.addEventListener('click', closeFoodEditor);
-  editor?.querySelector('[data-food-editor-save]')?.addEventListener('click', () => {
-    const name = editor.querySelector('[data-food-editor-name]').value.trim();
-    const feedback = editor.querySelector('[data-food-editor-feedback]');
-    if (!name) { feedback.textContent = 'Inserisci il nome dell’alimento.'; return; }
-    const duplicate = foodLibrary().find((item) => item.id !== editingFoodId && item.name.toLocaleLowerCase('it') === name.toLocaleLowerCase('it'));
-    if (duplicate) { feedback.textContent = `Esiste già “${duplicate.name}”. Usa quella voce oppure modifica il nome.`; return; }
-    const next = foodLibrary();
-    const data = { id: editingFoodId || uid('food'), name, icon: editor.querySelector('[data-food-editor-icon]').value.trim(), category: editor.querySelector('[data-food-editor-category]').value, favorite: editor.querySelector('[data-food-editor-favorite]').checked, active: true, createdAt: editingFoodId ? (foodById(editingFoodId)?.createdAt || '') : new Date().toISOString() };
-    const saved = editingFoodId ? next.map((item) => item.id === editingFoodId ? data : item) : [...next, data];
-    saveFoodLibrary(saved);
-    if (pendingMealAfterCreate) { const day=Store.getDay(key()); persistMealFood(pendingMealAfterCreate,[...selectedFoodIds(day,pendingMealAfterCreate),data.id]); }
-    closeFoodEditor(); renderFoodLibrary(); renderFoodPickers(Store.getDay(key()));
-  });
-  libraryList?.addEventListener('click', (event) => {
-    const card=event.target.closest('[data-library-food-id]'); if(!card) return; const id=card.dataset.libraryFoodId;
-    if(event.target.closest('[data-edit-food]')) openFoodEditor(id);
-    if(event.target.closest('[data-toggle-food-favorite]')) saveFoodLibrary(foodLibrary().map((item)=>item.id===id?{...item,favorite:!item.favorite}:item));
-    if(event.target.closest('[data-merge-food]')) {
-      const source = foodById(id);
-      const targetName = prompt(`Con quale alimento vuoi unire “${source?.name || ''}”? Scrivi il nome esatto.`);
-      if (targetName) {
-        const target = foodLibrary().find((item) => item.id !== id && item.active !== false && item.name.toLocaleLowerCase('it') === targetName.trim().toLocaleLowerCase('it'));
-        if (!target) alert('Alimento di destinazione non trovato.');
-        else if (confirm(`Unire “${source.name}” in “${target.name}”? Tutto lo storico verrà associato alla voce scelta.`)) {
-          const state = Store.getState();
-          Object.values(state.days || {}).forEach((day) => {
-            Object.keys(day.mealItems || {}).forEach((meal) => {
-              const ids = day.mealItems[meal] || [];
-              if (ids.includes(id)) day.mealItems[meal] = [...new Set(ids.map((value) => value === id ? target.id : value))];
-            });
-          });
-          state.settings.tracker.foodLibrary = state.settings.tracker.foodLibrary.map((item) => item.id === id ? { ...item, active:false } : item);
-          Store.replaceState(state, 'food-library-merge');
-        }
-      }
-    }
-    if(event.target.closest('[data-delete-food]')) { if(confirm('Rimuovere questo alimento dalla libreria? Lo storico resterà intatto.')) saveFoodLibrary(foodLibrary().map((item)=>item.id===id?{...item,active:false}:item)); }
-    renderFoodLibrary(); renderFoodPickers(Store.getDay(key()));
-  });
-  librarySearch?.addEventListener('input', renderFoodLibrary);
-  libraryFilter?.addEventListener('change', renderFoodLibrary);
 
   function key() { return Store.dateKey(selectedDate); }
   function renderCategoryControls() {
@@ -918,6 +777,151 @@ window.addEventListener('tracker:data-changed', (event) => {
   function mealKey(name) {
     return ({ Colazione: 'breakfast', Pranzo: 'lunch', Cena: 'dinner', Spuntino: 'snacks' })[name] || String(name).toLowerCase();
   }
+
+  const FOOD_ICONS = ['🍝','🍚','🍞','🥐','🥗','🥦','🥕','🍅','🍎','🍑','🍌','🍓','🥛','🧀','🥚','🍗','🐟','🍪','🍰','🍫','🥣','🍲','🥪','🍕','🥔','🌰','🥒','🫘','🍋',''];
+  let editingFoodId = null;
+
+  function foodLibrary() {
+    return Array.isArray(Store.getState().settings.tracker?.foodLibrary)
+      ? Store.getState().settings.tracker.foodLibrary
+      : [];
+  }
+  function saveFoodLibrary(items, reason = 'food-library-update') {
+    const settings = Store.getState().settings;
+    Store.saveSettings({ tracker: { ...settings.tracker, foodLibrary: items } });
+    window.dispatchEvent(new CustomEvent('tracker:food-library-changed', { detail: { reason } }));
+  }
+  function foodById(id) { return foodLibrary().find((item) => item.id === id); }
+  function foodUsage(id) {
+    let count = 0, lastDate = '';
+    Object.values(Store.getState().days || {}).forEach((day) => {
+      Object.values(day.mealItems || {}).forEach((ids) => {
+        if (Array.isArray(ids) && ids.includes(id)) { count += 1; if (!lastDate || day.date > lastDate) lastDate = day.date; }
+      });
+    });
+    return { count, lastDate };
+  }
+  function selectedFoodIds(day, meal) {
+    return Array.isArray(day.mealItems?.[meal]) ? day.mealItems[meal] : [];
+  }
+  function persistMealFood(meal, ids) {
+    Store.updateDay(key(), (day) => ({ ...day, mealItems: { ...(day.mealItems || {}), [meal]: [...new Set(ids)] } }), 'meal-food-update');
+  }
+  function foodChip(item, removable = false) {
+    return `<span class="selected-food-chip" data-food-chip-id="${escapeHtml(item.id)}"><span>${escapeHtml(item.icon || '•')}</span>${escapeHtml(item.name)}${removable ? '<button type="button" data-remove-food aria-label="Rimuovi alimento">×</button>' : ''}</span>`;
+  }
+  function renderFoodPickers(day) {
+    mealCards.forEach((card) => {
+      const meal = mealKey(card.dataset.mealName);
+      const holder = card.querySelector('[data-food-picker]');
+      if (!holder) return;
+      const ids = selectedFoodIds(day, meal);
+      const selected = ids.map(foodById).filter(Boolean);
+      holder.innerHTML = `
+        <div class="selected-food-block">
+          <span class="selected-food-title">Alimenti selezionati</span>
+          <div class="selected-food-list" data-selected-foods>${selected.map((item) => foodChip(item, true)).join('') || '<span class="selected-food-empty">Non hai ancora selezionato alimenti.</span>'}</div>
+        </div>
+        <label class="food-picker-search"><span>Aggiungi un alimento</span><input type="search" data-food-suggest-input placeholder="Cerca nella libreria…" autocomplete="off"></label>
+        <div class="food-suggestion-list" data-food-suggestions hidden></div>`;
+      const input = holder.querySelector('[data-food-suggest-input]');
+      const suggestions = holder.querySelector('[data-food-suggestions]');
+      function updateSuggestions() {
+        const query = input.value.trim().toLocaleLowerCase('it');
+        const matches = foodLibrary().filter((item) => item.active !== false && !ids.includes(item.id) && (!query || `${item.name} ${item.category}`.toLocaleLowerCase('it').includes(query))).sort((a,b) => Number(b.favorite)-Number(a.favorite) || a.name.localeCompare(b.name,'it')).slice(0,8);
+        suggestions.hidden = false;
+        suggestions.innerHTML = matches.map((item) => `<button type="button" data-select-food="${escapeHtml(item.id)}"><span>${escapeHtml(item.icon || '•')}</span><span><strong>${escapeHtml(item.name)}</strong><span class="food-suggestion-meta">${escapeHtml(item.category || 'Senza categoria')}</span></span></button>`).join('') + (query && !foodLibrary().some((item) => item.name.toLocaleLowerCase('it') === query) ? `<button type="button" class="food-add-suggestion" data-create-food-from-picker><span>＋</span><span><strong>Aggiungi “${escapeHtml(input.value.trim())}”</strong><span class="food-suggestion-meta">Scegli icona e categoria</span></span></button>` : '');
+        if (!suggestions.innerHTML) suggestions.innerHTML = '<p>Nessun altro alimento disponibile.</p>';
+      }
+      input.addEventListener('focus', updateSuggestions);
+      input.addEventListener('input', updateSuggestions);
+      suggestions.addEventListener('click', (event) => {
+        const select = event.target.closest('[data-select-food]');
+        if (select) { persistMealFood(meal, [...ids, select.dataset.selectFood]); const nextDay = Store.getDay(key()); renderMeals(nextDay); renderFoodPickers(nextDay); renderFoodLibrary(); updateSummary(nextDay); renderWeeklyStats(); return; }
+        if (event.target.closest('[data-create-food-from-picker]')) openFoodEditor(null, input.value.trim(), meal);
+      });
+      holder.querySelector('[data-selected-foods]').addEventListener('click', (event) => {
+        const chip = event.target.closest('[data-food-chip-id]');
+        if (event.target.closest('[data-remove-food]') && chip) { persistMealFood(meal, ids.filter((id) => id !== chip.dataset.foodChipId)); const nextDay = Store.getDay(key()); renderMeals(nextDay); renderFoodPickers(nextDay); renderFoodLibrary(); updateSummary(nextDay); renderWeeklyStats(); }
+      });
+    });
+  }
+
+  const libraryList = page.querySelector('[data-food-library-list]');
+  const librarySearch = page.querySelector('[data-food-library-search]');
+  const libraryFilter = page.querySelector('[data-food-library-filter]');
+  const editor = page.querySelector('[data-food-library-editor]');
+  let pendingMealAfterCreate = null;
+  function renderFoodLibrary() {
+    if (!libraryList) return;
+    const query = (librarySearch?.value || '').trim().toLocaleLowerCase('it');
+    const category = libraryFilter?.value || '';
+    const items = foodLibrary().filter((item) => item.active !== false && (!query || `${item.name} ${item.category}`.toLocaleLowerCase('it').includes(query)) && (!category || item.category === category)).sort((a,b) => Number(b.favorite)-Number(a.favorite) || a.name.localeCompare(b.name,'it'));
+    libraryList.innerHTML = items.length ? items.map((item) => {
+      const usage = foodUsage(item.id);
+      return `<article class="food-library-card" data-library-food-id="${escapeHtml(item.id)}"><div class="food-library-icon">${escapeHtml(item.icon || '•')}</div><div><div class="food-library-name"><strong>${escapeHtml(item.name)}</strong>${item.favorite ? '<span aria-label="Preferito">★</span>' : ''}</div><p>${escapeHtml(item.category || 'Senza categoria')} · ${usage.count} ${usage.count === 1 ? 'consumo' : 'consumi'}${usage.lastDate ? ` · Ultimo: ${formatDate(usage.lastDate,{day:'numeric',month:'short'})}` : ''}</p></div><div class="food-library-actions"><button type="button" data-toggle-food-favorite aria-label="Preferito">${item.favorite ? '★' : '☆'}</button><button type="button" data-edit-food>Modifica</button><button type="button" data-merge-food>Unisci</button><button type="button" data-delete-food>Elimina</button></div></article>`;
+    }).join('') : '<div class="food-library-empty"><strong>Nessun alimento trovato.</strong><p>Aggiungine uno mentre compili un pasto oppure usa “Nuovo alimento”.</p></div>';
+  }
+  function openFoodEditor(id = null, suggestedName = '', meal = null) {
+    if (!editor) return;
+    editingFoodId = id;
+    pendingMealAfterCreate = meal;
+    const item = id ? foodById(id) : null;
+    editor.hidden = false;
+    editor.querySelector('[data-food-editor-title]').textContent = item ? 'Modifica alimento' : 'Nuovo alimento';
+    editor.querySelector('[data-food-editor-name]').value = item?.name || suggestedName || '';
+    editor.querySelector('[data-food-editor-icon]').value = item?.icon || '';
+    editor.querySelector('[data-food-editor-category]').value = item?.category || '';
+    editor.querySelector('[data-food-editor-favorite]').checked = item?.favorite === true;
+    editor.querySelector('[data-food-icon-options]').innerHTML = FOOD_ICONS.map((icon) => `<button type="button" data-food-icon="${escapeHtml(icon)}" aria-label="${icon || 'Nessuna icona'}">${icon || '∅'}</button>`).join('');
+    editor.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    editor.querySelector('[data-food-editor-name]').focus();
+  }
+  function closeFoodEditor() { if (editor) editor.hidden = true; editingFoodId = null; pendingMealAfterCreate = null; }
+  page.querySelector('[data-open-food-library-add]')?.addEventListener('click', () => openFoodEditor());
+  editor?.querySelector('[data-food-icon-options]')?.addEventListener('click', (event) => { const button=event.target.closest('[data-food-icon]'); if(button) editor.querySelector('[data-food-editor-icon]').value=button.dataset.foodIcon; });
+  editor?.querySelector('[data-food-editor-cancel]')?.addEventListener('click', closeFoodEditor);
+  editor?.querySelector('[data-food-editor-save]')?.addEventListener('click', () => {
+    const name = editor.querySelector('[data-food-editor-name]').value.trim();
+    const feedback = editor.querySelector('[data-food-editor-feedback]');
+    if (!name) { feedback.textContent = 'Inserisci il nome dell’alimento.'; return; }
+    const duplicate = foodLibrary().find((item) => item.id !== editingFoodId && item.name.toLocaleLowerCase('it') === name.toLocaleLowerCase('it'));
+    if (duplicate) { feedback.textContent = `Esiste già “${duplicate.name}”. Usa quella voce oppure modifica il nome.`; return; }
+    const next = foodLibrary();
+    const data = { id: editingFoodId || uid('food'), name, icon: editor.querySelector('[data-food-editor-icon]').value.trim(), category: editor.querySelector('[data-food-editor-category]').value, favorite: editor.querySelector('[data-food-editor-favorite]').checked, active: true, createdAt: editingFoodId ? (foodById(editingFoodId)?.createdAt || '') : new Date().toISOString() };
+    const saved = editingFoodId ? next.map((item) => item.id === editingFoodId ? data : item) : [...next, data];
+    saveFoodLibrary(saved);
+    if (pendingMealAfterCreate) { const day=Store.getDay(key()); persistMealFood(pendingMealAfterCreate,[...selectedFoodIds(day,pendingMealAfterCreate),data.id]); }
+    closeFoodEditor(); renderFoodLibrary(); renderFoodPickers(Store.getDay(key()));
+  });
+  libraryList?.addEventListener('click', (event) => {
+    const card=event.target.closest('[data-library-food-id]'); if(!card) return; const id=card.dataset.libraryFoodId;
+    if(event.target.closest('[data-edit-food]')) openFoodEditor(id);
+    if(event.target.closest('[data-toggle-food-favorite]')) saveFoodLibrary(foodLibrary().map((item)=>item.id===id?{...item,favorite:!item.favorite}:item));
+    if(event.target.closest('[data-merge-food]')) {
+      const source = foodById(id);
+      const targetName = prompt(`Con quale alimento vuoi unire “${source?.name || ''}”? Scrivi il nome esatto.`);
+      if (targetName) {
+        const target = foodLibrary().find((item) => item.id !== id && item.active !== false && item.name.toLocaleLowerCase('it') === targetName.trim().toLocaleLowerCase('it'));
+        if (!target) alert('Alimento di destinazione non trovato.');
+        else if (confirm(`Unire “${source.name}” in “${target.name}”? Tutto lo storico verrà associato alla voce scelta.`)) {
+          const state = Store.getState();
+          Object.values(state.days || {}).forEach((day) => {
+            Object.keys(day.mealItems || {}).forEach((meal) => {
+              const ids = day.mealItems[meal] || [];
+              if (ids.includes(id)) day.mealItems[meal] = [...new Set(ids.map((value) => value === id ? target.id : value))];
+            });
+          });
+          state.settings.tracker.foodLibrary = state.settings.tracker.foodLibrary.map((item) => item.id === id ? { ...item, active:false } : item);
+          Store.replaceState(state, 'food-library-merge');
+        }
+      }
+    }
+    if(event.target.closest('[data-delete-food]')) { if(confirm('Rimuovere questo alimento dalla libreria? Lo storico resterà intatto.')) saveFoodLibrary(foodLibrary().map((item)=>item.id===id?{...item,active:false}:item)); }
+    renderFoodLibrary(); renderFoodPickers(Store.getDay(key()));
+  });
+  librarySearch?.addEventListener('input', renderFoodLibrary);
+  libraryFilter?.addEventListener('change', renderFoodLibrary);
   function formatEntry(quarters) {
     const ml = Math.round(quarters * quarterMl());
     const base = quarters === 4 ? '1 borraccia' : formatWater(quarters);
@@ -930,11 +934,20 @@ window.addEventListener('tracker:data-changed', (event) => {
   function renderMeals(day) {
     mealCards.forEach((card) => {
       const name = card.dataset.mealName;
-      const value = day.meals?.[mealKey(name)] || '';
-      card.querySelector('[data-meal-text]').value = value;
-      card.classList.toggle('is-saved', Boolean(value));
-      card.querySelector('[data-meal-status]').textContent = value ? 'Registrato' : 'Da compilare';
-      card.querySelector('[data-save-meal]').textContent = value ? 'Aggiorna' : `Registra ${name.toLowerCase()}`;
+      const meal = mealKey(name);
+      const value = day.meals?.[meal] || '';
+      const selectedCount = selectedFoodIds(day, meal).length;
+      const textarea = card.querySelector('[data-meal-text]');
+      const panel = card.querySelector('[data-meal-note-panel]');
+      const toggle = card.querySelector('[data-toggle-meal-note]');
+      if (textarea) textarea.value = value;
+      if (panel) panel.hidden = !value;
+      if (toggle) toggle.textContent = value ? 'Modifica la nota' : '+ Aggiungi una nota facoltativa';
+      const hasMeal = Boolean(value || selectedCount);
+      card.classList.toggle('is-saved', hasMeal);
+      card.querySelector('[data-meal-status]').textContent = hasMeal ? 'Registrato' : 'Da compilare';
+      const save = card.querySelector('[data-save-meal]');
+      if (save) save.textContent = value ? 'Aggiorna nota' : 'Salva nota';
     });
   }
   function renderWater(day) {
@@ -1035,12 +1048,21 @@ window.addEventListener('tracker:data-changed', (event) => {
     page.querySelector('[data-water-feedback]').textContent = `${trackerSettings().waterDivision === 'halves' ? 'Ogni metà' : 'Ogni quarto'} corrisponde a ${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(trackerSettings().waterDivision === 'halves' ? quarterMl() * 2 : quarterMl())} ml.`;
   }
 
+  mealCards.forEach((card) => card.querySelector('[data-toggle-meal-note]')?.addEventListener('click', () => {
+    const panel = card.querySelector('[data-meal-note-panel]');
+    if (!panel) return;
+    panel.hidden = !panel.hidden;
+    if (!panel.hidden) card.querySelector('[data-meal-text]')?.focus();
+  }));
+
   mealCards.forEach((card) => card.querySelector('[data-save-meal]')?.addEventListener('click', () => {
     const name = card.dataset.mealName;
     const value = card.querySelector('[data-meal-text]').value.trim();
     Store.updateDay(key(), (day) => ({ ...day, meals: { ...day.meals, [mealKey(name)]: value } }), 'meal-save');
-    renderMeals(Store.getDay(key())); updateSummary(); renderWeeklyStats();
-    page.querySelector('[data-meal-feedback]').textContent = value ? `${name} salvato.` : `${name} rimosso.`;
+    const nextDay = Store.getDay(key());
+    renderMeals(nextDay); renderFoodPickers(nextDay); updateSummary(nextDay); renderWeeklyStats();
+    if (!value) card.querySelector('[data-meal-note-panel]')?.setAttribute('hidden', '');
+    page.querySelector('[data-meal-feedback]').textContent = value ? `Nota di ${name.toLowerCase()} salvata.` : `Nota di ${name.toLowerCase()} rimossa.`;
   }));
   page.querySelectorAll('[data-water-add]').forEach((button) => button.addEventListener('click', () => {
     const quarters = Number(button.dataset.waterAdd) || 0;
