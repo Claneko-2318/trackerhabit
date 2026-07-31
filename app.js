@@ -1714,7 +1714,7 @@ window.addEventListener('tracker:data-changed', (event) => {
     const weekStartsSunday = trackerSettings().weekStart === 'sunday';
     const calendarOffset = weekStartsSunday ? first.getDay() : (first.getDay() + 6) % 7;
     for (let i = 0; i < calendarOffset; i += 1) {
-      const empty = document.createElement('span'); empty.className = 'stats-heat-cell is-empty'; container.append(empty);
+      const empty = document.createElement('span'); empty.className = 'stats-heat-cell is-placeholder'; empty.setAttribute('aria-hidden', 'true'); container.append(empty);
     }
     for (let dayNumber = 1; dayNumber <= daysInMonth; dayNumber += 1) {
       const date = new Date(monthDate.getFullYear(), monthDate.getMonth(), dayNumber);
@@ -1735,16 +1735,47 @@ window.addEventListener('tracker:data-changed', (event) => {
       }
       const cell = document.createElement(level ? 'button' : 'span');
       cell.className = `stats-heat-cell ${level ? `level-${level} ${heatClass}` : 'is-empty'}`;
+      cell.textContent = String(dayNumber);
+      const accessibleLabel = `${formatDate(date, { day: 'numeric', month: 'long', year: 'numeric' })} · ${label}`;
       if (level) {
         cell.type = 'button';
-        cell.dataset.tooltip = `${formatDate(date, { day: 'numeric', month: 'long', year: 'numeric' })} · ${label}`;
-        cell.setAttribute('aria-label', cell.dataset.tooltip);
+        cell.dataset.tooltip = accessibleLabel;
+        cell.setAttribute('aria-label', accessibleLabel);
+      } else {
+        cell.setAttribute('aria-label', accessibleLabel);
       }
       container.append(cell);
     }
     while (container.children.length % 7) {
-      const empty = document.createElement('span'); empty.className = 'stats-heat-cell is-empty'; container.append(empty);
+      const empty = document.createElement('span'); empty.className = 'stats-heat-cell is-placeholder'; empty.setAttribute('aria-hidden', 'true'); container.append(empty);
     }
+  }
+
+  function readingSessions() { return Store.getState().reading?.sessions || []; }
+
+  function readingPagesForSession(session, ordered) {
+    const index = ordered.findIndex((item) => item.id === session.id);
+    const book = (Store.getState().reading?.books || []).find((item) => item.id === session.bookId);
+    const previous = ordered.slice(0, index).filter((item) => item.bookId === session.bookId).at(-1);
+    return Math.max(0, Number(session.page) - Number(previous?.page ?? book?.startPage ?? 0));
+  }
+
+  function renderReadingCalendar(monthDate) {
+    const container = page.querySelector('[data-reading-heatmap]');
+    if (!container) return;
+    container.innerHTML = '';
+    const ordered = [...readingSessions()].sort((a,b) => a.date.localeCompare(b.date) || String(a.createdAt).localeCompare(String(b.createdAt)));
+    const totals = {}; const minutes = {};
+    ordered.forEach((session) => { totals[session.date] = (totals[session.date] || 0) + readingPagesForSession(session, ordered); minutes[session.date] = (minutes[session.date] || 0) + (Number(session.minutes)||0); });
+    const first = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+    const count = new Date(monthDate.getFullYear(), monthDate.getMonth()+1, 0).getDate();
+    const offset = trackerSettings().weekStart === 'sunday' ? first.getDay() : (first.getDay()+6)%7;
+    for(let i=0;i<offset;i++){ const cell=document.createElement('span');cell.className='stats-heat-cell is-placeholder';container.append(cell);}
+    const monthValues=[]; let monthMinutes=0;
+    for(let n=1;n<=count;n++){ const date=new Date(monthDate.getFullYear(),monthDate.getMonth(),n); const key=Store.dateKey(date); const value=totals[key]||0; const mins=minutes[key]||0; if(value) monthValues.push(value); monthMinutes+=mins; const level=value ? (value<=20?1:value<=40?2:value<=60?3:4):0; const cell=document.createElement(level?'button':'span'); cell.className=`stats-heat-cell ${level?`level-${level} heat-reading`:'is-empty'}`; cell.textContent=String(n); const label=`${formatDate(date,{day:'numeric',month:'long',year:'numeric'})} · ${value?`${value} pagine · ${formatMinutes(mins)}`:'Nessuna lettura registrata'}`; cell.setAttribute('aria-label',label); if(level){cell.type='button';cell.dataset.tooltip=label;} container.append(cell);}
+    while(container.children.length%7){const cell=document.createElement('span');cell.className='stats-heat-cell is-placeholder';container.append(cell);}
+    const summary=page.querySelector('[data-reading-calendar-summary]'); const avg=page.querySelector('[data-reading-calendar-average]');
+    if(monthValues.length){ const total=monthValues.reduce((a,b)=>a+b,0); summary.textContent=`Giorno più intenso: ${Math.max(...monthValues)} pagine · Totale del mese: ${total} pagine · Tempo totale: ${formatMinutes(monthMinutes)}`; avg.textContent=`Media ${Math.round(total/monthValues.length)} pagine`; } else { summary.textContent='Nessuna sessione di lettura registrata in questo mese.'; avg.textContent='Media —'; }
   }
 
   function renderTetrBoard(monthDate) {
@@ -1874,7 +1905,6 @@ window.addEventListener('tracker:data-changed', (event) => {
     const showWork = settings.tracker?.showWorkInStats !== false;
     page.querySelector('.summary-work')?.toggleAttribute('hidden', !showWork);
     const habitCards = [...page.querySelectorAll('.stats-habit-card')];
-    if (habitCards[2]) habitCards[2].hidden = !showWork;
     const weekdayLabels = settings.weekStart === 'sunday' ? ['D','L','M','M','G','V','S'] : ['L','M','M','G','V','S','D'];
     page.querySelectorAll('.stats-week-labels').forEach((holder) => { holder.innerHTML = weekdayLabels.map((label) => `<span>${label}</span>`).join(''); });
     const range = getDateRange(periodSelect.value);
@@ -1905,10 +1935,24 @@ window.addEventListener('tracker:data-changed', (event) => {
     const heatmaps = [...page.querySelectorAll('[data-heatmap]')];
     if (heatmaps[0]) renderHeatmap(heatmaps[0], monthDate, 'sleep');
     if (heatmaps[1]) renderHeatmap(heatmaps[1], monthDate, 'water');
-    if (heatmaps[2]) renderHeatmap(heatmaps[2], monthDate, 'work');
+    renderReadingCalendar(monthDate);
+
+    const monthDays = Store.monthDays(Store.monthKey(monthDate));
+    const monthSleep = monthDays.map((day) => Number(day.sleep?.duration) || 0).filter((value) => value > 0);
+    const monthWater = monthDays.map(waterQuarters).filter((value) => value > 0);
+
+    const sleepSummary = page.querySelector('[data-sleep-calendar-summary]');
+    const waterSummary = page.querySelector('[data-water-calendar-summary]');
+    if (sleepSummary) sleepSummary.textContent = monthSleep.length
+      ? `Notte più lunga: ${formatMinutes(Math.max(...monthSleep))} · Media del mese: ${formatMinutes(average(monthSleep))}`
+      : 'Nessun dato sul sonno registrato in questo mese.';
+    if (waterSummary) waterSummary.textContent = monthWater.length
+      ? `Media del mese: ${formatWater(Math.round(average(monthWater)))} · circa ${waterLiters(average(monthWater), Store.getState().settings.bottleMl)}.`
+      : 'Nessun dato sull’acqua registrato in questo mese.';
+
     heatmaps.forEach((map) => {
       map.closest('.stats-habit-card')?.querySelector('.stats-habit-top > strong')?.replaceChildren(document.createTextNode(
-        map === heatmaps[0] ? `Media ${current.sleep ? formatMinutes(current.sleep) : '—'}` : map === heatmaps[1] ? `Media ${current.water ? formatWater(Math.round(current.water)) : '—'}` : `Media ${current.workAverage ? formatMinutes(current.workAverage) : '—'}`
+        map === heatmaps[0] ? `Media ${current.sleep ? formatMinutes(current.sleep) : '—'}` : `Media ${current.water ? formatWater(Math.round(current.water)) : '—'}`
       ));
     });
 
@@ -3142,6 +3186,29 @@ if (Store?.getScriptUrl()) {
   });
 })();
 
+
+/* V33 — tracker lettura */
+(() => {
+  const page=document.querySelector('.reading-page'); if(!page||!Store)return;
+  const booksHolder=page.querySelector('[data-reading-books]'), recent=page.querySelector('[data-reading-recent]'), select=page.querySelector('[data-reading-book-select]');
+  const form=page.querySelector('[data-reading-session-form]'), dialog=page.querySelector('[data-reading-dialog]'), bookForm=page.querySelector('[data-reading-book-form]');
+  const dateInput=page.querySelector('[data-reading-date]'), pageInput=page.querySelector('[data-reading-page]'), calc=page.querySelector('[data-reading-calculation]'); dateInput.value=Store.dateKey(new Date());
+  const state=()=>Store.getState(); const reading=()=>state().reading||{books:[],sessions:[]};
+  const ordered=()=>[...(reading().sessions||[])].sort((a,b)=>a.date.localeCompare(b.date)||String(a.createdAt).localeCompare(String(b.createdAt)));
+  const previousPage=(bookId,beforeDate='9999-12-31')=>{const book=reading().books.find(b=>b.id===bookId);const sessions=ordered().filter(s=>s.bookId===bookId&&s.date<=beforeDate);return Number(sessions.at(-1)?.page??book?.startPage??0);};
+  const pagesFor=(session,list=ordered())=>{const idx=list.findIndex(s=>s.id===session.id);const book=reading().books.find(b=>b.id===session.bookId);const prev=list.slice(0,idx).filter(s=>s.bookId===session.bookId).at(-1);return Math.max(0,Number(session.page)-Number(prev?.page??book?.startPage??0));};
+  const saveReading=(next)=>{const nextState=state();nextState.reading=next;Store.replaceState(nextState,'reading-update');};
+  function render(){const data=reading();select.innerHTML=data.books.filter(b=>b.status!=='finished').map(b=>`<option value="${escapeHtml(b.id)}">${escapeHtml(b.title)}</option>`).join('')||'<option value="">Aggiungi prima un libro</option>';
+    booksHolder.innerHTML=data.books.length?data.books.map(book=>{const sessions=ordered().filter(s=>s.bookId===book.id);const current=Number(sessions.at(-1)?.page??book.startPage??0);const total=Math.max(1,Number(book.totalPages)||1);const mins=sessions.reduce((sum,s)=>sum+(Number(s.minutes)||0),0);return `<article class="reading-book-card"><div class="reading-book-top"><div class="reading-book-icon">${escapeHtml(book.icon||'📖')}</div><div><h3>${escapeHtml(book.title)}</h3><p>${escapeHtml(book.author||'Autore non indicato')} · iniziato ${book.startedAt?formatDate(book.startedAt,{day:'numeric',month:'long',year:'numeric'}):'—'}</p></div></div><div class="reading-progress"><span style="width:${Math.min(100,current/total*100)}%"></span></div><div class="reading-progress-copy"><span>Pagina ${current} di ${total}</span><strong>${Math.round(current/total*100)}%</strong></div><div class="reading-book-metrics"><div><span>Pagine lette</span><strong>${Math.max(0,current-(Number(book.startPage)||0))}</strong></div><div><span>Tempo totale</span><strong>${formatMinutes(mins)}</strong></div><div><span>Ultima lettura</span><strong>${sessions.length?formatDate(sessions.at(-1).date,{day:'numeric',month:'short'}):'—'}</strong></div></div></article>`}).join(''):'<article class="reading-book-card reading-book-placeholder"><div class="reading-placeholder-icon">📚</div><h3>Nessun libro in corso</h3><p>Aggiungi il primo libro per visualizzare qui avanzamento, pagine lette e tempo totale.</p><button class="reading-action-button reading-placeholder-button" type="button" data-reading-empty-add><span aria-hidden="true">＋</span> Aggiungi libro</button></article>';
+    const sessions=ordered().reverse().slice(0,10);recent.innerHTML=sessions.length?sessions.map(s=>{const book=data.books.find(b=>b.id===s.bookId);const asc=ordered();const idx=asc.findIndex(x=>x.id===s.id);const prev=asc.slice(0,idx).filter(x=>x.bookId===s.bookId).at(-1);const from=Number(prev?.page??book?.startPage??0);const pages=pagesFor(s,asc);return `<div class="reading-session-row"><div class="reading-session-date">${formatDate(s.date,{day:'numeric',month:'short'})}</div><div class="reading-session-copy"><strong>${escapeHtml(book?.title||'Libro')}</strong><br><span>Da pagina ${from} a ${s.page}</span></div><div class="reading-session-tag">${pages} ${pages===1?'pagina':'pagine'} · ${formatMinutes(Number(s.minutes)||0)}</div></div>`}).join(''):'<div class="reading-empty">Le sessioni compariranno qui dopo il primo salvataggio.</div>';updateCalc();}
+  function updateCalc(){const id=select.value;const value=Number(pageInput.value);if(!id||!Number.isFinite(value)){calc.textContent='Seleziona un libro e indica la pagina raggiunta.';return;}const prev=previousPage(id,dateInput.value);const diff=value-prev;calc.innerHTML=diff>=0?`Ultima pagina registrata: <strong>${prev}</strong><br>Pagine calcolate per questa sessione: <strong>${diff}</strong>`:`La pagina indicata è precedente all’ultima registrata (${prev}).`; }
+  booksHolder.addEventListener('click',(event)=>{if(event.target.closest('[data-reading-empty-add]')) dialog.showModal();});
+  page.querySelector('[data-reading-add-book]').addEventListener('click',()=>dialog.showModal());[select,pageInput,dateInput].forEach(el=>el.addEventListener('input',updateCalc));
+  bookForm.addEventListener('submit',e=>{e.preventDefault();const data=reading();const book={id:`book-${Date.now()}`,title:bookForm.querySelector('[data-book-title]').value.trim(),author:bookForm.querySelector('[data-book-author]').value.trim(),totalPages:Number(bookForm.querySelector('[data-book-total]').value)||0,startPage:Number(bookForm.querySelector('[data-book-start]').value)||0,startedAt:bookForm.querySelector('[data-book-started]').value,status:'reading',icon:'📖',createdAt:new Date().toISOString()};if(!book.title||!book.totalPages)return;saveReading({...data,books:[...data.books,book]});dialog.close();bookForm.reset();render();});
+  form.addEventListener('submit',e=>{e.preventDefault();const data=reading(),book=data.books.find(b=>b.id===select.value),pageNo=Number(pageInput.value),prev=previousPage(select.value,dateInput.value);if(!book||!dateInput.value||!Number.isFinite(pageNo)||pageNo<prev||pageNo>Number(book.totalPages)){alert(`Inserisci una pagina compresa tra ${prev} e ${book.totalPages}.`);return;}const session={id:`reading-${Date.now()}`,bookId:book.id,date:dateInput.value,page:pageNo,minutes:Number(page.querySelector('[data-reading-minutes]').value)||0,note:page.querySelector('[data-reading-note]').value.trim(),createdAt:new Date().toISOString()};saveReading({...data,sessions:[...data.sessions,session]});form.reset();dateInput.value=Store.dateKey(new Date());render();});
+  window.addEventListener('tracker:data-changed',render);render();
+})();
+
 /* =========================================================
    V26 — navigazione responsive mobile/tablet verticale
    ========================================================= */
@@ -3156,6 +3223,7 @@ function initResponsiveNavigation() {
     ['cibo-acqua.html', 'Cibo e acqua', '<path d="M8 3v8M5 3v5a3 3 0 0 0 6 0V3M8 11v10M16 3v18M16 3c3 2 3 7 0 9"/>']
   ];
   const secondary = [
+    ['lettura.html', 'Lettura', '▤'],
     ['tetr-emotion.html', 'Tetr-Emotion', '▦'],
     ['statistiche.html', 'Statistiche', '▥'],
     ['archivio.html', 'Archivio', '◫'],

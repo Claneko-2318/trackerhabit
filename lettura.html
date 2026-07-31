@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Tracker personale — Lettura</title><link rel="stylesheet" href="styles.css?v=35"/>  <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body class="reading-page">
+<header class="site-header"><nav aria-label="Navigazione principale" class="navbar"><a class="brand" href="index.html"><span class="brand-mark">✦</span><span>Tracker personale</span></a><div class="nav-links"><a class="nav-link" href="index.html">Home</a><a class="nav-link" href="giornata.html">La mia giornata</a><a class="nav-link" href="sonno.html">Sonno</a><a class="nav-link" href="cibo-acqua.html">Cibo e acqua</a><a aria-current="page" class="nav-link active" href="lettura.html">Lettura</a><a class="nav-link" href="tetr-emotion.html">Tetr-Emotion</a><a class="nav-link" href="statistiche.html">Statistiche</a><a class="nav-link" href="archivio.html">Archivio</a></div><a class="settings-link" href="impostazioni.html" aria-label="Impostazioni">⚙</a></nav></header>
+<main>
+<section class="page-hero reading-hero"><div class="page-shell"><span class="page-kicker">Diario di lettura</span><h1>Le mie letture</h1><p>Registra i libri in corso, l’avanzamento e il tempo dedicato a ogni sessione.</p></div></section>
+<section class="page-shell reading-main">
+<div class="reading-heading"><div><span class="stats-eyebrow">In corso</span><h2>Sto leggendo</h2></div><button class="reading-action-button reading-add-button" type="button" data-reading-add-book><span aria-hidden="true">＋</span> Aggiungi libro</button></div>
+<div class="reading-layout"><section class="reading-books" data-reading-books></section>
+<aside class="reading-session-card"><h2>Registra una sessione</h2><form data-reading-session-form>
+<label>Libro<select data-reading-book-select required></select></label><div class="reading-form-grid"><label>Data<input type="date" data-reading-date required></label><label>Pagina raggiunta<input type="number" min="0" data-reading-page required></label><label class="reading-full">Tempo impiegato in minuti<input type="number" min="1" data-reading-minutes required></label></div>
+<div class="reading-auto-calc" data-reading-calculation>Seleziona un libro e indica la pagina raggiunta.</div><label class="reading-note">Nota facoltativa<textarea rows="3" data-reading-note></textarea></label><button class="reading-action-button reading-save-button" type="submit"><span aria-hidden="true">✓</span> Salva sessione</button></form></aside></div>
+<section class="reading-recent"><div class="reading-heading"><div><span class="stats-eyebrow">Cronologia</span><h2>Sessioni recenti</h2></div></div><div class="reading-recent-list" data-reading-recent></div></section>
+</section></main>
+<dialog class="reading-dialog" data-reading-dialog><form method="dialog" data-reading-book-form><button class="reading-dialog-close" value="cancel" aria-label="Chiudi">×</button><h2>Aggiungi libro</h2><label>Titolo<input data-book-title required></label><label>Autore<input data-book-author></label><div class="reading-form-grid"><label>Pagine totali<input type="number" min="1" data-book-total required></label><label>Pagina iniziale<input type="number" min="0" value="0" data-book-start></label><label class="reading-full">Data di inizio<input type="date" data-book-started required></label></div><button class="reading-action-button reading-save-button" value="default" type="submit"><span aria-hidden="true">✓</span> Salva libro</button></form></dialog>
+<script src="tracker-store.js?v=35"></script><script src="app.js?v=35"></script></body></html>

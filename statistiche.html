@@ -4,9 +4,9 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<link rel="icon" type="image/png" href="favicon.png">
 <title>Tracker personale — Statistiche</title>
-<link href="styles.css?v=20260729-30" rel="stylesheet"/>
+  <link rel="icon" type="image/png" href="favicon.png">
+<link href="styles.css?v=33-30" rel="stylesheet"/>
   <meta name="robots" content="noindex, nofollow">
 </head>
 <body class="stats-page">
@@ -26,6 +26,7 @@
 <a class="nav-link" href="giornata.html">La mia giornata</a>
 <a class="nav-link" href="sonno.html">Sonno</a>
 <a class="nav-link" href="cibo-acqua.html">Cibo e acqua</a>
+<a class="nav-link" href="lettura.html">Lettura</a>
 <a class="nav-link" href="tetr-emotion.html">Tetr-Emotion</a>
 <a aria-current="page" class="nav-link active" href="statistiche.html">Statistiche</a>
 <a class="nav-link" href="archivio.html">Archivio</a>
@@ -141,7 +142,7 @@
 <button aria-label="31 luglio 2026 · 7 h" class="stats-heat-cell level-4 heat-sleep" data-tooltip="31 luglio 2026 · 7 h" type="button"></button>
 <span aria-hidden="true" class="stats-heat-cell is-empty"></span>
 <span aria-hidden="true" class="stats-heat-cell is-empty"></span></div></div>
-<p class="stats-calendar-summary">Notte più lunga: 7 h 48 min · Media del mese: 6 h 07 min</p>
+<p class="stats-calendar-summary" data-sleep-calendar-summary>Nessun dato sul sonno registrato in questo mese.</p>
 <div aria-label="Legenda sonno" class="stats-heat-legend stats-value-legend">
 <span class="stats-legend-item"><i class="heat-sleep level-1"></i><b>1–2 ore</b></span>
 <span class="stats-legend-item"><i class="heat-sleep level-2"></i><b>3–4 ore</b></span>
@@ -186,7 +187,7 @@
 <button aria-label="31 luglio 2026 · 1 borraccia · circa 750 ml" class="stats-heat-cell level-2 heat-water" data-tooltip="31 luglio 2026 · 1 borraccia · circa 750 ml" type="button"></button>
 <span aria-hidden="true" class="stats-heat-cell is-empty"></span>
 <span aria-hidden="true" class="stats-heat-cell is-empty"></span></div></div>
-<p class="stats-calendar-summary">Media del mese: 1 + 2/4 · circa 1,05 l. Due borracce corrispondono a 1,5 l.</p>
+<p class="stats-calendar-summary" data-water-calendar-summary>Nessun dato sull’acqua registrato in questo mese.</p>
 <div aria-label="Legenda acqua" class="stats-heat-legend stats-value-legend">
 <span class="stats-legend-item"><i class="heat-water level-1"></i><b>¼–½</b><span class="stats-legend-subtext">188–375 ml</span></span>
 <span class="stats-legend-item"><i class="heat-water level-2"></i><b>¾–1 borraccia</b><span class="stats-legend-subtext">563–750 ml</span></span>
@@ -194,51 +195,16 @@
 <span class="stats-legend-item"><i class="heat-water level-4"></i><b>2 o più</b><span class="stats-legend-subtext">da 1,5 l</span></span>
 </div>
 </article>
-<article class="stats-habit-card">
-<div class="stats-habit-top"><div><span class="stats-habit-kicker">Ore lavorate</span><h3>La mia giornata</h3></div><strong>Media 2 h 45 min</strong></div>
-<div class="stats-heat-wrap"><div aria-hidden="true" class="stats-week-labels"><span>L</span><span>M</span><span>M</span><span>G</span><span>V</span><span>S</span><span>D</span></div><div class="stats-heatmap" data-heatmap=""><span aria-hidden="true" class="stats-heat-cell is-empty"></span>
-<span aria-hidden="true" class="stats-heat-cell is-empty"></span>
-<button aria-label="1 luglio 2026 · 0 h" class="stats-heat-cell level-1 heat-activity" data-tooltip="1 luglio 2026 · 0 h" type="button"></button>
-<button aria-label="2 luglio 2026 · 2 h" class="stats-heat-cell level-2 heat-activity" data-tooltip="2 luglio 2026 · 2 h" type="button"></button>
-<button aria-label="3 luglio 2026 · 3 h" class="stats-heat-cell level-3 heat-activity" data-tooltip="3 luglio 2026 · 3 h" type="button"></button>
-<button aria-label="4 luglio 2026 · 5 h" class="stats-heat-cell level-4 heat-activity" data-tooltip="4 luglio 2026 · 5 h" type="button"></button>
-<button aria-label="5 luglio 2026 · 4 h" class="stats-heat-cell level-4 heat-activity" data-tooltip="5 luglio 2026 · 4 h" type="button"></button>
-<button aria-label="6 luglio 2026 · 0 h" class="stats-heat-cell level-1 heat-activity" data-tooltip="6 luglio 2026 · 0 h" type="button"></button>
-<button aria-label="7 luglio 2026 · 1 h" class="stats-heat-cell level-2 heat-activity" data-tooltip="7 luglio 2026 · 1 h" type="button"></button>
-<button aria-label="8 luglio 2026 · 2 h" class="stats-heat-cell level-2 heat-activity" data-tooltip="8 luglio 2026 · 2 h" type="button"></button>
-<button aria-label="9 luglio 2026 · 4 h" class="stats-heat-cell level-4 heat-activity" data-tooltip="9 luglio 2026 · 4 h" type="button"></button>
-<button aria-label="10 luglio 2026 · 5 h" class="stats-heat-cell level-4 heat-activity" data-tooltip="10 luglio 2026 · 5 h" type="button"></button>
-<button aria-label="11 luglio 2026 · 3 h" class="stats-heat-cell level-3 heat-activity" data-tooltip="11 luglio 2026 · 3 h" type="button"></button>
-<button aria-label="12 luglio 2026 · 0 h" class="stats-heat-cell level-1 heat-activity" data-tooltip="12 luglio 2026 · 0 h" type="button"></button>
-<button aria-label="13 luglio 2026 · 2 h" class="stats-heat-cell level-2 heat-activity" data-tooltip="13 luglio 2026 · 2 h" type="button"></button>
-<button aria-label="14 luglio 2026 · 4 h" class="stats-heat-cell level-4 heat-activity" data-tooltip="14 luglio 2026 · 4 h" type="button"></button>
-<button aria-label="15 luglio 2026 · 6 h" class="stats-heat-cell level-4 heat-activity" data-tooltip="15 luglio 2026 · 6 h" type="button"></button>
-<button aria-label="16 luglio 2026 · 3 h" class="stats-heat-cell level-3 heat-activity" data-tooltip="16 luglio 2026 · 3 h" type="button"></button>
-<button aria-label="17 luglio 2026 · 1 h" class="stats-heat-cell level-2 heat-activity" data-tooltip="17 luglio 2026 · 1 h" type="button"></button>
-<button aria-label="18 luglio 2026 · 2 h" class="stats-heat-cell level-2 heat-activity" data-tooltip="18 luglio 2026 · 2 h" type="button"></button>
-<button aria-label="19 luglio 2026 · 5 h" class="stats-heat-cell level-4 heat-activity" data-tooltip="19 luglio 2026 · 5 h" type="button"></button>
-<button aria-label="20 luglio 2026 · 4 h" class="stats-heat-cell level-4 heat-activity" data-tooltip="20 luglio 2026 · 4 h" type="button"></button>
-<button aria-label="21 luglio 2026 · 0 h" class="stats-heat-cell level-1 heat-activity" data-tooltip="21 luglio 2026 · 0 h" type="button"></button>
-<button aria-label="22 luglio 2026 · 2 h" class="stats-heat-cell level-2 heat-activity" data-tooltip="22 luglio 2026 · 2 h" type="button"></button>
-<button aria-label="23 luglio 2026 · 3 h" class="stats-heat-cell level-3 heat-activity" data-tooltip="23 luglio 2026 · 3 h" type="button"></button>
-<button aria-label="24 luglio 2026 · 5 h" class="stats-heat-cell level-4 heat-activity" data-tooltip="24 luglio 2026 · 5 h" type="button"></button>
-<button aria-label="25 luglio 2026 · 4 h" class="stats-heat-cell level-4 heat-activity" data-tooltip="25 luglio 2026 · 4 h" type="button"></button>
-<button aria-label="26 luglio 2026 · 1 h" class="stats-heat-cell level-2 heat-activity" data-tooltip="26 luglio 2026 · 1 h" type="button"></button>
-<button aria-label="27 luglio 2026 · 0 h" class="stats-heat-cell level-1 heat-activity" data-tooltip="27 luglio 2026 · 0 h" type="button"></button>
-<button aria-label="28 luglio 2026 · 3 h" class="stats-heat-cell level-3 heat-activity" data-tooltip="28 luglio 2026 · 3 h" type="button"></button>
-<button aria-label="29 luglio 2026 · 4 h" class="stats-heat-cell level-4 heat-activity" data-tooltip="29 luglio 2026 · 4 h" type="button"></button>
-<button aria-label="30 luglio 2026 · 5 h" class="stats-heat-cell level-4 heat-activity" data-tooltip="30 luglio 2026 · 5 h" type="button"></button>
-<button aria-label="31 luglio 2026 · 2 h" class="stats-heat-cell level-2 heat-activity" data-tooltip="31 luglio 2026 · 2 h" type="button"></button>
-<span aria-hidden="true" class="stats-heat-cell is-empty"></span>
-<span aria-hidden="true" class="stats-heat-cell is-empty"></span></div></div>
-<p class="stats-calendar-summary">Giorno più intenso: 6 h · Media del mese: 2 h 45 min</p>
-<div aria-label="Legenda ore lavorate" class="stats-heat-legend stats-value-legend">
-<span class="stats-legend-item"><i class="heat-activity level-1"></i><b>0 ore</b></span>
-<span class="stats-legend-item"><i class="heat-activity level-2"></i><b>1–2 ore</b></span>
-<span class="stats-legend-item"><i class="heat-activity level-3"></i><b>2–3 ore</b></span>
-<span class="stats-legend-item"><i class="heat-activity level-4"></i><b>4 ore o più</b></span>
-</div>
-</article>
+<article class="stats-habit-card stats-reading-calendar-card">
+<div class="stats-habit-top"><div><span class="stats-habit-kicker">Pagine lette</span><h3>Lettura</h3></div><strong data-reading-calendar-average>Media —</strong></div>
+<div class="stats-heat-wrap"><div aria-hidden="true" class="stats-week-labels"><span>L</span><span>M</span><span>M</span><span>G</span><span>V</span><span>S</span><span>D</span></div><div class="stats-heatmap" data-reading-heatmap></div></div>
+<p class="stats-calendar-summary" data-reading-calendar-summary>Nessuna sessione di lettura registrata in questo mese.</p>
+<div aria-label="Legenda pagine lette" class="stats-heat-legend stats-value-legend">
+<span class="stats-legend-item"><i class="heat-reading level-1"></i><b>1–20 pagine</b></span>
+<span class="stats-legend-item"><i class="heat-reading level-2"></i><b>21–40 pagine</b></span>
+<span class="stats-legend-item"><i class="heat-reading level-3"></i><b>41–60 pagine</b></span>
+<span class="stats-legend-item"><i class="heat-reading level-4"></i><b>61 o più</b></span>
+</div></article>
 </div>
 </section>
 <section aria-labelledby="stats-tetr-title" class="stats-tetr-band">
@@ -433,7 +399,7 @@
           <div class="notion-image-row"><label><input type="checkbox" value="sleep-calendar" data-notion-image checked /><span><strong>Calendario del sonno</strong><span>Vista mensile a intensità</span></span></label><button type="button" data-notion-single-image="sleep-calendar">Scarica PNG</button></div>
           <div class="notion-image-row"><label><input type="checkbox" value="water-trend" data-notion-image checked /><span><strong>Andamento dell’acqua</strong><span>Quantità giornaliera</span></span></label><button type="button" data-notion-single-image="water-trend">Scarica PNG</button></div>
           <div class="notion-image-row"><label><input type="checkbox" value="water-calendar" data-notion-image checked /><span><strong>Calendario dell’acqua</strong><span>Vista mensile a intensità</span></span></label><button type="button" data-notion-single-image="water-calendar">Scarica PNG</button></div>
-          <div class="notion-image-row"><label><input type="checkbox" value="work-calendar" data-notion-image checked /><span><strong>Calendario delle ore lavorate</strong><span>Vista mensile a intensità</span></span></label><button type="button" data-notion-single-image="work-calendar">Scarica PNG</button></div>
+          
           <div class="notion-image-row"><label><input type="checkbox" value="activities" data-notion-image checked /><span><strong>Distribuzione delle attività</strong><span>Tempo per categoria</span></span></label><button type="button" data-notion-single-image="activities">Scarica PNG</button></div>
           <div class="notion-image-row"><label><input type="checkbox" value="emotions" data-notion-image checked /><span><strong>Distribuzione delle emozioni</strong><span>Conteggio Tetr-Emotion</span></span></label><button type="button" data-notion-single-image="emotions">Scarica PNG</button></div>
           <div class="notion-image-row"><label><input type="checkbox" value="tetr-grid" data-notion-image checked /><span><strong>Griglia Tetr-Emotion</strong><span>Composizione del mese</span></span></label><button type="button" data-notion-single-image="tetr-grid">Scarica PNG</button></div>
@@ -469,7 +435,7 @@
 <span>I dati vengono salvati automaticamente</span>
 </footer>
 </main>
-<script src="tracker-store.js?v=20260729-30"></script>
-<script src="app.js?v=20260729-30"></script>
+<script src="tracker-store.js?v=33-30"></script>
+<script src="app.js?v=33-30"></script>
 </body>
 </html>
