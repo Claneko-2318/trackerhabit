@@ -6275,3 +6275,272 @@ input, select, textarea, button { min-width: 0; }
   .reading-book-actions { display: grid; grid-template-columns: 1fr; }
   .reading-book-button { width: 100%; }
 }
+
+/* =========================================================
+   V38 — mobile rebuild verified from the uploaded V37
+   ========================================================= */
+@media (max-width: 820px) {
+  html, body { width:100% !important; max-width:100% !important; min-width:0 !important; overflow-x:hidden !important; }
+  *, *::before, *::after { box-sizing:border-box; }
+
+  main, main > section, main > div,
+  .page-shell, .content-wrap, .day-content, .sleep-content, .food-content,
+  .stats-content, .archive-content, .settings-content, .tetr-content {
+    width:100% !important; max-width:100% !important; min-width:0 !important;
+  }
+
+  .page-shell, .content-wrap, .day-content, .sleep-content, .food-content,
+  .stats-content, .archive-content, .settings-content, .tetr-content {
+    margin-left:0 !important; margin-right:0 !important;
+    padding-left:16px !important; padding-right:16px !important;
+  }
+
+  .page-hero > div, .day-hero-inner, .sleep-hero-inner, .food-hero-inner,
+  .stats-hero-inner, .archive-hero-inner, .settings-hero-inner, .tetr-hero-inner {
+    width:100% !important; max-width:100% !important; min-width:0 !important;
+    margin:0 !important; padding-left:16px !important; padding-right:16px !important;
+  }
+
+  .dashboard-intro > p, .section-heading-modern > p, .placeholder-hero h1,
+  .placeholder-hero p, .day-hero-copy, .sleep-hero-copy, .food-hero-copy,
+  .stats-hero-copy, .archive-hero-copy, .settings-hero-copy,
+  .day-hero-copy > p, .sleep-hero-copy > p, .food-hero-copy > p,
+  .stats-hero-copy > p, .archive-hero-copy > p, .settings-hero-copy > p {
+    width:auto !important; max-width:100% !important; min-width:0 !important;
+  }
+
+  h1, h2, h3, p, span, strong, label { overflow-wrap:anywhere; }
+  img, svg, canvas, video { max-width:100% !important; height:auto; }
+  input, select, textarea, button { max-width:100% !important; }
+
+  .summary-section, .day-main, .sleep-main, .food-main, .stats-main,
+  .archive-main, .settings-main, .reading-main { overflow:visible !important; }
+
+  .summary-card-grid, .category-grid-modern, .recent-grid, .bento-grid,
+  .day-summary-grid, .day-entry-layout, .day-week-layout, .day-note-section,
+  .sleep-summary-grid, .sleep-form-grid, .sleep-trend-layout,
+  .food-summary-grid, .food-entry-layout, .food-week-layout, .food-note-section,
+  .meal-grid, .food-library-grid, .food-library-tools, .food-editor-grid,
+  .stats-summary-grid, .stats-brief-inner, .stats-sleep-layout, .stats-food-layout,
+  .stats-day-layout, .stats-habit-grid, .stats-inline-metrics, .stats-day-metrics,
+  .stats-metric-stack, .archive-detail-grid, .archive-stat-strip,
+  .settings-grid-two, .settings-grid-three, .settings-switch-grid,
+  .settings-inline-fields, .settings-export-grid, .reading-layout,
+  .reading-book-metrics, .scene-card-grid {
+    grid-template-columns:minmax(0,1fr) !important;
+  }
+
+  .bento-grid > *, .summary-card-grid > *, .category-grid-modern > *,
+  .day-summary-grid > *, .sleep-summary-grid > *, .food-summary-grid > *,
+  .stats-summary-grid > *, .stats-habit-grid > * {
+    grid-column:auto !important; grid-row:auto !important;
+  }
+
+  .card, .summary-card, .bento-card, .category-tile, .recent-card,
+  .day-card, .day-entry-card, .day-week-card, .day-note-card,
+  .sleep-card, .sleep-summary-card, .sleep-form-card, .sleep-quality-card,
+  .sleep-awakenings-card, .sleep-rise-card, .sleep-nap-card,
+  .food-card, .food-summary-card, .meal-card, .water-card, .beverage-card,
+  .food-library-section, .food-library-card, .food-history-search-card,
+  .stats-card, .stats-summary-card, .stats-chart-card, .stats-reading-calendar-card,
+  .archive-card, .archive-day-card, .settings-card, .reading-book-card,
+  .reading-session-card, .reading-recent-list {
+    width:100% !important; max-width:100% !important; min-width:0 !important;
+    margin-left:0 !important; margin-right:0 !important;
+  }
+
+  .section-heading, .section-heading-modern, .day-section-heading,
+  .sleep-section-heading, .food-section-heading, .stats-section-heading,
+  .archive-section-heading, .reading-heading {
+    width:100% !important; max-width:100% !important;
+    display:flex !important; flex-direction:column !important;
+    align-items:flex-start !important; gap:10px !important;
+  }
+  .section-heading > p, .section-heading-modern > p, .day-section-heading > p,
+  .sleep-section-heading > p, .food-section-heading > p, .stats-section-heading > p,
+  .archive-section-heading > p { width:auto !important; max-width:100% !important; text-align:left !important; }
+
+  /* Home */
+  .home-refresh .summary-section { padding:44px 0 54px !important; }
+  .home-refresh .summary-card-grid, .home-refresh .category-grid-modern,
+  .home-refresh .recent-grid, .home-refresh .bento-grid { grid-template-columns:1fr !important; }
+  .home-refresh .summary-card, .home-refresh .bento-card, .home-refresh .category-tile {
+    min-height:0 !important; padding:22px !important;
+  }
+  .home-refresh .modern-chart { width:100% !important; overflow-x:auto !important; }
+
+  /* Giornata */
+  .day-page .day-main { padding-top:36px !important; }
+  .day-page .day-entry-layout, .day-page .day-form-grid,
+  .day-page .day-week-layout { grid-template-columns:1fr !important; }
+  .day-page .activity-duration-row { grid-template-columns:1fr !important; }
+  .day-page .activity-list-item { grid-template-columns:42px minmax(0,1fr) !important; }
+  .day-page .activity-list-duration { grid-column:2 !important; }
+
+  /* Sonno */
+  .sleep-page .sleep-main { padding-top:36px !important; }
+  .sleep-page .sleep-time-row, .sleep-page .sleep-awakening-row,
+  .sleep-page .sleep-nap-fields { grid-template-columns:1fr !important; }
+  .sleep-page .sleep-duration-display { width:100% !important; min-width:0 !important; }
+  .sleep-page .sleep-quality-scale, .sleep-page .energy-scale {
+    width:100% !important; grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  }
+  .sleep-page .sleep-quality-scale button, .sleep-page .energy-scale button {
+    width:100% !important; padding-inline:4px !important; font-size:12px !important;
+  }
+
+  /* Cibo */
+  .food-page .food-main { padding-top:36px !important; }
+  .food-page .meal-grid, .food-page .food-library-grid,
+  .food-page .food-library-tools, .food-page .food-editor-grid { grid-template-columns:1fr !important; }
+  .food-page .meal-card-top { grid-template-columns:42px minmax(0,1fr) !important; }
+  .food-page .meal-card-top > :last-child { grid-column:2 !important; justify-self:start !important; }
+  .food-page .water-main-display { grid-template-columns:1fr !important; text-align:center !important; }
+  .food-page .water-actions { grid-template-columns:1fr 1fr !important; }
+  .food-page .food-library-card { grid-template-columns:46px minmax(0,1fr) !important; }
+  .food-page .food-library-actions { grid-column:1/-1 !important; }
+
+  /* Statistiche: nessun contenuto largo nascosto */
+  .stats-page .stats-main { padding-top:36px !important; }
+  .stats-page .stats-calendar-shell, .stats-page .stats-chart-shell,
+  .stats-page .stats-table-shell { width:100% !important; max-width:100% !important; overflow-x:auto !important; }
+  .stats-page .stats-reading-weekdays, .stats-page .stats-reading-calendar {
+    min-width:0 !important; width:100% !important;
+    grid-template-columns:repeat(7,minmax(0,1fr)) !important; gap:5px !important;
+  }
+  .stats-page .stats-reading-calendar > *, .stats-page .stats-heat-cell {
+    min-width:0 !important; width:auto !important; aspect-ratio:1/1 !important; padding:2px !important;
+    font-size:10px !important;
+  }
+  .stats-page .stats-chart-shell svg { min-width:0 !important; width:100% !important; }
+  .stats-page .stats-comparison-row { min-width:0 !important; width:100% !important; }
+  .stats-page .stats-horizontal-bars > div { grid-template-columns:76px minmax(0,1fr) 42px !important; }
+  .stats-page .stats-habit-card, .stats-page .stats-summary-card { padding:20px !important; }
+
+  /* Archivio */
+  .archive-calendar-grid, .archive-weekdays { min-width:0 !important; width:100% !important; gap:5px !important; }
+  .archive-calendar-grid { grid-template-columns:repeat(7,minmax(0,1fr)) !important; }
+  .archive-day { min-width:0 !important; aspect-ratio:1/1 !important; padding:2px !important; }
+  .archive-list-item { grid-template-columns:1fr !important; }
+
+  /* Lettura */
+  .reading-main { padding-left:16px !important; padding-right:16px !important; }
+  .reading-heading .reading-add-button, .reading-save-button { width:100% !important; }
+  .reading-book-top { grid-template-columns:56px minmax(0,1fr) !important; }
+  .reading-session-row { grid-template-columns:58px minmax(0,1fr) !important; }
+  .reading-session-tag { grid-column:2 !important; width:100% !important; }
+
+  /* Tetr e impostazioni */
+  .tetr-workspace, .tetr-studio-card, .tetr-board-stage, .tetr-side-panel,
+  .settings-layout, .settings-main, .settings-card { width:100% !important; max-width:100% !important; min-width:0 !important; }
+  .tetr-board-stage, .tetr-workspace { grid-template-columns:1fr !important; }
+  .tetr-board-shell { width:min(100%,340px) !important; margin-inline:auto !important; }
+  .settings-page .settings-layout { display:block !important; }
+  .settings-page .settings-sidebar { position:static !important; width:100% !important; overflow-x:auto !important; }
+
+  /* Footer/nav safe spacing */
+  body { padding-bottom:calc(92px + env(safe-area-inset-bottom)) !important; }
+}
+
+@media (max-width: 430px) {
+  .page-shell, .content-wrap, .day-content, .sleep-content, .food-content,
+  .stats-content, .archive-content, .settings-content, .tetr-content,
+  .page-hero > div, .day-hero-inner, .sleep-hero-inner, .food-hero-inner,
+  .stats-hero-inner, .archive-hero-inner, .settings-hero-inner, .tetr-hero-inner {
+    padding-left:14px !important; padding-right:14px !important;
+  }
+  .card, .summary-card, .bento-card, .category-tile, .recent-card,
+  .day-card, .sleep-card, .food-card, .stats-card, .archive-card,
+  .settings-card, .reading-book-card, .reading-session-card, .reading-recent-list,
+  .food-library-section { padding:18px !important; border-radius:20px !important; }
+  .page-hero h1, .day-hero h1, .sleep-hero h1, .food-hero h1,
+  .stats-hero h1, .archive-hero h1, .settings-hero h1, .tetr-hero h1 {
+    font-size:clamp(34px,10vw,44px) !important;
+  }
+}
+
+/* V38.1 — eliminate remaining clipped inner blocks */
+@media (max-width: 820px) {
+  .page-shell, .content-wrap, .day-content, .sleep-content, .food-content,
+  .stats-content, .archive-content, .settings-content, .tetr-content {
+    width:auto !important; max-width:none !important;
+    margin-left:14px !important; margin-right:14px !important;
+    padding-left:0 !important; padding-right:0 !important;
+  }
+  .page-hero > div, .day-hero-inner, .sleep-hero-inner, .food-hero-inner,
+  .stats-hero-inner, .archive-hero-inner, .settings-hero-inner, .tetr-hero-inner {
+    width:auto !important; max-width:none !important;
+    margin-left:14px !important; margin-right:14px !important;
+    padding-left:0 !important; padding-right:0 !important;
+  }
+  .day-page .date-switcher,
+  .sleep-page .sleep-date-switcher,
+  .food-page .food-date-switcher,
+  .tetr-month-switcher,
+  .archive-month-panel {
+    width:100% !important; max-width:100% !important; min-width:0 !important;
+    margin-left:0 !important; margin-right:0 !important;
+  }
+  .day-page .date-switcher,
+  .sleep-page .sleep-date-switcher,
+  .food-page .food-date-switcher,
+  .tetr-month-switcher {
+    grid-template-columns:44px minmax(0,1fr) 44px !important;
+    gap:8px !important; padding:14px !important;
+  }
+  .day-page .date-switcher .today-button,
+  .sleep-page .sleep-today-button,
+  .food-page .food-today-button,
+  .tetr-month-switcher .tetr-today-button {
+    grid-column:1/-1 !important; width:100% !important; justify-self:stretch !important;
+  }
+  .stats-tetr-board-card, .stats-card-heading, .stats-tetr-layout,
+  .archive-month-row, .archive-control-label {
+    width:100% !important; max-width:100% !important; min-width:0 !important;
+  }
+  .stats-tetr-board-card { padding:18px !important; }
+  .archive-month-panel { padding:18px !important; }
+  .settings-page .settings-sidebar { overflow:hidden !important; }
+  .settings-page .settings-tabs {
+    width:100% !important; min-width:0 !important;
+    display:grid !important; grid-template-columns:1fr 1fr !important; gap:8px !important;
+  }
+  .settings-page .settings-tab { width:100% !important; min-width:0 !important; }
+}
+
+/* V38.2 — final narrow-screen containment */
+@media (max-width: 820px) {
+  .home-page .chart-panel, .home-page .chart-panel-header, .home-page .flat-chart,
+  .sleep-page .sleep-chart-card, .sleep-page .sleep-chart-topline, .sleep-page .sleep-bars,
+  .stats-page .stats-tetr-board-card, .stats-page .stats-tetr-board-note,
+  .stats-page .stats-tetr-analysis, .stats-page .stats-tetr-metrics,
+  .stats-page .stats-card-heading {
+    width:100% !important; max-width:100% !important; min-width:0 !important;
+  }
+  .home-page .chart-panel, .sleep-page .sleep-chart-card,
+  .stats-page .stats-tetr-board-card, .stats-page .stats-tetr-analysis {
+    margin-left:0 !important; margin-right:0 !important;
+  }
+  .home-page .chart-key { flex-wrap:wrap !important; justify-content:flex-start !important; }
+  .home-page .flat-chart, .sleep-page .sleep-bars { overflow:hidden !important; }
+
+  .day-page .activity-item, .day-page .activity-card {
+    width:100% !important; max-width:100% !important; min-width:0 !important;
+  }
+  .day-page .activity-item { grid-template-columns:1fr !important; }
+  .day-page .activity-card { grid-column:auto !important; }
+
+  .sleep-page .sleep-time-wrap { width:100% !important; max-width:100% !important; min-width:0 !important; }
+  .sleep-page .sleep-time-wrap input { width:100% !important; min-width:0 !important; }
+
+  .stats-page .stats-tetr-layout, .stats-page .stats-tetr-board-card,
+  .stats-page .stats-tetr-analysis, .stats-page .stats-tetr-metrics {
+    grid-template-columns:1fr !important;
+  }
+  .stats-page .stats-tetr-board-card, .stats-page .stats-tetr-analysis {
+    max-width:calc(100vw - 28px) !important;
+  }
+  .stats-page .stats-tetr-metrics > *, .stats-page .stats-card-heading > * {
+    max-width:100% !important; min-width:0 !important;
+  }
+}

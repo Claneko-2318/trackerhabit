@@ -55,6 +55,7 @@
       version: 2,
       updatedAt: new Date().toISOString(),
       settingsUpdatedAt: '',
+      readingUpdatedAt: '',
       settings: {
         city: 'Roma, Italia',
         weatherUnit: 'celsius',
@@ -226,61 +227,143 @@
       ? `${url}${url.includes('?') ? '&' : '?'}action=${encodeURIComponent(payload.action)}&_=${Date.now()}`
       : url;
     const response = await fetch(requestUrl, isGet
-      ? { method: 'GET', cache: 'no-store' }
-      : { method: 'POST', body: JSON.stringify(payload) });
+      ? { method: 'GET', cache: 'no-store', redirect: 'follow' }
+      : { method: 'POST', body: JSON.stringify(payload), redirect: 'follow' });
     if (!response.ok) throw new Error(`Errore HTTP ${response.status}`);
-    const data = await response.json();
+    let data;
+    try { data = await response.json(); }
+    catch (_) { throw new Error('La Web App non ha restituito JSON. Controlla URL e distribuzione Apps Script.'); }
     if (!data?.ok) throw new Error(data?.error || 'Risposta non valida dalla Web App.');
     return data;
+  }
+
+  function stateSummary(value = state) {
+    const normalized = normalizeState(value);
+    return {
+      days: Object.keys(normalized.days || {}).length,
+      activities: Object.values(normalized.days || {}).reduce((sum, day) => sum + (day.activities?.length || 0), 0),
+      foodItems: normalized.settings?.tracker?.foodLibrary?.length || 0,
+      books: normalized.reading?.books?.length || 0,
+      readingSessions: normalized.reading?.sessions?.length || 0,
+      updatedAt: normalized.updatedAt || ''
+    };
+  }
+
+  function newerItem(first, second, fallbackFirst = 0, fallbackSecond = 0) {
+    if (!first) return clone(second);
+    if (!second) return clone(first);
+    const firstTime = new Date(first.updatedAt || first.modifiedAt || first.finishedAt || first.createdAt || fallbackFirst || 0).getTime();
+    const secondTime = new Date(second.updatedAt || second.modifiedAt || second.finishedAt || second.createdAt || fallbackSecond || 0).getTime();
+    return clone(secondTime > firstTime ? second : first);
+  }
+
+  function mergeById(localItems, remoteItems, localFallback, remoteFallback) {
+    const map = new Map();
+    (localItems || []).forEach((item) => map.set(String(item.id || ''), clone(item)));
+    (remoteItems || []).forEach((item) => {
+      const id = String(item.id || '');
+      if (!id) return;
+      map.set(id, newerItem(map.get(id), item, localFallback, remoteFallback));
+    });
+    return [...map.values()];
+  }
+
+  function mergeFoodLibraries(localItems, remoteItems, localFallback, remoteFallback) {
+    const byKey = new Map();
+    const add = (item, fallback, preferRemote = false) => {
+      const key = String(item?.id || '').trim() || `name:${String(item?.name || '').trim().toLocaleLowerCase('it')}`;
+      if (!key || key === 'name:') return;
+      const current = byKey.get(key);
+      byKey.set(key, current ? newerItem(current, item, preferRemote ? localFallback : fallback, preferRemote ? fallback : remoteFallback) : clone(item));
+    };
+    (localItems || []).forEach((item) => add(item, localFallback));
+    (remoteItems || []).forEach((item) => add(item, remoteFallback, true));
+    return [...byKey.values()];
+  }
+
+  function mergeStates(localState, remoteState) {
+    const local = normalizeState(localState);
+    const remote = normalizeState(remoteState);
+    const localTime = new Date(local.updatedAt || 0).getTime();
+    const remoteTime = new Date(remote.updatedAt || 0).getTime();
+    const merged = normalizeState(localTime >= remoteTime ? local : remote);
+
+    const allDayKeys = new Set([...Object.keys(local.days || {}), ...Object.keys(remote.days || {})]);
+    merged.days = {};
+    allDayKeys.forEach((key) => {
+      const localDay = local.days[key];
+      const remoteDay = remote.days[key];
+      const localDayTime = new Date(localDay?.updatedAt || 0).getTime();
+      const remoteDayTime = new Date(remoteDay?.updatedAt || 0).getTime();
+      merged.days[key] = clone(!localDay ? remoteDay : !remoteDay ? localDay : remoteDayTime > localDayTime ? remoteDay : localDay);
+    });
+
+    const localSettingsTime = new Date(local.settingsUpdatedAt || local.updatedAt || 0).getTime();
+    const remoteSettingsTime = new Date(remote.settingsUpdatedAt || remote.updatedAt || 0).getTime();
+    const chosenSettings = remoteSettingsTime > localSettingsTime ? remote.settings : local.settings;
+    merged.settings = clone(chosenSettings);
+    merged.settings.tracker = merged.settings.tracker || {};
+    merged.settings.tracker.foodLibrary = mergeFoodLibraries(
+      local.settings?.tracker?.foodLibrary,
+      remote.settings?.tracker?.foodLibrary,
+      localSettingsTime,
+      remoteSettingsTime
+    );
+    merged.settingsUpdatedAt = remoteSettingsTime > localSettingsTime
+      ? (remote.settingsUpdatedAt || remote.updatedAt || '')
+      : (local.settingsUpdatedAt || local.updatedAt || '');
+
+    const localReadingTime = new Date(local.readingUpdatedAt || local.updatedAt || 0).getTime();
+    const remoteReadingTime = new Date(remote.readingUpdatedAt || remote.updatedAt || 0).getTime();
+    merged.reading = {
+      books: mergeById(local.reading?.books, remote.reading?.books, localReadingTime, remoteReadingTime),
+      sessions: mergeById(local.reading?.sessions, remote.reading?.sessions, localReadingTime, remoteReadingTime)
+    };
+    merged.readingUpdatedAt = remoteReadingTime > localReadingTime
+      ? (remote.readingUpdatedAt || remote.updatedAt || '')
+      : (local.readingUpdatedAt || local.updatedAt || '');
+    merged.version = Math.max(Number(local.version) || 1, Number(remote.version) || 1, 2);
+    merged.updatedAt = new Date(Math.max(localTime, remoteTime, Date.now())).toISOString();
+    return normalizeState(merged);
   }
 
   function scheduleRemoteSave() {
     if (!getScriptUrl() || syncInProgress) return;
     window.clearTimeout(remoteTimer);
     remoteTimer = window.setTimeout(() => {
-      pushRemote().catch((error) => {
-        console.warn('Salvataggio remoto non riuscito; i dati locali restano al sicuro.', error);
+      syncRemote().catch((error) => {
+        console.warn('Sincronizzazione remota non riuscita; i dati locali restano al sicuro.', error);
         emit({ reason: 'sync-error', error: error.message });
       });
     }, REMOTE_DELAY);
   }
 
   async function ping(url = getScriptUrl()) {
-    const data = await api({ action: 'ping' }, { url });
-    return data;
+    return api({ action: 'ping' }, { url });
   }
 
-  function mergeStates(localState, remoteState) {
-    const local = normalizeState(localState);
-    const remote = normalizeState(remoteState);
-    const merged = normalizeState(local);
-
-    Object.entries(remote.days).forEach(([key, remoteDay]) => {
-      const localDay = merged.days[key];
-      const remoteTime = new Date(remoteDay.updatedAt || 0).getTime();
-      const localTime = new Date(localDay?.updatedAt || 0).getTime();
-      if (!localDay || remoteTime >= localTime) merged.days[key] = clone(remoteDay);
-    });
-
-    const remoteSettingsTime = new Date(remote.settingsUpdatedAt || remote.updatedAt || 0).getTime();
-    const localSettingsTime = new Date(local.settingsUpdatedAt || 0).getTime();
-    if (remoteSettingsTime > localSettingsTime) {
-      merged.settings = clone(remote.settings);
-      merged.settingsUpdatedAt = remote.settingsUpdatedAt || remote.updatedAt || '';
-    }
-    merged.updatedAt = new Date(Math.max(remoteSettingsTime, localSettingsTime, Date.now())).toISOString();
-    return merged;
+  async function verifyConnection(url = getScriptUrl()) {
+    const pingResult = await api({ action: 'ping' }, { url });
+    const writeResult = await api({ action: 'testWrite' }, { url });
+    const readResult = await api({ action: 'getState' }, { url });
+    return {
+      ping: pingResult,
+      write: writeResult,
+      remoteEmpty: !readResult.state,
+      remoteSummary: readResult.state ? stateSummary(readResult.state) : null
+    };
   }
 
-  async function pullRemote({ merge = true } = {}) {
+  async function pullRemote({ merge = false } = {}) {
     if (!getScriptUrl()) throw new Error('URL non configurato.');
     syncInProgress = true;
     try {
       const data = await api({ action: 'getState' });
-      if (data.state) state = merge ? mergeStates(state, data.state) : normalizeState(data.state);
+      if (!data.state) return { empty: true, state: clone(state), summary: null };
+      state = merge ? mergeStates(state, data.state) : normalizeState(data.state);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       emit({ reason: 'remote-pull', state: clone(state) });
-      return clone(state);
+      return { empty: false, state: clone(state), summary: stateSummary(state) };
     } finally {
       syncInProgress = false;
     }
@@ -292,7 +375,22 @@
     try {
       const result = await api({ action: 'saveState', state });
       emit({ reason: 'remote-push', savedAt: result.savedAt || new Date().toISOString() });
-      return result;
+      return { ...result, summary: stateSummary(state) };
+    } finally {
+      syncInProgress = false;
+    }
+  }
+
+  async function syncRemote() {
+    if (!getScriptUrl()) throw new Error('URL non configurato.');
+    syncInProgress = true;
+    try {
+      const result = await api({ action: 'mergeState', state });
+      if (!result.state) throw new Error('La Web App non ha restituito lo stato sincronizzato.');
+      state = normalizeState(result.state);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      emit({ reason: 'remote-sync', state: clone(state), savedAt: result.savedAt || '' });
+      return { ...result, state: clone(state), summary: stateSummary(state) };
     } finally {
       syncInProgress = false;
     }
@@ -304,6 +402,7 @@
 
   function replaceState(nextState, reason = 'replace') {
     state = normalizeState(nextState);
+    if (reason === 'reading-update') state.readingUpdatedAt = new Date().toISOString();
     writeLocal(reason);
   }
 
@@ -421,7 +520,11 @@
     getScriptUrl,
     setScriptUrl,
     ping,
+    verifyConnection,
+    stateSummary,
+    mergeStates,
     pullRemote,
-    pushRemote
+    pushRemote,
+    syncRemote
   };
 })();

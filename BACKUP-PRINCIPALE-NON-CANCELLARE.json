@@ -1,0 +1,762 @@
+{
+  "version": 1,
+  "updatedAt": "2026-07-31T10:52:11.553Z",
+  "settingsUpdatedAt": "2026-07-31T10:18:17.734Z",
+  "settings": {
+    "city": "Roma, Italia",
+    "weatherUnit": "celsius",
+    "weatherRefresh": "60",
+    "clockFormat": "24",
+    "weekStart": "monday",
+    "dateFormat": "long-weekday",
+    "bottleMl": 750,
+    "glassMl": 220,
+    "waterDivision": "quarters",
+    "showWaterEquivalence": true,
+    "home": {
+      "weather": true,
+      "summary": true,
+      "reminders": true,
+      "sections": true,
+      "trends": true,
+      "recentDays": true,
+      "tetrToday": true,
+      "tetrWeek": true,
+      "tetrReminder": true
+    },
+    "appearance": {
+      "autoScenes": true,
+      "scene": "afternoon",
+      "gradient": 62,
+      "textMode": "normal",
+      "decorations": "full",
+      "tetrGridBackground": "rose",
+      "tetrGridLines": 1,
+      "tetrBorders": true,
+      "tetrHover": true
+    },
+    "tracker": {
+      "sleep": {
+        "awakenings": true,
+        "energy": true,
+        "riseDelay": true
+      },
+      "tetr": {
+        "ghost": true,
+        "keyboard": true,
+        "confirm": true,
+        "note": true,
+        "highlightToday": true
+      },
+      "categories": [
+        {
+          "id": "work",
+          "name": "Lavoro",
+          "color": "violet",
+          "icon": "◷",
+          "visible": true
+        },
+        {
+          "id": "creative",
+          "name": "Creatività",
+          "color": "rose",
+          "icon": "✦",
+          "visible": true
+        },
+        {
+          "id": "home",
+          "name": "Casa",
+          "color": "violet",
+          "icon": "⌂",
+          "visible": true
+        },
+        {
+          "id": "errands",
+          "name": "Commissioni",
+          "color": "sky",
+          "icon": "⌖",
+          "visible": true
+        },
+        {
+          "id": "leisure",
+          "name": "Svago",
+          "color": "lilac",
+          "icon": "☾",
+          "visible": true
+        },
+        {
+          "id": "personal",
+          "name": "Cura personale",
+          "color": "periwinkle",
+          "icon": "♡",
+          "visible": true
+        },
+        {
+          "id": "other",
+          "name": "Altro",
+          "color": "neutral",
+          "icon": "•",
+          "visible": true
+        }
+      ],
+      "showWorkInStats": true,
+      "food": {
+        "breakfast": true,
+        "lunch": true,
+        "dinner": true,
+        "snacks": true
+      },
+      "foodLibrary": []
+    }
+  },
+  "reading": {
+    "books": [],
+    "sessions": []
+  },
+  "days": {
+    "2026-07-26": {
+      "date": "2026-07-26",
+      "updatedAt": "2026-07-27T14:53:33.766Z",
+      "sleep": {
+        "bedtime": "00:45",
+        "asleep": "",
+        "wake": "08:00",
+        "up": "09:20",
+        "quality": null,
+        "note": "",
+        "awakenings": [],
+        "duration": 435,
+        "bedDuration": 515,
+        "riseDelay": 80,
+        "awakeningMinutes": 0
+      },
+      "meals": {
+        "breakfast": "Kinder Pane Ciock",
+        "lunch": "Panino con prosciutto e mozzarella",
+        "dinner": "Pizza"
+      },
+      "mealItems": {},
+      "water": [
+        {
+          "id": "water-1785137784679-4gqdze",
+          "quarters": 4,
+          "createdAt": "2026-07-27T07:36:24.679Z"
+        }
+      ],
+      "beverages": [],
+      "activities": [
+        {
+          "id": "activity-1785163823265-8j3dmu",
+          "title": "Habi-Tracker ChatGpt",
+          "category": "Svago",
+          "time": "",
+          "duration": 0,
+          "note": "Creazione intero template grafico di un tracker per la salute"
+        },
+        {
+          "id": "activity-1785163940348-4pwbwl",
+          "title": "Artfight RainStars",
+          "category": "Editing video",
+          "time": "",
+          "duration": 35,
+          "note": "Rec+edit video \"Sbloccarsi con l'Artfight\""
+        },
+        {
+          "id": "activity-1785163966255-ix3te0",
+          "title": "Artfight Lin_Art",
+          "category": "Editing video",
+          "time": "",
+          "duration": 35,
+          "note": "Rec+edit video \"Sbloccarsi con l'Artfight\""
+        },
+        {
+          "id": "activity-1785164000933-7pdlop",
+          "title": "Artfight Jasart",
+          "category": "Illustrazione",
+          "time": "",
+          "duration": 60,
+          "note": "Illustrazione"
+        },
+        {
+          "id": "activity-1785164013766-6ho09b",
+          "title": "Heartopia",
+          "category": "Svago",
+          "time": "",
+          "duration": 20,
+          "note": "Giornaliere"
+        }
+      ],
+      "dailyNote": "",
+      "tetr": null
+    },
+    "2026-07-27": {
+      "date": "2026-07-27",
+      "updatedAt": "2026-07-29T13:57:23.736Z",
+      "sleep": {
+        "bedtime": "00:45",
+        "asleep": "",
+        "wake": "08:00",
+        "up": "09:20",
+        "quality": 4,
+        "note": "Mi sono svegliata molto intontita. Penso di essermi anche svegliata di notte.",
+        "awakenings": [],
+        "duration": 435,
+        "bedDuration": 515,
+        "riseDelay": 80,
+        "awakeningMinutes": 0
+      },
+      "meals": {
+        "breakfast": "",
+        "lunch": "vongole surgelate bianche + cola",
+        "snacks": "",
+        "dinner": ""
+      },
+      "mealItems": {
+        "breakfast": [
+          "food-1785333158727-0rwn6r"
+        ],
+        "lunch": [
+          "food-1785333354927-4h8er1"
+        ],
+        "dinner": [
+          "food-1785333407999-l2oa8x",
+          "food-1785333438035-0swle0"
+        ]
+      },
+      "water": [
+        {
+          "id": "water-1785190477802-nof889",
+          "quarters": 3,
+          "createdAt": "2026-07-27T22:14:37.802Z"
+        }
+      ],
+      "beverages": [
+        {
+          "id": "beverage-1785190463668-cntsmx",
+          "name": "Estathè",
+          "glasses": 1,
+          "mlPerGlass": 220,
+          "createdAt": "2026-07-27T22:14:23.668Z"
+        }
+      ],
+      "activities": [
+        {
+          "id": "activity-1785164066235-pj8oox",
+          "title": "Pulizia stanza",
+          "category": "Altro",
+          "time": "",
+          "duration": 0,
+          "note": "Spazzatura e swiffer in camera mia"
+        },
+        {
+          "id": "activity-1785164104521-s2hk4i",
+          "title": "Chiamata Orii",
+          "category": "Svago",
+          "time": "10:35",
+          "duration": 120,
+          "note": "Chiamata per commissionare il design per il modello co-working irl"
+        },
+        {
+          "id": "activity-1785164112322-60jmzx",
+          "title": "Doccia",
+          "category": "Altro",
+          "time": "",
+          "duration": 15,
+          "note": ""
+        },
+        {
+          "id": "activity-1785166122526-jtxc4e",
+          "title": "Dentista",
+          "category": "Impegni",
+          "time": "18:20",
+          "duration": 0,
+          "note": ""
+        }
+      ],
+      "dailyNote": "Avrei preferito far qualcosa di più produttivo. Sarei dovuta andare avanti con l'artfight e col montaggio, ma non ho fatto nè uno nè l'altro. Spero di rifarmi domani.",
+      "tetr": {
+        "emotionKey": "unproductive",
+        "piece": "S",
+        "color": "#E3A2A8",
+        "colorName": "Rosa polvere",
+        "shape": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "x": 0,
+        "y": 18,
+        "cells": [
+          [
+            18,
+            1
+          ],
+          [
+            18,
+            2
+          ],
+          [
+            19,
+            0
+          ],
+          [
+            19,
+            1
+          ]
+        ],
+        "note": "Potevo gestirmela meglio",
+        "createdAt": "2026-07-27T15:11:13.462Z"
+      }
+    },
+    "2026-07-28": {
+      "date": "2026-07-28",
+      "updatedAt": "2026-07-29T14:22:38.435Z",
+      "sleep": {
+        "bedtime": "01:00",
+        "wake": "08:09",
+        "up": "08:50",
+        "energy": 3,
+        "note": "",
+        "awakenings": [],
+        "duration": 429,
+        "bedDuration": 470,
+        "riseDelay": 41
+      },
+      "meals": {
+        "breakfast": "",
+        "dinner": "",
+        "lunch": ""
+      },
+      "mealItems": {
+        "breakfast": [
+          "food-1785333158727-0rwn6r"
+        ],
+        "lunch": [
+          "food-1785333189863-szevkt",
+          "food-1785334948207-c52vt2"
+        ],
+        "dinner": [
+          "food-1785333260373-2018yn",
+          "food-1785333275153-bl4xxa"
+        ]
+      },
+      "water": [
+        {
+          "id": "water-1785277331727-33dz84",
+          "quarters": 1,
+          "createdAt": "2026-07-28T22:22:11.727Z"
+        }
+      ],
+      "beverages": [
+        {
+          "id": "beverage-1785277325856-oof36m",
+          "name": "Estathè",
+          "glasses": 1,
+          "mlPerGlass": 220,
+          "createdAt": "2026-07-28T22:22:05.856Z"
+        }
+      ],
+      "activities": [
+        {
+          "id": "activity-1785190580172-aiudic",
+          "title": "Psicologa",
+          "category": "Impegni",
+          "time": "11:00",
+          "duration": 60,
+          "note": "Autobus preso alle 10.07"
+        },
+        {
+          "id": "activity-1785254704944-9fw9x6",
+          "title": "Heartopia",
+          "category": "Svago",
+          "time": "",
+          "duration": 60,
+          "note": "Giornaliere e chill"
+        },
+        {
+          "id": "activity-1785277301603-an02wu",
+          "title": "Arte modello 2D",
+          "category": "Progetti personali",
+          "time": "",
+          "duration": 240,
+          "note": "Cominciato l'arte per il modello 2D da utilizzare da settembre. \nFatto tutto il corpo nudo, testa, capelli (tranne la bocca interna) e alcuni vestiti."
+        }
+      ],
+      "dailyNote": "Potevo decisamente fare di più. Ho cominciato a mettermi sotto intorno alle 19.00.\nDiciamo che la psicologa ha abbastanza (inconsciamente) influito sul mio stato d'animo. Spero che domani la giornata possa essere un po' più produttiva. Sarebbe top riuscire a fare un disegno dell'artfight e registrare i due reel. Poi i disegni rimanenti li faccio in campeggio.",
+      "tetr": {
+        "emotionKey": "calm",
+        "piece": "O",
+        "color": "#D7A2D0",
+        "colorName": "Rosa-lilla",
+        "shape": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "x": 8,
+        "y": 18,
+        "cells": [
+          [
+            18,
+            8
+          ],
+          [
+            18,
+            9
+          ],
+          [
+            19,
+            8
+          ],
+          [
+            19,
+            9
+          ]
+        ],
+        "note": "Dalla mattina fino alle 18.00 circa non ho fatto nulla (tranne Heartopia un'oretta), ma poi mi sono buttata per non so quanto tempo sull'arte del modello 2D. Ho finito tutto il corpo (manca la bocca interna) e sono a metà vestiti.",
+        "createdAt": "2026-07-28T22:19:42.703Z"
+      }
+    },
+    "2026-07-29": {
+      "date": "2026-07-29",
+      "updatedAt": "2026-07-29T23:34:07.767Z",
+      "sleep": {
+        "bedtime": "01:00",
+        "wake": "08:00",
+        "up": "09:30",
+        "energy": null,
+        "note": "",
+        "awakenings": [],
+        "duration": 420,
+        "bedDuration": 510,
+        "riseDelay": 90,
+        "nap": {
+          "start": "14:15",
+          "end": "15:40",
+          "duration": 85
+        }
+      },
+      "meals": {},
+      "mealItems": {
+        "breakfast": [
+          "food-1785333158727-0rwn6r"
+        ],
+        "lunch": [
+          "food-1785333330164-6hhhkp"
+        ],
+        "dinner": [
+          "food-1785367900009-6s37kq",
+          "food-1785333275153-bl4xxa"
+        ]
+      },
+      "water": [
+        {
+          "id": "water-1785367912962-d0tpuc",
+          "quarters": 3,
+          "createdAt": "2026-07-29T23:31:52.962Z"
+        }
+      ],
+      "beverages": [
+        {
+          "id": "beverage-1785333455219-l07jsw",
+          "name": "Estathè",
+          "glasses": 1,
+          "mlPerGlass": 220,
+          "createdAt": "2026-07-29T13:57:35.219Z"
+        }
+      ],
+      "activities": [
+        {
+          "id": "activity-1785318494368-ahcwmh",
+          "title": "Pulizia casa",
+          "category": "Altro",
+          "time": "",
+          "duration": 0,
+          "note": "Passato lo swiffer nelle varie stanze + spazzatura"
+        },
+        {
+          "id": "activity-1785318523069-3w8ijk",
+          "title": "Heartopia",
+          "category": "Svago",
+          "time": "",
+          "duration": 40,
+          "note": "Daily + evento di pesca"
+        },
+        {
+          "id": "activity-1785322234200-bn4r5p",
+          "title": "Artfight Jasart",
+          "category": "Editing video",
+          "time": "",
+          "duration": 45,
+          "note": "Scrittura script + rec + edit reel"
+        },
+        {
+          "id": "activity-1785350821053-4gg2ow",
+          "title": "Modello 2D",
+          "category": "Progetti personali",
+          "time": "",
+          "duration": 150,
+          "note": "Termine disegno del modello 2D. Pronto da riggare"
+        },
+        {
+          "id": "activity-1785367849228-2dngxg",
+          "title": "Emotelab Claneko",
+          "category": "Illustrazione",
+          "time": "21:30",
+          "duration": 255,
+          "note": "Personalizzazione emotelab nuova Claneko"
+        }
+      ],
+      "dailyNote": "",
+      "tetr": {
+        "emotionKey": "productive",
+        "piece": "I",
+        "color": "#9A92DF",
+        "colorName": "Pervinca",
+        "shape": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            3
+          ]
+        ],
+        "x": 0,
+        "y": 15,
+        "cells": [
+          [
+            15,
+            0
+          ],
+          [
+            16,
+            0
+          ],
+          [
+            17,
+            0
+          ],
+          [
+            18,
+            0
+          ]
+        ],
+        "note": "Ho fatto un sacco di cose oggi. Avrei preferito riuscire a fare anche un disegno dell'artfight. Avendo finito il modello oggi, domani penso a artfight e commissioni",
+        "createdAt": "2026-07-29T23:34:07.767Z"
+      }
+    },
+    "2026-07-30": {
+      "date": "2026-07-30",
+      "updatedAt": "2026-07-30T21:09:43.613Z",
+      "sleep": {
+        "bedtime": "01:40",
+        "wake": "08:30",
+        "up": "09:40",
+        "energy": 3,
+        "note": "",
+        "awakenings": [
+          {
+            "time": "06:00"
+          }
+        ],
+        "duration": 410,
+        "bedDuration": 480,
+        "riseDelay": 70,
+        "nap": null
+      },
+      "meals": {},
+      "mealItems": {
+        "breakfast": [
+          "food-1785445593845-331dst"
+        ],
+        "lunch": [
+          "food-1785445624511-de7ky0"
+        ],
+        "dinner": [
+          "food-1785445643609-z5sdwb",
+          "food-1785334948207-c52vt2"
+        ]
+      },
+      "water": [
+        {
+          "id": "water-1785445604753-4jc2y8",
+          "quarters": 1,
+          "createdAt": "2026-07-30T21:06:44.753Z"
+        }
+      ],
+      "beverages": [
+        {
+          "id": "beverage-1785445658611-zwcq7c",
+          "name": "Estathè",
+          "glasses": 1,
+          "mlPerGlass": 220,
+          "createdAt": "2026-07-30T21:07:38.611Z"
+        }
+      ],
+      "activities": [
+        {
+          "id": "activity-1785401335428-6pwb46",
+          "title": "Personalizzazione modello 2Wintails",
+          "category": "Svago",
+          "time": "",
+          "duration": 0,
+          "note": "Personalizzazione modello passato sottobanco da Foxy"
+        },
+        {
+          "id": "activity-1785404178813-qzu0bf",
+          "title": "Heartopia",
+          "category": "Svago",
+          "time": "",
+          "duration": 15,
+          "note": "Daily"
+        },
+        {
+          "id": "activity-1785413742341-qfcpyy",
+          "title": "Modello 2D",
+          "category": "Progetti personali",
+          "time": "",
+          "duration": 100,
+          "note": "Rinominazione livelli su clipstudio"
+        },
+        {
+          "id": "activity-1785421327078-7qhk5z",
+          "title": "Modello 2D",
+          "category": "Progetti personali",
+          "time": "",
+          "duration": 50,
+          "note": "Rig mio modello 2D (sperimentazioni)"
+        },
+        {
+          "id": "activity-1785430780100-41kwlv",
+          "title": "Artfight Bakachan7_art",
+          "category": "Illustrazione",
+          "time": "",
+          "duration": 75,
+          "note": ""
+        },
+        {
+          "id": "activity-1785430817828-jjje81",
+          "title": "Aggiornamento sito working-tracker",
+          "category": "Svago",
+          "time": "",
+          "duration": 0,
+          "note": "Nuova grafica e aggiunte al sito per il tracker del lavoro"
+        },
+        {
+          "id": "activity-1785441739216-jnnumo",
+          "title": "Artfight Perinart",
+          "category": "Illustrazione",
+          "time": "",
+          "duration": 100,
+          "note": "Illustrazione artfight"
+        }
+      ],
+      "dailyNote": "",
+      "tetr": {
+        "emotionKey": "productive",
+        "piece": "I",
+        "color": "#9A92DF",
+        "colorName": "Pervinca",
+        "shape": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            3
+          ]
+        ],
+        "x": 9,
+        "y": 14,
+        "cells": [
+          [
+            14,
+            9
+          ],
+          [
+            15,
+            9
+          ],
+          [
+            16,
+            9
+          ],
+          [
+            17,
+            9
+          ]
+        ],
+        "note": "",
+        "createdAt": "2026-07-30T21:09:43.613Z"
+      }
+    },
+    "2026-07-31": {
+      "date": "2026-07-31",
+      "updatedAt": "2026-07-31T08:13:08.178Z",
+      "sleep": {
+        "bedtime": "00:20",
+        "wake": "08:30",
+        "up": "10:00",
+        "energy": null,
+        "note": "",
+        "awakenings": [],
+        "duration": 490,
+        "bedDuration": 580,
+        "riseDelay": 90,
+        "nap": null
+      },
+      "meals": {},
+      "mealItems": {},
+      "water": [],
+      "beverages": [],
+      "activities": [],
+      "dailyNote": "",
+      "tetr": null
+    }
+  }
+}

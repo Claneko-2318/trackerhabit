@@ -2365,22 +2365,50 @@ window.addEventListener('tracker:data-changed', (event) => {
   });
 
 
+  const summaryText = (summary) => summary
+    ? `${summary.days} giorni, ${summary.activities} attività, ${summary.foodItems} cibi, ${summary.books} libri e ${summary.readingSessions} sessioni di lettura`
+    : 'nessun dato';
+
   page.querySelector('[data-connect-sheet]')?.addEventListener('click', async () => {
     const url = connectionUrl.value.trim();
     if (!url) { updateConnectionStatus('Incolla prima l’URL della Web App.', 'error'); return; }
-    updateConnectionStatus('Verifica in corso…', 'wait');
-    try { await Store.ping(url); Store.setScriptUrl(url); updateConnectionStatus('Collegamento riuscito. I salvataggi verranno sincronizzati.', 'ok'); }
-    catch (error) { updateConnectionStatus(`Collegamento non riuscito: ${error.message}`, 'error'); }
+    updateConnectionStatus('Verifica reale di lettura e scrittura…', 'wait');
+    try {
+      const result = await Store.verifyConnection(url);
+      Store.setScriptUrl(url);
+      updateConnectionStatus(result.remoteEmpty
+        ? 'Collegamento riuscito: lettura e scrittura funzionano. Il foglio non contiene ancora dati.'
+        : `Collegamento riuscito: lettura e scrittura funzionano. Nel foglio: ${summaryText(result.remoteSummary)}.`, 'ok');
+    } catch (error) { updateConnectionStatus(`Collegamento non riuscito: ${error.message}`, 'error'); }
   });
+
   page.querySelector('[data-pull-sheet]')?.addEventListener('click', async () => {
-    updateConnectionStatus('Caricamento dal foglio…', 'wait');
-    try { await Store.pullRemote({ merge: true }); loadSettings(); updateConnectionStatus('Dati del foglio caricati e uniti a quelli locali.', 'ok'); }
-    catch (error) { updateConnectionStatus(`Caricamento non riuscito: ${error.message}`, 'error'); }
+    if (!confirm('Sostituire i dati di questo dispositivo con quelli presenti nel foglio? Esporta prima un backup se hai modifiche locali da conservare.')) return;
+    updateConnectionStatus('Caricamento completo dal foglio…', 'wait');
+    try {
+      const result = await Store.pullRemote({ merge: false });
+      if (result.empty) { updateConnectionStatus('Il foglio è vuoto: nessun dato locale è stato modificato.', 'error'); return; }
+      loadSettings();
+      updateConnectionStatus(`Dati locali sostituiti correttamente: ${summaryText(result.summary)}.`, 'ok');
+    } catch (error) { updateConnectionStatus(`Caricamento non riuscito: ${error.message}`, 'error'); }
   });
+
   page.querySelector('[data-push-sheet]')?.addEventListener('click', async () => {
-    updateConnectionStatus('Invio dei dati locali…', 'wait');
-    try { await Store.pushRemote(); updateConnectionStatus('Dati locali inviati a Google Sheets.', 'ok'); }
-    catch (error) { updateConnectionStatus(`Invio non riuscito: ${error.message}`, 'error'); }
+    if (!confirm('Sostituire completamente i dati del foglio con quelli di questo dispositivo? Questa operazione va eseguita dal dispositivo che contiene il backup principale.')) return;
+    updateConnectionStatus('Sostituzione dei dati nel foglio…', 'wait');
+    try {
+      const result = await Store.pushRemote();
+      updateConnectionStatus(`Foglio aggiornato correttamente: ${summaryText(result.summary)}.`, 'ok');
+    } catch (error) { updateConnectionStatus(`Invio non riuscito: ${error.message}`, 'error'); }
+  });
+
+  page.querySelector('[data-merge-sheet]')?.addEventListener('click', async () => {
+    updateConnectionStatus('Unione sicura dei dati locali e remoti…', 'wait');
+    try {
+      const result = await Store.syncRemote();
+      loadSettings();
+      updateConnectionStatus(`Dati uniti e salvati su entrambi: ${summaryText(result.summary)}.`, 'ok');
+    } catch (error) { updateConnectionStatus(`Unione non riuscita: ${error.message}`, 'error'); }
   });
   page.querySelector('[data-disconnect-sheet]')?.addEventListener('click', () => { Store.setScriptUrl(''); connectionUrl.value = ''; updateConnectionStatus('Collegamento rimosso. I dati locali restano disponibili.', 'off'); });
 
@@ -2417,7 +2445,7 @@ window.addEventListener('tracker:data-changed', (event) => {
   }));
   importInput?.addEventListener('change', async () => {
     const file = importInput.files?.[0]; if (!file) return;
-    try { Store.importJson(await file.text()); dataFeedback.textContent = 'Backup importato correttamente.'; loadSettings(); }
+    try { const imported = Store.importJson(await file.text()); const summary = Store.stateSummary(imported); dataFeedback.textContent = `Backup importato: ${summary.days} giorni, ${summary.activities} attività, ${summary.foodItems} cibi, ${summary.books} libri e ${summary.readingSessions} sessioni di lettura.`; loadSettings(); }
     catch (error) { dataFeedback.textContent = `File non valido: ${error.message}`; }
     importInput.value = '';
   });
@@ -2426,10 +2454,11 @@ window.addEventListener('tracker:data-changed', (event) => {
   loadSettings();
 })();
 
-// Se è già configurato un foglio, prova a unire i dati remoti senza bloccare l'apertura del sito.
+// Se è già configurato un foglio, esegue una sincronizzazione atomica completa senza bloccare l’apertura.
 if (Store?.getScriptUrl()) {
-  Store.pullRemote({ merge: true }).catch((error) => console.warn('Sincronizzazione iniziale non riuscita. I dati locali restano disponibili.', error));
+  Store.syncRemote().catch((error) => console.warn('Sincronizzazione iniziale non riuscita. I dati locali restano disponibili.', error));
 }
+
 
 // V24 — esportazione del riepilogo, CSV e grafici PNG per Notion.
 (() => {
