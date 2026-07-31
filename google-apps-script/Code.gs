@@ -104,6 +104,28 @@ function mergeArrayById_(a, b, fallbackA, fallbackB) {
   (b || []).forEach(item => { if (item && item.id) map[String(item.id)] = newer_(map[String(item.id)], item, fallbackA, fallbackB); });
   return Object.keys(map).map(key => map[key]);
 }
+
+function mergeDeletionMarkers_(a, b) {
+  const map = {};
+  (a || []).concat(b || []).forEach(item => {
+    if (!item || !item.id || !item.deletedAt) return;
+    const id = String(item.id);
+    if (!map[id] || time_(item.deletedAt) > time_(map[id].deletedAt)) {
+      map[id] = { id: id, deletedAt: String(item.deletedAt) };
+    }
+  });
+  return Object.keys(map).map(key => map[key]);
+}
+function applyDeletionMarkers_(items, markers) {
+  const deleted = {};
+  (markers || []).forEach(item => { if (item && item.id) deleted[String(item.id)] = time_(item.deletedAt); });
+  return (items || []).filter(item => {
+    const deletedAt = deleted[String(item && item.id || '')] || 0;
+    if (!deletedAt) return true;
+    const itemTime = time_(item.updatedAt || item.modifiedAt || item.finishedAt || item.createdAt);
+    return itemTime > deletedAt;
+  });
+}
 function mergeFood_(a, b, fallbackA, fallbackB) {
   const map = {};
   const add = (item, fallback, remote) => {
@@ -138,9 +160,26 @@ function mergeStates_(local, remote) {
   );
   merged.settingsUpdatedAt = rst > lst ? (remote.settingsUpdatedAt || remote.updatedAt || '') : (local.settingsUpdatedAt || local.updatedAt || '');
   const lrt = time_(local.readingUpdatedAt || local.updatedAt), rrt = time_(remote.readingUpdatedAt || remote.updatedAt);
+  const deletedBooks = mergeDeletionMarkers_(
+    local.reading && local.reading.deletedBooks,
+    remote.reading && remote.reading.deletedBooks
+  );
+  const deletedSessions = mergeDeletionMarkers_(
+    local.reading && local.reading.deletedSessions,
+    remote.reading && remote.reading.deletedSessions
+  );
+  const mergedBooks = mergeArrayById_(local.reading && local.reading.books, remote.reading && remote.reading.books, lrt, rrt);
+  const visibleBooks = applyDeletionMarkers_(mergedBooks, deletedBooks);
+  const visibleBookIds = {};
+  visibleBooks.forEach(book => visibleBookIds[String(book.id)] = true);
   merged.reading = {
-    books: mergeArrayById_(local.reading && local.reading.books, remote.reading && remote.reading.books, lrt, rrt),
-    sessions: mergeArrayById_(local.reading && local.reading.sessions, remote.reading && remote.reading.sessions, lrt, rrt)
+    books: visibleBooks,
+    sessions: applyDeletionMarkers_(
+      mergeArrayById_(local.reading && local.reading.sessions, remote.reading && remote.reading.sessions, lrt, rrt),
+      deletedSessions
+    ).filter(session => visibleBookIds[String(session.bookId)]),
+    deletedBooks: deletedBooks,
+    deletedSessions: deletedSessions
   };
   merged.readingUpdatedAt = rrt > lrt ? (remote.readingUpdatedAt || remote.updatedAt || '') : (local.readingUpdatedAt || local.updatedAt || '');
   merged.version = Math.max(Number(local.version)||1, Number(remote.version)||1, 2);

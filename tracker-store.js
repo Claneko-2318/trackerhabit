@@ -6,6 +6,10 @@
   const REMOTE_DELAY = 900;
   let remoteTimer = null;
   let syncInProgress = false;
+  let remoteReady = false;
+  let remoteBootstrapPromise = null;
+  let pendingRemoteSave = false;
+  let lastRemoteRefresh = 0;
 
   const clone = (value) => JSON.parse(JSON.stringify(value));
 
@@ -229,7 +233,13 @@
     const value = String(url || '').trim();
     if (value) localStorage.setItem(SCRIPT_URL_KEY, value);
     else localStorage.removeItem(SCRIPT_URL_KEY);
+    remoteReady = !value;
+    remoteBootstrapPromise = null;
     emit({ reason: 'connection', connected: Boolean(value) });
+    if (value) bootstrapRemoteSync({ force: true }).catch((error) => {
+      console.warn('Prima sincronizzazione non riuscita.', error);
+      emit({ reason: 'sync-error', error: error.message });
+    });
     return value;
   }
 
@@ -296,13 +306,16 @@
     return [...map.values()];
   }
 
-  function applyDeletionMarkers(items, markers, fallbackTime = 0) {
+  function applyDeletionMarkers(items, markers) {
     const deleted = new Map((markers || []).map((item) => [String(item.id), new Date(item.deletedAt || 0).getTime()]));
     return (items || []).filter((item) => {
       const deletedAt = deleted.get(String(item.id || '')) || 0;
       if (!deletedAt) return true;
-      const itemTime = new Date(item.updatedAt || item.modifiedAt || item.finishedAt || item.createdAt || fallbackTime || 0).getTime();
-      return itemTime > deletedAt;
+      // Una vecchia copia può annullare un'eliminazione solo se l'elemento è stato
+      // modificato esplicitamente DOPO la cancellazione. Le date globali dello stato
+      // non devono mai far "resuscitare" un elemento privo di timestamp proprio.
+      const itemTime = new Date(item.updatedAt || item.modifiedAt || item.finishedAt || item.createdAt || 0).getTime();
+      return Number.isFinite(itemTime) && itemTime > deletedAt;
     });
   }
 
@@ -357,11 +370,11 @@
     const deletedSessions = mergeDeletionMarkers(local.reading?.deletedSessions, remote.reading?.deletedSessions);
     const mergedBooks = mergeById(local.reading?.books, remote.reading?.books, localReadingTime, remoteReadingTime);
     const mergedSessions = mergeById(local.reading?.sessions, remote.reading?.sessions, localReadingTime, remoteReadingTime);
-    const visibleBooks = applyDeletionMarkers(mergedBooks, deletedBooks, Math.max(localReadingTime, remoteReadingTime));
+    const visibleBooks = applyDeletionMarkers(mergedBooks, deletedBooks);
     const visibleBookIds = new Set(visibleBooks.map((book) => String(book.id)));
     merged.reading = {
       books: visibleBooks,
-      sessions: applyDeletionMarkers(mergedSessions, deletedSessions, Math.max(localReadingTime, remoteReadingTime))
+      sessions: applyDeletionMarkers(mergedSessions, deletedSessions)
         .filter((session) => visibleBookIds.has(String(session.bookId))),
       deletedBooks,
       deletedSessions
@@ -375,7 +388,11 @@
   }
 
   function scheduleRemoteSave() {
-    if (!getScriptUrl() || syncInProgress) return;
+    if (!getScriptUrl()) return;
+    if (!remoteReady || syncInProgress) {
+      pendingRemoteSave = true;
+      return;
+    }
     window.clearTimeout(remoteTimer);
     remoteTimer = window.setTimeout(() => {
       syncRemote().catch((error) => {
@@ -430,17 +447,53 @@
 
   async function syncRemote() {
     if (!getScriptUrl()) throw new Error('URL non configurato.');
+    if (syncInProgress) return remoteBootstrapPromise || { state: clone(state), summary: stateSummary(state) };
     syncInProgress = true;
     try {
       const result = await api({ action: 'mergeState', state });
       if (!result.state) throw new Error('La Web App non ha restituito lo stato sincronizzato.');
       state = normalizeState(result.state);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      lastRemoteRefresh = Date.now();
       emit({ reason: 'remote-sync', state: clone(state), savedAt: result.savedAt || '' });
       return { ...result, state: clone(state), summary: stateSummary(state) };
     } finally {
       syncInProgress = false;
     }
+  }
+
+  async function bootstrapRemoteSync({ force = false } = {}) {
+    if (!getScriptUrl()) {
+      remoteReady = true;
+      return { skipped: true };
+    }
+    if (!force && remoteBootstrapPromise) return remoteBootstrapPromise;
+    remoteBootstrapPromise = (async () => {
+      try {
+        const result = await syncRemote();
+        remoteReady = true;
+        if (pendingRemoteSave) {
+          pendingRemoteSave = false;
+          scheduleRemoteSave();
+        }
+        return result;
+      } catch (error) {
+        remoteReady = true;
+        throw error;
+      } finally {
+        remoteBootstrapPromise = null;
+      }
+    })();
+    return remoteBootstrapPromise;
+  }
+
+  function refreshRemoteWhenReturning() {
+    if (!getScriptUrl() || document.visibilityState === 'hidden') return;
+    if (Date.now() - lastRemoteRefresh < 4000) return;
+    bootstrapRemoteSync({ force: true }).catch((error) => {
+      console.warn('Aggiornamento remoto non riuscito.', error);
+      emit({ reason: 'sync-error', error: error.message });
+    });
   }
 
   function getState() {
@@ -572,6 +625,18 @@
     mergeStates,
     pullRemote,
     pushRemote,
-    syncRemote
+    syncRemote,
+    bootstrapRemoteSync
   };
+
+  // All'apertura della pagina recupera e unisce i dati remoti prima che
+  // eventuali modifiche locali vengano inviate. Ripete il controllo quando
+  // l'app torna in primo piano su telefono, tablet o PC.
+  remoteReady = !getScriptUrl();
+  window.setTimeout(() => bootstrapRemoteSync().catch((error) => {
+    console.warn('Sincronizzazione iniziale non riuscita.', error);
+    emit({ reason: 'sync-error', error: error.message });
+  }), 0);
+  document.addEventListener('visibilitychange', refreshRemoteWhenReturning);
+  window.addEventListener('focus', refreshRemoteWhenReturning);
 })();
