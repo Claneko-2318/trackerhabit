@@ -97,6 +97,7 @@
           foodLibrary: []
         }
       },
+      reading: { books: [], sessions: [] },
       days: {}
     };
   }
@@ -141,6 +142,29 @@
               }))
             : base.settings.tracker.categories
         }
+      },
+      reading: {
+        books: Array.isArray(input.reading?.books) ? input.reading.books.map((book, index) => ({
+          id: book?.id || `book-${index + 1}`,
+          title: String(book?.title || '').trim(),
+          author: String(book?.author || '').trim(),
+          totalPages: Math.max(0, Number(book?.totalPages) || 0),
+          startPage: Math.max(0, Number(book?.startPage) || 0),
+          startedAt: String(book?.startedAt || ''),
+          finishedAt: String(book?.finishedAt || ''),
+          status: book?.status === 'finished' ? 'finished' : 'reading',
+          icon: String(book?.icon || '📖'),
+          createdAt: String(book?.createdAt || '')
+        })).filter((book) => book.title) : [],
+        sessions: Array.isArray(input.reading?.sessions) ? input.reading.sessions.map((session, index) => ({
+          id: session?.id || `reading-session-${index + 1}`,
+          bookId: String(session?.bookId || ''),
+          date: String(session?.date || ''),
+          page: Math.max(0, Number(session?.page) || 0),
+          minutes: Math.max(0, Number(session?.minutes) || 0),
+          note: String(session?.note || ''),
+          createdAt: String(session?.createdAt || '')
+        })).filter((session) => session.bookId && session.date) : []
       },
       days: {}
     };
