@@ -3187,26 +3187,216 @@ if (Store?.getScriptUrl()) {
 })();
 
 
-/* V33 — tracker lettura */
+/* V37 — tracker lettura: archivio, eliminazione e chiusura modale */
 (() => {
-  const page=document.querySelector('.reading-page'); if(!page||!Store)return;
-  const booksHolder=page.querySelector('[data-reading-books]'), recent=page.querySelector('[data-reading-recent]'), select=page.querySelector('[data-reading-book-select]');
-  const form=page.querySelector('[data-reading-session-form]'), dialog=page.querySelector('[data-reading-dialog]'), bookForm=page.querySelector('[data-reading-book-form]');
-  const dateInput=page.querySelector('[data-reading-date]'), pageInput=page.querySelector('[data-reading-page]'), calc=page.querySelector('[data-reading-calculation]'); dateInput.value=Store.dateKey(new Date());
-  const state=()=>Store.getState(); const reading=()=>state().reading||{books:[],sessions:[]};
-  const ordered=()=>[...(reading().sessions||[])].sort((a,b)=>a.date.localeCompare(b.date)||String(a.createdAt).localeCompare(String(b.createdAt)));
-  const previousPage=(bookId,beforeDate='9999-12-31')=>{const book=reading().books.find(b=>b.id===bookId);const sessions=ordered().filter(s=>s.bookId===bookId&&s.date<=beforeDate);return Number(sessions.at(-1)?.page??book?.startPage??0);};
-  const pagesFor=(session,list=ordered())=>{const idx=list.findIndex(s=>s.id===session.id);const book=reading().books.find(b=>b.id===session.bookId);const prev=list.slice(0,idx).filter(s=>s.bookId===session.bookId).at(-1);return Math.max(0,Number(session.page)-Number(prev?.page??book?.startPage??0));};
-  const saveReading=(next)=>{const nextState=state();nextState.reading=next;Store.replaceState(nextState,'reading-update');};
-  function render(){const data=reading();select.innerHTML=data.books.filter(b=>b.status!=='finished').map(b=>`<option value="${escapeHtml(b.id)}">${escapeHtml(b.title)}</option>`).join('')||'<option value="">Aggiungi prima un libro</option>';
-    booksHolder.innerHTML=data.books.length?data.books.map(book=>{const sessions=ordered().filter(s=>s.bookId===book.id);const current=Number(sessions.at(-1)?.page??book.startPage??0);const total=Math.max(1,Number(book.totalPages)||1);const mins=sessions.reduce((sum,s)=>sum+(Number(s.minutes)||0),0);return `<article class="reading-book-card"><div class="reading-book-top"><div class="reading-book-icon">${escapeHtml(book.icon||'📖')}</div><div><h3>${escapeHtml(book.title)}</h3><p>${escapeHtml(book.author||'Autore non indicato')}</p></div></div><div class="reading-progress"><span style="width:${Math.min(100,current/total*100)}%"></span></div><div class="reading-progress-copy"><span>Pagina ${current} di ${total}</span><strong>${Math.round(current/total*100)}%</strong></div><div class="reading-book-metrics"><div><span>Pagine lette</span><strong>${Math.max(0,current-(Number(book.startPage)||0))}</strong></div><div><span>Tempo totale</span><strong>${formatMinutes(mins)}</strong></div><div><span>Ultima lettura</span><strong>${sessions.length?formatDate(sessions.at(-1).date,{day:'numeric',month:'short'}):'—'}</strong></div></div></article>`}).join(''):'<article class="reading-book-card reading-book-placeholder"><div class="reading-placeholder-icon">📚</div><h3>Nessun libro in corso</h3><p>Aggiungi il primo libro per visualizzare qui avanzamento, pagine lette e tempo totale.</p><button class="reading-action-button reading-placeholder-button" type="button" data-reading-empty-add><span aria-hidden="true">＋</span> Aggiungi libro</button></article>';
-    const sessions=ordered().reverse().slice(0,10);recent.innerHTML=sessions.length?sessions.map(s=>{const book=data.books.find(b=>b.id===s.bookId);const asc=ordered();const idx=asc.findIndex(x=>x.id===s.id);const prev=asc.slice(0,idx).filter(x=>x.bookId===s.bookId).at(-1);const from=Number(prev?.page??book?.startPage??0);const pages=pagesFor(s,asc);return `<div class="reading-session-row"><div class="reading-session-date">${formatDate(s.date,{day:'numeric',month:'short'})}</div><div class="reading-session-copy"><strong>${escapeHtml(book?.title||'Libro')}</strong><br><span>Da pagina ${from} a ${s.page}</span></div><div class="reading-session-tag">${pages} ${pages===1?'pagina':'pagine'} · ${formatMinutes(Number(s.minutes)||0)}</div></div>`}).join(''):'<div class="reading-empty">Le sessioni compariranno qui dopo il primo salvataggio.</div>';updateCalc();}
-  function updateCalc(){const id=select.value;const value=Number(pageInput.value);if(!id||!Number.isFinite(value)){calc.textContent='Seleziona un libro e indica la pagina raggiunta.';return;}const prev=previousPage(id,dateInput.value);const diff=value-prev;calc.innerHTML=diff>=0?`Ultima pagina registrata: <strong>${prev}</strong><br>Pagine calcolate per questa sessione: <strong>${diff}</strong>`:`La pagina indicata è precedente all’ultima registrata (${prev}).`; }
-  booksHolder.addEventListener('click',(event)=>{if(event.target.closest('[data-reading-empty-add]')) dialog.showModal();});
-  page.querySelector('[data-reading-add-book]').addEventListener('click',()=>dialog.showModal());[select,pageInput,dateInput].forEach(el=>el.addEventListener('input',updateCalc));
-  bookForm.addEventListener('submit',e=>{e.preventDefault();const data=reading();const book={id:`book-${Date.now()}`,title:bookForm.querySelector('[data-book-title]').value.trim(),author:bookForm.querySelector('[data-book-author]').value.trim(),totalPages:Number(bookForm.querySelector('[data-book-total]').value)||0,startPage:Number(bookForm.querySelector('[data-book-start]').value)||0,startedAt:'',status:'reading',icon:'📖',createdAt:new Date().toISOString()};if(!book.title||!book.totalPages)return;saveReading({...data,books:[...data.books,book]});dialog.close();bookForm.reset();render();});
-  form.addEventListener('submit',e=>{e.preventDefault();const data=reading(),book=data.books.find(b=>b.id===select.value),pageNo=Number(pageInput.value),prev=previousPage(select.value,dateInput.value);if(!book||!dateInput.value||!Number.isFinite(pageNo)||pageNo<prev||pageNo>Number(book.totalPages)){alert(`Inserisci una pagina compresa tra ${prev} e ${book.totalPages}.`);return;}const session={id:`reading-${Date.now()}`,bookId:book.id,date:dateInput.value,page:pageNo,minutes:Number(page.querySelector('[data-reading-minutes]').value)||0,note:page.querySelector('[data-reading-note]').value.trim(),createdAt:new Date().toISOString()};saveReading({...data,sessions:[...data.sessions,session]});form.reset();dateInput.value=Store.dateKey(new Date());render();});
-  window.addEventListener('tracker:data-changed',render);render();
+  const page = document.querySelector('.reading-page');
+  if (!page || !Store) return;
+
+  const booksHolder = page.querySelector('[data-reading-books]');
+  const recent = page.querySelector('[data-reading-recent]');
+  const select = page.querySelector('[data-reading-book-select]');
+  const form = page.querySelector('[data-reading-session-form]');
+  const dialog = page.querySelector('[data-reading-dialog]');
+  const bookForm = page.querySelector('[data-reading-book-form]');
+  const closeDialogButton = page.querySelector('[data-reading-dialog-close]');
+  const dateInput = page.querySelector('[data-reading-date]');
+  const pageInput = page.querySelector('[data-reading-page]');
+  const calc = page.querySelector('[data-reading-calculation]');
+
+  dateInput.value = Store.dateKey(new Date());
+
+  const state = () => Store.getState();
+  const reading = () => state().reading || { books: [], sessions: [] };
+  const ordered = () => [...(reading().sessions || [])].sort((a, b) =>
+    a.date.localeCompare(b.date) || String(a.createdAt).localeCompare(String(b.createdAt))
+  );
+  const previousPage = (bookId, beforeDate = '9999-12-31') => {
+    const book = reading().books.find((item) => item.id === bookId);
+    const sessions = ordered().filter((item) => item.bookId === bookId && item.date <= beforeDate);
+    return Number(sessions.at(-1)?.page ?? book?.startPage ?? 0);
+  };
+  const pagesFor = (session, list = ordered()) => {
+    const index = list.findIndex((item) => item.id === session.id);
+    const book = reading().books.find((item) => item.id === session.bookId);
+    const previous = list.slice(0, index).filter((item) => item.bookId === session.bookId).at(-1);
+    return Math.max(0, Number(session.page) - Number(previous?.page ?? book?.startPage ?? 0));
+  };
+  const saveReading = (next) => {
+    const nextState = state();
+    nextState.reading = next;
+    Store.replaceState(nextState, 'reading-update');
+  };
+
+  function bookCard(book, archived = false) {
+    const sessions = ordered().filter((item) => item.bookId === book.id);
+    const current = Number(sessions.at(-1)?.page ?? book.startPage ?? 0);
+    const total = Math.max(1, Number(book.totalPages) || 1);
+    const minutes = sessions.reduce((sum, item) => sum + (Number(item.minutes) || 0), 0);
+    const percentage = Math.min(100, Math.round((current / total) * 100));
+    return `<article class="reading-book-card${archived ? ' is-archived' : ''}" data-reading-book-card="${escapeHtml(book.id)}">
+      <div class="reading-book-top">
+        <div class="reading-book-icon">${escapeHtml(book.icon || '📖')}</div>
+        <div class="reading-book-title-copy"><h3>${escapeHtml(book.title)}</h3><p>${escapeHtml(book.author || 'Autore non indicato')}</p></div>
+        ${archived ? '<span class="reading-finished-badge">Libro letto</span>' : ''}
+      </div>
+      <div class="reading-progress"><span style="width:${percentage}%"></span></div>
+      <div class="reading-progress-copy"><span>Pagina ${current} di ${total}</span><strong>${percentage}%</strong></div>
+      <div class="reading-book-metrics">
+        <div><span>Pagine lette</span><strong>${Math.max(0, current - (Number(book.startPage) || 0))}</strong></div>
+        <div><span>Tempo totale</span><strong>${formatMinutes(minutes)}</strong></div>
+        <div><span>Ultima lettura</span><strong>${sessions.length ? formatDate(sessions.at(-1).date, { day: 'numeric', month: 'short' }) : '—'}</strong></div>
+      </div>
+      <div class="reading-book-actions">
+        ${archived
+          ? '<button type="button" class="reading-book-button" data-reading-restore>Rimetti in lettura</button>'
+          : '<button type="button" class="reading-book-button is-primary" data-reading-archive>✓ Segna come letto</button>'}
+        <button type="button" class="reading-book-button is-danger" data-reading-delete>Elimina</button>
+      </div>
+    </article>`;
+  }
+
+  function render() {
+    const data = reading();
+    const activeBooks = data.books.filter((book) => book.status !== 'finished');
+    const archivedBooks = data.books.filter((book) => book.status === 'finished');
+
+    select.innerHTML = activeBooks.map((book) =>
+      `<option value="${escapeHtml(book.id)}">${escapeHtml(book.title)}</option>`
+    ).join('') || '<option value="">Aggiungi prima un libro</option>';
+
+    const activeMarkup = activeBooks.length
+      ? activeBooks.map((book) => bookCard(book)).join('')
+      : '<article class="reading-book-card reading-book-placeholder"><div class="reading-placeholder-icon">📚</div><h3>Nessun libro in corso</h3><p>Aggiungi un libro oppure rimettine uno archiviato tra le letture in corso.</p><button class="reading-action-button reading-placeholder-button" type="button" data-reading-empty-add><span aria-hidden="true">＋</span> Aggiungi libro</button></article>';
+
+    const archivedMarkup = archivedBooks.length
+      ? `<section class="reading-archive-section"><div class="reading-archive-heading"><span class="stats-eyebrow">Archivio</span><h2>Libri letti</h2></div><div class="reading-archive-list">${archivedBooks.map((book) => bookCard(book, true)).join('')}</div></section>`
+      : '';
+
+    booksHolder.innerHTML = activeMarkup + archivedMarkup;
+
+    const sessions = ordered().reverse().slice(0, 10);
+    recent.innerHTML = sessions.length ? sessions.map((session) => {
+      const book = data.books.find((item) => item.id === session.bookId);
+      const ascending = ordered();
+      const index = ascending.findIndex((item) => item.id === session.id);
+      const previous = ascending.slice(0, index).filter((item) => item.bookId === session.bookId).at(-1);
+      const from = Number(previous?.page ?? book?.startPage ?? 0);
+      const pages = pagesFor(session, ascending);
+      return `<div class="reading-session-row"><div class="reading-session-date">${formatDate(session.date, { day: 'numeric', month: 'short' })}</div><div class="reading-session-copy"><strong>${escapeHtml(book?.title || 'Libro eliminato')}</strong><br><span>Da pagina ${from} a ${session.page}</span></div><div class="reading-session-tag">${pages} ${pages === 1 ? 'pagina' : 'pagine'} · ${formatMinutes(Number(session.minutes) || 0)}</div></div>`;
+    }).join('') : '<div class="reading-empty">Le sessioni compariranno qui dopo il primo salvataggio.</div>';
+
+    updateCalc();
+  }
+
+  function updateCalc() {
+    const id = select.value;
+    const value = Number(pageInput.value);
+    if (!id || !Number.isFinite(value)) {
+      calc.textContent = 'Seleziona un libro e indica la pagina raggiunta.';
+      return;
+    }
+    const previous = previousPage(id, dateInput.value);
+    const difference = value - previous;
+    calc.innerHTML = difference >= 0
+      ? `Ultima pagina registrata: <strong>${previous}</strong><br>Pagine calcolate per questa sessione: <strong>${difference}</strong>`
+      : `La pagina indicata è precedente all’ultima registrata (${previous}).`;
+  }
+
+  function closeBookDialog() {
+    dialog.close();
+    bookForm.reset();
+  }
+
+  booksHolder.addEventListener('click', (event) => {
+    if (event.target.closest('[data-reading-empty-add]')) {
+      dialog.showModal();
+      return;
+    }
+    const card = event.target.closest('[data-reading-book-card]');
+    if (!card) return;
+    const id = card.dataset.readingBookCard;
+    const data = reading();
+    const book = data.books.find((item) => item.id === id);
+    if (!book) return;
+
+    if (event.target.closest('[data-reading-archive]')) {
+      saveReading({ ...data, books: data.books.map((item) => item.id === id ? { ...item, status: 'finished', finishedAt: Store.dateKey(new Date()) } : item) });
+      render();
+      return;
+    }
+
+    if (event.target.closest('[data-reading-restore]')) {
+      saveReading({ ...data, books: data.books.map((item) => item.id === id ? { ...item, status: 'reading', finishedAt: '' } : item) });
+      render();
+      return;
+    }
+
+    if (event.target.closest('[data-reading-delete]')) {
+      const confirmed = window.confirm(`Eliminare “${book.title}”? Verranno eliminate anche tutte le sue sessioni di lettura.`);
+      if (!confirmed) return;
+      saveReading({
+        ...data,
+        books: data.books.filter((item) => item.id !== id),
+        sessions: data.sessions.filter((item) => item.bookId !== id),
+      });
+      render();
+    }
+  });
+
+  page.querySelector('[data-reading-add-book]').addEventListener('click', () => dialog.showModal());
+  closeDialogButton?.addEventListener('click', closeBookDialog);
+  dialog.addEventListener('click', (event) => {
+    if (event.target === dialog) closeBookDialog();
+  });
+  [select, pageInput, dateInput].forEach((element) => element.addEventListener('input', updateCalc));
+
+  bookForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const data = reading();
+    const book = {
+      id: `book-${Date.now()}`,
+      title: bookForm.querySelector('[data-book-title]').value.trim(),
+      author: bookForm.querySelector('[data-book-author]').value.trim(),
+      totalPages: Number(bookForm.querySelector('[data-book-total]').value) || 0,
+      startPage: Number(bookForm.querySelector('[data-book-start]').value) || 0,
+      startedAt: '',
+      status: 'reading',
+      icon: '📖',
+      createdAt: new Date().toISOString(),
+    };
+    if (!book.title || !book.totalPages) return;
+    saveReading({ ...data, books: [...data.books, book] });
+    closeBookDialog();
+    render();
+  });
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const data = reading();
+    const book = data.books.find((item) => item.id === select.value);
+    const pageNumber = Number(pageInput.value);
+    const previous = previousPage(select.value, dateInput.value);
+    if (!book || !dateInput.value || !Number.isFinite(pageNumber) || pageNumber < previous || pageNumber > Number(book.totalPages)) {
+      alert(`Inserisci una pagina compresa tra ${previous} e ${book?.totalPages || 0}.`);
+      return;
+    }
+    const session = {
+      id: `reading-${Date.now()}`,
+      bookId: book.id,
+      date: dateInput.value,
+      page: pageNumber,
+      minutes: Number(page.querySelector('[data-reading-minutes]').value) || 0,
+      note: page.querySelector('[data-reading-note]').value.trim(),
+      createdAt: new Date().toISOString(),
+    };
+    saveReading({ ...data, sessions: [...data.sessions, session] });
+    form.reset();
+    dateInput.value = Store.dateKey(new Date());
+    render();
+  });
+
+  window.addEventListener('tracker:data-changed', render);
+  render();
 })();
 
 /* =========================================================

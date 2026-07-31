@@ -6223,3 +6223,55 @@ input, select, textarea, button { min-width: 0; }
   dialog, .modal, .notion-export-dialog { max-width: calc(100vw - 20px) !important; max-height: calc(100dvh - 20px) !important; }
   table { max-width: 100%; }
 }
+
+/* V37 — archivio libri e azioni lettura */
+.reading-book-title-copy { min-width: 0; }
+.reading-finished-badge {
+  margin-left: auto;
+  align-self: flex-start;
+  border-radius: 999px;
+  background: #eee8f5;
+  color: #523f77;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.reading-book-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.15rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(82, 63, 119, 0.12);
+}
+.reading-book-button {
+  min-height: 42px;
+  border: 0;
+  border-radius: 13px;
+  padding: 0.7rem 1rem;
+  background: #f1edf5;
+  color: #523f77;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+.reading-book-button.is-primary { background: #523f77; color: #fff; }
+.reading-book-button.is-danger { background: #fff0f3; color: #9b3f65; }
+.reading-book-button:hover { transform: translateY(-1px); }
+.reading-archive-section {
+  grid-column: 1 / -1;
+  width: 100%;
+  margin-top: 1.5rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid rgba(82, 63, 119, 0.14);
+}
+.reading-archive-heading { margin-bottom: 1rem; }
+.reading-archive-heading h2 { margin-top: 0.25rem; }
+.reading-archive-list { display: grid; gap: 1rem; }
+.reading-book-card.is-archived { background: #fbf9fc; }
+@media (max-width: 760px) {
+  .reading-finished-badge { margin-left: 0; }
+  .reading-book-actions { display: grid; grid-template-columns: 1fr; }
+  .reading-book-button { width: 100%; }
+}
