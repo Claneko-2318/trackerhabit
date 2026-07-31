@@ -1,0 +1,1576 @@
+/* Tracker personale — layout mobile V42
+   Attivo esclusivamente sui telefoni. Desktop e tablet restano gestiti da styles.css. */
+
+@media (max-width: 600px) {
+  :root {
+    --mobile-gutter: 14px;
+    --mobile-card-radius: 22px;
+    --mobile-gap: 14px;
+    --mobile-card-shadow: 0 10px 28px rgba(82, 63, 119, 0.10);
+    --mobile-border: rgba(82, 63, 119, 0.13);
+    --mobile-soft: #f8f5fa;
+  }
+
+  html,
+  body {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  body {
+    padding-bottom: 82px !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box !important;
+    min-width: 0;
+  }
+
+  img,
+  svg,
+  canvas {
+    max-width: 100%;
+  }
+
+  h1,
+  h2,
+  h3,
+  p,
+  span,
+  strong,
+  a,
+  label,
+  button {
+    overflow-wrap: anywhere;
+  }
+
+  h1 {
+    font-size: clamp(34px, 10vw, 43px) !important;
+    line-height: 1.02 !important;
+  }
+
+  h2 {
+    font-size: clamp(25px, 7.5vw, 31px) !important;
+    line-height: 1.12 !important;
+  }
+
+  h3 {
+    line-height: 1.22 !important;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    max-width: 100% !important;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100% !important;
+    font-size: 16px !important;
+  }
+
+  textarea {
+    min-height: 104px;
+  }
+
+  /* Header desktop ridotto; la navigazione completa rimane nella barra inferiore. */
+  .site-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 100 !important;
+    width: 100% !important;
+    min-height: 62px !important;
+    background: #fff !important;
+    border-bottom: 1px solid var(--mobile-border) !important;
+  }
+
+  .navbar {
+    width: 100% !important;
+    min-height: 62px !important;
+    padding: 8px var(--mobile-gutter) !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+  }
+
+  .navbar .brand {
+    display: flex !important;
+    align-items: center !important;
+    gap: 9px !important;
+    font-size: 15px !important;
+    white-space: nowrap !important;
+  }
+
+  .navbar .brand-mark {
+    width: 36px !important;
+    height: 36px !important;
+    flex: 0 0 36px !important;
+  }
+
+  .navbar .nav-links {
+    display: none !important;
+  }
+
+  .navbar .settings-link {
+    width: 38px !important;
+    height: 38px !important;
+    flex: 0 0 38px !important;
+    margin: 0 !important;
+  }
+
+  /* Contenitore mobile comune. */
+  :is(
+    .content-wrap,
+    .home-content,
+    .day-content,
+    .sleep-content,
+    .food-content,
+    .page-shell,
+    .tetr-content,
+    .stats-content,
+    .archive-content,
+    .settings-content,
+    .site-footer
+  ) {
+    width: calc(100% - (var(--mobile-gutter) * 2)) !important;
+    max-width: calc(100% - (var(--mobile-gutter) * 2)) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Intestazioni delle sezioni sempre verticali. */
+  :is(
+    .section-heading,
+    .split-heading,
+    .day-section-heading,
+    .sleep-section-heading,
+    .food-section-heading,
+    .section-heading-row,
+    .reading-heading,
+    .tetr-section-heading,
+    .stats-section-heading,
+    .archive-section-heading,
+    .archive-detail-heading,
+    .settings-section-heading
+  ) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    text-align: left !important;
+  }
+
+  :is(
+    .section-heading,
+    .day-section-heading,
+    .sleep-section-heading,
+    .food-section-heading,
+    .section-heading-row,
+    .reading-heading,
+    .tetr-section-heading,
+    .stats-section-heading,
+    .archive-section-heading,
+    .settings-section-heading
+  ) > p {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* Controlli e pulsanti come elementi autonomi. */
+  :is(
+    .primary-button,
+    .secondary-button,
+    .sleep-primary-button,
+    .sleep-small-button,
+    .food-today-button,
+    .today-button,
+    .reading-action-button,
+    .reading-save-button,
+    .tetr-today-button,
+    .tetr-save-piece,
+    .tetr-save-note,
+    .settings-button,
+    .archive-today-button
+  ) {
+    width: 100% !important;
+    min-height: 46px !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .site-footer {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 5px !important;
+    padding-top: 22px !important;
+    padding-bottom: 24px !important;
+  }
+
+  /* Barra inferiore e pannello Altro. */
+  .mobile-bottom-nav {
+    min-height: 68px !important;
+    padding: 5px 4px max(5px, env(safe-area-inset-bottom)) !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  .mobile-nav-item {
+    min-width: 0 !important;
+    padding: 6px 2px !important;
+  }
+
+  .mobile-nav-item span {
+    font-size: 10px !important;
+  }
+
+  .mobile-more-sheet {
+    left: 10px !important;
+    right: 10px !important;
+    bottom: calc(74px + env(safe-area-inset-bottom)) !important;
+    border-radius: 24px !important;
+  }
+
+  .mobile-more-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ==================== HOME ==================== */
+  .home-page .hero-fullscreen {
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 18px var(--mobile-gutter) 24px !important;
+    background: #523f77 !important;
+  }
+
+  .home-page .hero-stage {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+    margin: 0 !important;
+  }
+
+  .home-page .hero-copy,
+  .home-page .weather-card {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .home-page .hero-date-lockup,
+  .home-page .hero-time-line,
+  .home-page .weather-topline,
+  .home-page .weather-main,
+  .home-page .weather-bottom {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 7px !important;
+  }
+
+  .home-page .hero-day {
+    font-size: 78px !important;
+  }
+
+  .home-page .hero-spark {
+    display: none !important;
+  }
+
+  .home-page .home-content {
+    padding-top: 22px !important;
+  }
+
+  .home-page :is(
+    .summary-card-grid,
+    .complete-panel-items,
+    .section-card-grid,
+    .trend-layout,
+    .metric-stack,
+    .recent-list
+  ) {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: var(--mobile-gap) !important;
+  }
+
+  .home-page :is(
+    .summary-card,
+    .quick-status,
+    .section-card,
+    .chart-panel,
+    .metric-card,
+    .recent-row
+  ) {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: var(--mobile-card-radius) !important;
+    box-sizing: border-box !important;
+  }
+
+  .home-page .complete-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+    padding: 18px !important;
+  }
+
+  .home-page .chart-panel-header,
+  .home-page .home-tetr-week-heading,
+  .home-page .recent-row,
+  .home-page .recent-date,
+  .home-page .recent-status {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .home-page .recent-chips {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .home-page .recent-chips > span {
+    width: 100% !important;
+  }
+
+  .home-page .home-tetr-days {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 14px 0 !important;
+    width: 100% !important;
+  }
+
+  .home-page .home-tetr-days > span {
+    flex: 0 0 25% !important;
+    width: 25% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+  }
+
+  .home-page .flat-chart {
+    width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  /* ==================== GIORNATA ==================== */
+  .day-page .day-hero {
+    padding: 22px 0 !important;
+    background: #b35a8a !important;
+  }
+
+  .day-page .day-hero-inner,
+  .day-page .date-switcher,
+  .day-page .activity-form,
+  .day-page .activity-form-main,
+  .day-page .activity-form-side,
+  .day-page .activity-filter,
+  .day-page .activity-list,
+  .day-page .day-summary-grid,
+  .day-page .day-note-inner,
+  .day-page .day-note-card,
+  .day-page .day-note-footer {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: var(--mobile-gap) !important;
+  }
+
+  .day-page .day-hero-inner {
+    gap: 18px !important;
+  }
+
+  .day-page .date-switcher {
+    width: 100% !important;
+    padding: 14px !important;
+    background: #fff !important;
+    color: #342b46 !important;
+    border-radius: 20px !important;
+  }
+
+  .day-page .date-switcher-copy {
+    text-align: center !important;
+    order: -1 !important;
+  }
+
+  .day-page .date-arrow,
+  .day-page .today-button {
+    width: 100% !important;
+    min-height: 44px !important;
+  }
+
+  .day-page .day-decoration {
+    display: none !important;
+  }
+
+  .day-page .day-entry-section,
+  .day-page .day-summary-section {
+    padding-top: 24px !important;
+    padding-bottom: 24px !important;
+  }
+
+  .day-page .activity-form {
+    grid-template-columns: 1fr !important;
+    padding: 18px !important;
+    border-radius: var(--mobile-card-radius) !important;
+  }
+
+  .day-page .activity-form-main {
+    display: flex !important;
+  }
+
+  .day-page .activity-form-main .field,
+  .day-page .activity-form-main .field-wide {
+    width: 100% !important;
+    grid-column: auto !important;
+  }
+
+  .day-page .activity-form-side {
+    width: 100% !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  .day-page .form-side-icon {
+    align-self: flex-start !important;
+  }
+
+  .day-page .activities-band,
+  .day-page .day-note-band {
+    padding: 24px 0 !important;
+  }
+
+  .day-page .activity-filter {
+    width: 100% !important;
+  }
+
+  .day-page .filter-chip {
+    width: 100% !important;
+    min-height: 42px !important;
+  }
+
+  .day-page .activity-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    width: 100% !important;
+    padding: 18px !important;
+    border-radius: var(--mobile-card-radius) !important;
+  }
+
+  .day-page :is(.activity-card, .activity-card-top, .activity-time, .activity-actions) {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 9px !important;
+  }
+
+  .day-page .activity-actions button,
+  .day-page .day-note-footer button {
+    width: 100% !important;
+  }
+
+  .day-page .day-summary-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .day-page .day-summary-card,
+  .day-page .day-note-card {
+    width: 100% !important;
+    border-radius: var(--mobile-card-radius) !important;
+  }
+
+  /* ==================== SONNO ==================== */
+  .sleep-page .sleep-hero {
+    padding: 22px 0 !important;
+    background: #523f77 !important;
+  }
+
+  .sleep-page .sleep-hero-inner,
+  .sleep-page .sleep-date-switcher,
+  .sleep-page .sleep-form-grid,
+  .sleep-page .sleep-form-footer,
+  .sleep-page .sleep-summary-grid,
+  .sleep-page .sleep-trend-layout,
+  .sleep-page .sleep-chart-topline,
+  .sleep-page .sleep-insight-list,
+  .sleep-page .recent-nights-list,
+  .sleep-page .recent-night-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: var(--mobile-gap) !important;
+  }
+
+  .sleep-page .sleep-date-switcher {
+    width: 100% !important;
+    padding: 14px !important;
+    background: #fff !important;
+    color: #342b46 !important;
+    border-radius: 20px !important;
+  }
+
+  .sleep-page .sleep-date-copy {
+    text-align: center !important;
+    order: -1 !important;
+  }
+
+  .sleep-page .sleep-date-arrow,
+  .sleep-page .sleep-today-button {
+    width: 100% !important;
+    min-height: 44px !important;
+  }
+
+  .sleep-page :is(.sleep-orbit, .sleep-star) {
+    display: none !important;
+  }
+
+  .sleep-page .sleep-entry-section,
+  .sleep-page .sleep-trend-section {
+    padding-top: 24px !important;
+    padding-bottom: 24px !important;
+  }
+
+  .sleep-page .sleep-form-grid,
+  .sleep-page .sleep-summary-grid,
+  .sleep-page .sleep-trend-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .sleep-page .sleep-input-card,
+  .sleep-page .sleep-summary-card,
+  .sleep-page .sleep-chart-card,
+  .sleep-page .sleep-insight-card,
+  .sleep-page .recent-night-row {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: var(--mobile-card-radius) !important;
+    padding: 18px !important;
+  }
+
+  .sleep-page :is(
+    .sleep-card-heading,
+    .sleep-card-heading-row,
+    .sleep-time-wrap,
+    .sleep-form-grid .sleep-field,
+    .awakening-row,
+    .quality-scale,
+    .sleep-nap-fields,
+    .sleep-form-footer,
+    .sleep-chart-topline,
+    .sleep-legend,
+    .recent-night-date,
+    .recent-night-label
+  ) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 9px !important;
+    width: 100% !important;
+  }
+
+  .sleep-page .sleep-time-wrap > *,
+  .sleep-page .sleep-nap-fields > *,
+  .sleep-page .awakening-row > * {
+    width: 100% !important;
+  }
+
+  .sleep-page .quality-scale button,
+  .sleep-page .awakening-remove {
+    width: 100% !important;
+    min-height: 42px !important;
+  }
+
+  .sleep-page .sleep-summary-band,
+  .sleep-page .sleep-nights-band {
+    padding: 24px 0 !important;
+  }
+
+  .sleep-page .sleep-bars {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .sleep-page .sleep-bar-item {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 7px !important;
+  }
+
+  .sleep-page .recent-night-row > * {
+    width: 100% !important;
+  }
+
+  /* ==================== CIBO E ACQUA ==================== */
+  .food-page .food-hero {
+    padding: 22px 0 !important;
+    background: #7880ae !important;
+  }
+
+  .food-page .food-hero-inner,
+  .food-page .food-date-switcher,
+  .food-page .food-summary-grid,
+  .food-page .food-entry-layout,
+  .food-page .meal-grid,
+  .food-page .food-library-tools,
+  .food-page .food-library-grid,
+  .food-page .food-library-editor,
+  .food-page .food-editor-grid,
+  .food-page .food-editor-actions,
+  .food-page .food-week-layout,
+  .food-page .water-actions,
+  .food-page .other-drink-form,
+  .food-page .other-drinks-list {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: var(--mobile-gap) !important;
+  }
+
+  .food-page .food-date-switcher {
+    width: 100% !important;
+    padding: 14px !important;
+    background: #fff !important;
+    color: #342b46 !important;
+    border-radius: 20px !important;
+  }
+
+  .food-page .food-date-copy {
+    text-align: center !important;
+    order: -1 !important;
+  }
+
+  .food-page .food-date-arrow,
+  .food-page .food-today-button {
+    width: 100% !important;
+    min-height: 44px !important;
+  }
+
+  .food-page :is(.food-hero-plate, .food-hero-drop) {
+    display: none !important;
+  }
+
+  .food-page .food-overview,
+  .food-page .food-entry-section,
+  .food-page .food-library-section {
+    padding-top: 24px !important;
+    padding-bottom: 24px !important;
+  }
+
+  .food-page .food-summary-grid,
+  .food-page .food-entry-layout,
+  .food-page .meal-grid,
+  .food-page .food-library-grid,
+  .food-page .food-editor-grid,
+  .food-page .food-week-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .food-page :is(
+    .food-summary-card,
+    .meal-card,
+    .water-panel,
+    .food-library-editor,
+    .food-library-grid > *,
+    .water-week-card,
+    .meal-week-card
+  ) {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: var(--mobile-card-radius) !important;
+  }
+
+  .food-page :is(
+    .meal-card-top,
+    .meal-note-panel,
+    .water-panel-heading,
+    .water-main-display,
+    .water-history-heading,
+    .other-drinks-heading,
+    .food-library-tools label,
+    .food-editor-grid label,
+    .meal-week-head,
+    .meal-week-row
+  ) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .food-page .meal-save-button,
+  .food-page .meal-note-toggle,
+  .food-page .food-editor-actions button,
+  .food-page .water-actions button,
+  .food-page .other-drink-form button {
+    width: 100% !important;
+  }
+
+  .food-page .food-picker {
+    width: min(calc(100vw - 28px), 100%) !important;
+    max-width: calc(100vw - 28px) !important;
+  }
+
+  .food-page .food-icon-options {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  .food-page .meal-week-table {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  /* ==================== LETTURA ==================== */
+  .reading-page .reading-hero {
+    padding: 24px 0 !important;
+    background: #6d598e !important;
+  }
+
+  .reading-page .reading-main {
+    padding-top: 24px !important;
+    padding-bottom: 28px !important;
+  }
+
+  .reading-page .reading-heading,
+  .reading-page .reading-layout,
+  .reading-page .reading-books,
+  .reading-page .reading-session-card form,
+  .reading-page .reading-recent-list,
+  .reading-page .reading-form-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: var(--mobile-gap) !important;
+  }
+
+  .reading-page .reading-layout,
+  .reading-page .reading-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .reading-page :is(
+    .reading-books,
+    .reading-session-card,
+    .reading-recent,
+    .reading-books > *,
+    .reading-recent-list > *
+  ) {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .reading-page .reading-session-card,
+  .reading-page .reading-books > *,
+  .reading-page .reading-recent-list > * {
+    border-radius: var(--mobile-card-radius) !important;
+  }
+
+  .reading-page :is(
+    .reading-book-head,
+    .reading-book-meta,
+    .reading-book-actions,
+    .reading-session-actions,
+    .reading-recent-item,
+    .reading-recent-meta
+  ) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 9px !important;
+    width: 100% !important;
+  }
+
+  .reading-page .reading-action-button {
+    width: 100% !important;
+  }
+
+  .reading-page .reading-dialog {
+    width: calc(100vw - 28px) !important;
+    max-width: calc(100vw - 28px) !important;
+    max-height: calc(100dvh - 28px) !important;
+    margin: auto !important;
+    overflow-y: auto !important;
+  }
+
+  .reading-page .reading-dialog form {
+    width: 100% !important;
+  }
+
+  /* ==================== TETR-EMOTION ==================== */
+  .tetr-page .tetr-hero {
+    padding: 22px 0 !important;
+    background: #523f77 !important;
+  }
+
+  .tetr-page .tetr-hero-inner,
+  .tetr-page .tetr-month-switcher,
+  .tetr-page .tetr-studio-layout,
+  .tetr-page .tetr-emotion-list,
+  .tetr-page .tetr-primary-actions,
+  .tetr-page .tetr-last-piece-actions,
+  .tetr-page .tetr-summary,
+  .tetr-page .tetr-summary-top,
+  .tetr-page .tetr-summary-bars {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: var(--mobile-gap) !important;
+  }
+
+  .tetr-page .tetr-month-switcher {
+    width: 100% !important;
+    padding: 14px !important;
+    background: #fff !important;
+    color: #342b46 !important;
+    border-radius: 20px !important;
+  }
+
+  .tetr-page .tetr-month-switcher > div {
+    text-align: center !important;
+    order: -1 !important;
+  }
+
+  .tetr-page .tetr-month-switcher button,
+  .tetr-page .tetr-today-button {
+    width: 100% !important;
+    min-height: 44px !important;
+  }
+
+  .tetr-page .tetr-hero-shape {
+    display: none !important;
+  }
+
+  .tetr-page .tetr-workspace,
+  .tetr-page .tetr-summary-band {
+    padding-top: 24px !important;
+    padding-bottom: 24px !important;
+  }
+
+  .tetr-page .tetr-studio-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .tetr-page :is(
+    .tetr-studio-card,
+    .tetr-emotion-panel,
+    .tetr-board-zone,
+    .tetr-summary
+  ) {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: var(--mobile-card-radius) !important;
+  }
+
+  .tetr-page .tetr-emotion-choice {
+    width: 100% !important;
+    min-height: 64px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 7px !important;
+  }
+
+  .tetr-page .tetr-board-frame {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    padding: 8px !important;
+  }
+
+  .tetr-page .tetr-board {
+    width: min(100%, 342px) !important;
+    max-width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 2 !important;
+    margin: 0 auto !important;
+  }
+
+  .tetr-page .tetr-primary-actions button,
+  .tetr-page .tetr-last-piece-actions button {
+    width: 100% !important;
+  }
+
+  .tetr-page .tetr-confirm-dialog {
+    width: calc(100vw - 28px) !important;
+    max-width: calc(100vw - 28px) !important;
+  }
+
+  /* ==================== STATISTICHE ==================== */
+  .stats-page .stats-hero {
+    padding: 22px 0 !important;
+    background: #7880ae !important;
+  }
+
+  .stats-page :is(
+    .stats-hero-inner,
+    .stats-period-control,
+    .stats-summary-grid,
+    .stats-brief-inner,
+    .stats-brief-list,
+    .stats-habit-grid,
+    .stats-tetr-layout,
+    .stats-tetr-analysis,
+    .stats-sleep-layout,
+    .stats-metric-stack,
+    .stats-food-layout,
+    .stats-inline-metrics,
+    .stats-day-layout,
+    .stats-day-metrics,
+    .stats-comparison-table,
+    .stats-export-inner,
+    .food-history-search-card,
+    .notion-export-body,
+    .notion-export-period-grid,
+    .notion-section-options,
+    .notion-image-list,
+    .notion-export-footer
+  ) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: var(--mobile-gap) !important;
+  }
+
+  .stats-page :is(
+    .stats-summary-grid,
+    .stats-habit-grid,
+    .stats-tetr-layout,
+    .stats-sleep-layout,
+    .stats-food-layout,
+    .stats-day-layout,
+    .stats-day-metrics
+  ) {
+    grid-template-columns: 1fr !important;
+  }
+
+  .stats-page .stats-orbit {
+    display: none !important;
+  }
+
+  .stats-page .stats-hero-inner {
+    gap: 18px !important;
+  }
+
+  .stats-page .stats-period-control {
+    width: 100% !important;
+    padding: 14px !important;
+    background: #fff !important;
+    color: #342b46 !important;
+    border-radius: 20px !important;
+  }
+
+  .stats-page .stats-period-control > * {
+    width: 100% !important;
+  }
+
+  .stats-page .stats-overview,
+  .stats-page .stats-consistency,
+  .stats-page .stats-food-water,
+  .stats-page .stats-comparison,
+  .stats-page .stats-food-history-section {
+    padding-top: 24px !important;
+    padding-bottom: 24px !important;
+  }
+
+  .stats-page :is(
+    .stats-summary-card,
+    .stats-brief-list > article,
+    .stats-habit-card,
+    .stats-tetr-board-card,
+    .stats-tetr-analysis > *,
+    .stats-chart-card,
+    .stats-metric-stack > *,
+    .stats-category-card,
+    .stats-day-metrics > *,
+    .food-history-search-card
+  ) {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: var(--mobile-card-radius) !important;
+  }
+
+  .stats-page .stats-heat-wrap,
+  .stats-page .stats-water-bars,
+  .stats-page .stats-line-chart,
+  .stats-page .stats-tetr-board-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overscroll-behavior-inline: contain !important;
+  }
+
+  .stats-page .stats-comparison-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 7px !important;
+    width: 100% !important;
+    padding: 14px !important;
+    border: 1px solid var(--mobile-border) !important;
+    border-radius: 16px !important;
+    background: #fff !important;
+  }
+
+  .stats-page .stats-comparison-head {
+    display: none !important;
+  }
+
+  .stats-page .stats-export-inner button,
+  .stats-page .food-history-search-card button {
+    width: 100% !important;
+  }
+
+  .stats-page .notion-export-dialog,
+  .stats-page .notion-export-shell {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: calc(100dvh - 20px) !important;
+    margin: auto !important;
+  }
+
+  .stats-page .notion-export-shell {
+    overflow-y: auto !important;
+  }
+
+  /* ==================== ARCHIVIO ==================== */
+  .archive-page .archive-hero {
+    padding: 22px 0 !important;
+    background: #6d598e !important;
+  }
+
+  .archive-page :is(
+    .archive-hero-inner,
+    .archive-month-panel,
+    .archive-month-row,
+    .archive-tools,
+    .archive-filter-group,
+    .archive-view-switch,
+    .archive-list,
+    .archive-detail-heading,
+    .archive-detail-actions,
+    .archive-detail-grid,
+    .archive-card-heading,
+    .archive-detail-list,
+    .archive-meals,
+    .archive-food-items,
+    .archive-beverages
+  ) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: var(--mobile-gap) !important;
+  }
+
+  .archive-page .archive-month-panel {
+    width: 100% !important;
+    padding: 14px !important;
+    background: #fff !important;
+    color: #342b46 !important;
+    border-radius: 20px !important;
+  }
+
+  .archive-page .archive-month-row > *,
+  .archive-page .archive-filter-group button,
+  .archive-page .archive-view-switch button,
+  .archive-page .archive-detail-actions button {
+    width: 100% !important;
+  }
+
+  .archive-page .archive-orb {
+    display: none !important;
+  }
+
+  .archive-page .archive-tools,
+  .archive-page .archive-calendar-section,
+  .archive-page .archive-list-section {
+    padding-top: 24px !important;
+    padding-bottom: 24px !important;
+  }
+
+  .archive-page .archive-search {
+    width: 100% !important;
+  }
+
+  .archive-page .archive-calendar-shell {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 10px !important;
+    overflow: hidden !important;
+    border-radius: var(--mobile-card-radius) !important;
+  }
+
+  .archive-page .archive-weekdays,
+  .archive-page .archive-calendar-grid {
+    width: 100% !important;
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+    gap: 3px !important;
+  }
+
+  .archive-page .archive-weekdays span,
+  .archive-page .archive-calendar-grid > * {
+    font-size: 10px !important;
+    min-width: 0 !important;
+  }
+
+  .archive-page .archive-list > *,
+  .archive-page .archive-detail-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: var(--mobile-card-radius) !important;
+  }
+
+  .archive-page .archive-day-card,
+  .archive-page .archive-day-summary,
+  .archive-page .archive-stat-strip,
+  .archive-page .archive-detail-card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  .archive-page .archive-detail-band {
+    padding: 24px 0 !important;
+  }
+
+  /* ==================== IMPOSTAZIONI ==================== */
+  .settings-page .settings-hero {
+    padding: 22px 0 !important;
+    background: #523f77 !important;
+  }
+
+  .settings-page .settings-hero-inner,
+  .settings-page .settings-workspace,
+  .settings-page .settings-tabs,
+  .settings-page .settings-grid,
+  .settings-page .settings-switch-grid,
+  .settings-page .scene-card-grid,
+  .settings-page .settings-image-actions,
+  .settings-page .settings-tetr-appearance-layout,
+  .settings-page .settings-tetr-associations,
+  .settings-page .settings-tetr-options,
+  .settings-page .category-settings-list,
+  .settings-page .category-setting-row,
+  .settings-page .settings-connection-actions,
+  .settings-page .settings-export-grid,
+  .settings-page .settings-danger-actions,
+  .settings-page .settings-save-bar {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: var(--mobile-gap) !important;
+  }
+
+  .settings-page .settings-hero-art {
+    display: none !important;
+  }
+
+  .settings-page .settings-workspace {
+    padding-top: 24px !important;
+    padding-bottom: 28px !important;
+  }
+
+  .settings-page .settings-tabs {
+    width: 100% !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  .settings-page .settings-tab {
+    width: 100% !important;
+    min-height: 46px !important;
+  }
+
+  .settings-page .settings-grid,
+  .settings-page .settings-grid-two,
+  .settings-page .settings-grid-three,
+  .settings-page .settings-switch-grid,
+  .settings-page .settings-switch-grid-three,
+  .settings-page .scene-card-grid,
+  .settings-page .settings-export-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .settings-page :is(
+    .settings-card,
+    .settings-card-wide,
+    .settings-action-card,
+    .settings-image-card,
+    .settings-danger-card,
+    .scene-card
+  ) {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: var(--mobile-card-radius) !important;
+  }
+
+  .settings-page :is(
+    .settings-card-heading,
+    .settings-card-heading-split,
+    .settings-card-title-wrap,
+    .settings-switch-row,
+    .settings-check-row,
+    .settings-choice,
+    .settings-field,
+    .settings-connection-field
+  ) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .settings-page .settings-switch-row input,
+  .settings-page .settings-choice input,
+  .settings-page .settings-check-row input {
+    width: auto !important;
+    align-self: flex-start !important;
+  }
+
+  .settings-page .category-setting-row > *,
+  .settings-page .settings-connection-actions button,
+  .settings-page .settings-image-actions button,
+  .settings-page .settings-danger-actions button,
+  .settings-page .settings-save-bar button {
+    width: 100% !important;
+  }
+
+  .settings-page .scene-preview-large {
+    width: 100% !important;
+    min-height: 190px !important;
+  }
+
+  .settings-page .settings-save-bar {
+    position: static !important;
+    width: 100% !important;
+    margin-top: 18px !important;
+    padding: 18px !important;
+    border-radius: var(--mobile-card-radius) !important;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Correzioni finali del layout approvato. */
+  input[type="radio"],
+  input[type="checkbox"] {
+    width: auto !important;
+    max-width: none !important;
+  }
+
+  .home-page .corner-shape,
+  .day-page .day-summary-card > i {
+    display: none !important;
+  }
+
+  .day-page .duration-fields,
+  .day-page .duration-input {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .day-page .duration-input > * {
+    width: 100% !important;
+  }
+
+  .sleep-page .quality-scale label {
+    width: 100% !important;
+  }
+
+  .sleep-page .sleep-chart-card {
+    overflow: hidden !important;
+  }
+
+  .sleep-page .sleep-bars {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .sleep-page .sleep-bar-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 7px !important;
+    width: 100% !important;
+    padding: 12px !important;
+    border: 1px solid var(--mobile-border) !important;
+    border-radius: 15px !important;
+    background: #fff !important;
+  }
+
+  .sleep-page .sleep-bar-item .sleep-bar-value {
+    order: 2 !important;
+    font-weight: 800 !important;
+    color: #523f77 !important;
+  }
+
+  .sleep-page .sleep-bar-item .secondary-text {
+    order: 1 !important;
+    font-weight: 700 !important;
+    color: #342b46 !important;
+  }
+
+  .sleep-page .sleep-bar-track {
+    order: 3 !important;
+    width: 100% !important;
+    height: 10px !important;
+    min-height: 10px !important;
+    border-radius: 999px !important;
+    overflow: hidden !important;
+  }
+
+  .sleep-page .sleep-bar-track i {
+    display: block !important;
+    height: 100% !important;
+    border-radius: 999px !important;
+  }
+
+  .sleep-page .sleep-bar-item:nth-child(1) .sleep-bar-track i { width: 72% !important; }
+  .sleep-page .sleep-bar-item:nth-child(2) .sleep-bar-track i { width: 81% !important; }
+  .sleep-page .sleep-bar-item:nth-child(3) .sleep-bar-track i { width: 76% !important; }
+  .sleep-page .sleep-bar-item:nth-child(4) .sleep-bar-track i { width: 86% !important; }
+  .sleep-page .sleep-bar-item:nth-child(5) .sleep-bar-track i { width: 78% !important; }
+  .sleep-page .sleep-bar-item:nth-child(6) .sleep-bar-track i { width: 83% !important; }
+  .sleep-page .sleep-bar-item:nth-child(7) .sleep-bar-track i { width: 81% !important; }
+
+  .sleep-page .sleep-insight-list > div,
+  .sleep-page .recent-night-row > div {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+    width: 100% !important;
+    padding: 11px 12px !important;
+    border-radius: 14px !important;
+    background: rgba(255, 255, 255, 0.72) !important;
+  }
+
+  .sleep-page .recent-night-row > button {
+    width: 100% !important;
+    min-height: 42px !important;
+  }
+
+  .tetr-page .tetr-card-heading,
+  .tetr-page .tetr-studio-heading,
+  .tetr-page .tetr-emotion-heading,
+  .tetr-page .tetr-selected-day-block,
+  .tetr-page .tetr-day-switcher,
+  .tetr-page .tetr-board-status {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 9px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .tetr-page .tetr-day-switcher h2,
+  .tetr-page .tetr-studio-heading h2 {
+    width: 100% !important;
+    max-width: 100% !important;
+    text-align: left !important;
+  }
+
+  .tetr-page .tetr-day-switcher button {
+    width: 100% !important;
+    min-height: 42px !important;
+  }
+
+  .tetr-page .tetr-one-piece,
+  .tetr-page .tetr-board-status {
+    align-self: stretch !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+
+  .tetr-page .tetr-emotion-choice > span:nth-child(2) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 3px !important;
+    width: 100% !important;
+  }
+
+  .tetr-page .tetr-summary-top > article,
+  .tetr-page .tetr-summary-bars > * {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 5px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 16px !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+  }
+
+  .stats-page :is(
+    .stats-summary-card,
+    .stats-habit-card,
+    .stats-tetr-board-card,
+    .stats-chart-card,
+    .stats-category-card,
+    .stats-day-metrics > *,
+    .stats-comparison-row
+  ) {
+    overflow: hidden !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .sleep-page .recent-night-row > button {
+    border-radius: 14px !important;
+    background: #523f77 !important;
+    color: #fff !important;
+  }
+
+  .stats-page .stats-tetr-bars,
+  .stats-page .stats-tetr-bars > div {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 7px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .stats-page .stats-tetr-bars > div {
+    padding: 12px !important;
+    border: 1px solid var(--mobile-border) !important;
+    border-radius: 15px !important;
+    background: #fff !important;
+  }
+
+  .stats-page .stats-tetr-bars > div > span {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 5px !important;
+    width: 100% !important;
+  }
+
+  .stats-page .stats-tetr-bars > div > i {
+    display: block !important;
+    width: 100% !important;
+    height: 10px !important;
+    border-radius: 999px !important;
+    overflow: hidden !important;
+  }
+
+  .stats-page .stats-tetr-bars > div > i > b {
+    display: block !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    border-radius: 999px !important;
+  }
+
+  .stats-page .stats-tetr-bars > div > strong {
+    align-self: flex-start !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .tetr-page .tetr-board-zone {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .tetr-page .tetr-board-frame {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .tetr-page .tetr-board {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 2 !important;
+    display: grid !important;
+    grid-template-columns: repeat(10, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(20, minmax(0, 1fr)) !important;
+    gap: 2px !important;
+  }
+
+  .tetr-page .tetr-cell {
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    aspect-ratio: 1 !important;
+  }
+}
+
+
+@media (max-width: 600px) {
+  /* Lettura V43: stessa intestazione strutturale delle altre pagine */
+  .reading-page .reading-content {
+    width: calc(100% - 28px) !important;
+    max-width: calc(100% - 28px) !important;
+    margin-inline: auto !important;
+  }
+  .reading-page .reading-hero {
+    min-height: 0 !important;
+    padding: 0 !important;
+    background: #6d598e !important;
+  }
+  .reading-page .reading-hero::after,
+  .reading-page .reading-hero-symbol {
+    display: none !important;
+  }
+  .reading-page .reading-hero-inner {
+    min-height: 0 !important;
+    padding: 24px 0 !important;
+    display: block !important;
+  }
+  .reading-page .reading-hero-copy {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .reading-page .reading-eyebrow {
+    color: rgba(255,255,255,.78) !important;
+    font-size: 11px !important;
+  }
+  .reading-page .reading-hero h1 {
+    margin-top: 10px !important;
+    color: #fff !important;
+    font-size: 34px !important;
+    line-height: 1 !important;
+  }
+  .reading-page .reading-hero-copy p {
+    margin-top: 12px !important;
+    color: rgba(255,255,255,.86) !important;
+    font-size: 15px !important;
+    line-height: 1.5 !important;
+  }
+  .reading-page .reading-main {
+    padding-top: 24px !important;
+  }
+}

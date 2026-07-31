@@ -1,13 +1,60 @@
 <!DOCTYPE html>
 <html lang="it"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Tracker personale — Lettura</title><link rel="stylesheet" href="styles.css?v=41"/>  
+<title>Tracker personale — Lettura</title><link rel="stylesheet" href="styles.css?v=43"/>
+  <link rel="stylesheet" href="mobile.css?v=43">  
 <link rel="icon" type="image/png" href="favicon.png">
 </head>
 <body class="reading-page">
-<header class="site-header"><nav aria-label="Navigazione principale" class="navbar"><a class="brand" href="index.html"><span class="brand-mark">✦</span><span>Tracker personale</span></a><div class="nav-links"><a class="nav-link" href="index.html">Home</a><a class="nav-link" href="giornata.html">La mia giornata</a><a class="nav-link" href="sonno.html">Sonno</a><a class="nav-link" href="cibo-acqua.html">Cibo e acqua</a><a aria-current="page" class="nav-link active" href="lettura.html">Lettura</a><a class="nav-link" href="tetr-emotion.html">Tetr-Emotion</a><a class="nav-link" href="statistiche.html">Statistiche</a><a class="nav-link" href="archivio.html">Archivio</a></div><a class="settings-link" href="impostazioni.html" aria-label="Impostazioni">⚙</a></nav></header>
-<main>
-<section class="page-hero reading-hero"><div class="page-shell"><span class="page-kicker">Diario di lettura</span><h1>Le mie letture</h1><p>Registra i libri in corso, l’avanzamento e il tempo dedicato a ogni sessione.</p></div></section>
-<section class="page-shell reading-main">
+<header class="site-header">
+  <nav class="navbar" aria-label="Navigazione principale">
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M19.5 15.4A8 8 0 0 1 8.6 4.5a8.2 8.2 0 1 0 10.9 10.9Z"/>
+          <path d="M17 4v3M15.5 5.5h3M5 15v2M4 16h2"/>
+        </svg>
+      </span>
+      <span>Tracker personale</span>
+    </a>
+
+    <div class="nav-links">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="giornata.html">La mia giornata</a>
+      <a class="nav-link" href="sonno.html">Sonno</a>
+      <a class="nav-link" href="cibo-acqua.html">Cibo e acqua</a>
+      <a class="nav-link active" href="lettura.html" aria-current="page">Lettura</a>
+      <a class="nav-link" href="tetr-emotion.html">Tetr-Emotion</a>
+      <a class="nav-link" href="statistiche.html">Statistiche</a>
+      <a class="nav-link" href="archivio.html">Archivio</a>
+    </div>
+
+    <a class="settings-link" href="impostazioni.html" aria-label="Impostazioni">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z"/>
+        <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1L7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/>
+      </svg>
+    </a>
+  </nav>
+</header>
+<main class="reading-main-shell">
+  <section class="reading-hero">
+    <div class="reading-content reading-hero-inner">
+      <div class="reading-hero-copy">
+        <span class="reading-eyebrow">Diario di lettura</span>
+        <h1>Le mie letture</h1>
+        <p>Registra i libri in corso, l’avanzamento e il tempo dedicato a ogni sessione.</p>
+      </div>
+
+      <div class="reading-hero-symbol" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 14.5c8.2-3.2 14.8-2 20 2.8v34.2c-5.2-4.8-11.8-6-20-2.8V14.5Z"/>
+          <path d="M52 14.5c-8.2-3.2-14.8-2-20 2.8v34.2c5.2-4.8 11.8-6 20-2.8V14.5Z"/>
+          <path d="M19 23c4.2-.8 7.4-.2 10 1.8M19 30c4.2-.8 7.4-.2 10 1.8M45 23c-4.2-.8-7.4-.2-10 1.8M45 30c-4.2-.8-7.4-.2-10 1.8"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+  <section class="reading-content reading-main">
 <div class="reading-heading"><div><span class="stats-eyebrow">In corso</span><h2>Sto leggendo</h2></div><button class="reading-action-button reading-add-button" type="button" data-reading-add-book><span aria-hidden="true">＋</span> Aggiungi libro</button></div>
 <div class="reading-layout"><section class="reading-books" data-reading-books></section>
 <aside class="reading-session-card"><h2>Registra una sessione</h2><form data-reading-session-form>
@@ -16,4 +63,4 @@
 <section class="reading-recent"><div class="reading-heading"><div><span class="stats-eyebrow">Cronologia</span><h2>Sessioni recenti</h2></div></div><div class="reading-recent-list" data-reading-recent></div></section>
 </section></main>
 <dialog class="reading-dialog" data-reading-dialog><form method="dialog" data-reading-book-form><button class="reading-dialog-close" type="button" data-reading-dialog-close aria-label="Chiudi">×</button><h2>Aggiungi libro</h2><label>Titolo<input data-book-title required></label><label>Autore<input data-book-author></label><div class="reading-form-grid"><label>Pagine totali<input type="number" min="1" data-book-total required></label><label>Pagina iniziale<input type="number" min="0" value="0" data-book-start></label></div><button class="reading-action-button reading-save-button" value="default" type="submit"><span aria-hidden="true">✓</span> Salva libro</button></form></dialog>
-<script src="tracker-store.js?v=41"></script><script src="app.js?v=41"></script></body></html>
+<script src="tracker-store.js?v=43"></script><script src="app.js?v=43"></script></body></html>
