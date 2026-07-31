@@ -98,7 +98,7 @@
           foodLibrary: []
         }
       },
-      reading: { books: [], sessions: [] },
+      reading: { books: [], sessions: [], deletedBooks: [], deletedSessions: [] },
       days: {}
     };
   }
@@ -155,7 +155,8 @@
           finishedAt: String(book?.finishedAt || ''),
           status: book?.status === 'finished' ? 'finished' : 'reading',
           icon: String(book?.icon || '📖'),
-          createdAt: String(book?.createdAt || '')
+          createdAt: String(book?.createdAt || ''),
+          updatedAt: String(book?.updatedAt || book?.createdAt || '')
         })).filter((book) => book.title) : [],
         sessions: Array.isArray(input.reading?.sessions) ? input.reading.sessions.map((session, index) => ({
           id: session?.id || `reading-session-${index + 1}`,
@@ -164,8 +165,21 @@
           page: Math.max(0, Number(session?.page) || 0),
           minutes: Math.max(0, Number(session?.minutes) || 0),
           note: String(session?.note || ''),
-          createdAt: String(session?.createdAt || '')
-        })).filter((session) => session.bookId && session.date) : []
+          createdAt: String(session?.createdAt || ''),
+          updatedAt: String(session?.updatedAt || session?.createdAt || '')
+        })).filter((session) => session.bookId && session.date) : [],
+        deletedBooks: Array.isArray(input.reading?.deletedBooks)
+          ? input.reading.deletedBooks.map((item) => ({
+              id: String(item?.id || ''),
+              deletedAt: String(item?.deletedAt || '')
+            })).filter((item) => item.id && item.deletedAt)
+          : [],
+        deletedSessions: Array.isArray(input.reading?.deletedSessions)
+          ? input.reading.deletedSessions.map((item) => ({
+              id: String(item?.id || ''),
+              deletedAt: String(item?.deletedAt || '')
+            })).filter((item) => item.id && item.deletedAt)
+          : []
       },
       days: {}
     };
@@ -268,6 +282,30 @@
     return [...map.values()];
   }
 
+  function mergeDeletionMarkers(localItems, remoteItems) {
+    const map = new Map();
+    [...(localItems || []), ...(remoteItems || [])].forEach((item) => {
+      const id = String(item?.id || '');
+      const deletedAt = String(item?.deletedAt || '');
+      if (!id || !deletedAt) return;
+      const current = map.get(id);
+      if (!current || new Date(deletedAt).getTime() > new Date(current.deletedAt || 0).getTime()) {
+        map.set(id, { id, deletedAt });
+      }
+    });
+    return [...map.values()];
+  }
+
+  function applyDeletionMarkers(items, markers, fallbackTime = 0) {
+    const deleted = new Map((markers || []).map((item) => [String(item.id), new Date(item.deletedAt || 0).getTime()]));
+    return (items || []).filter((item) => {
+      const deletedAt = deleted.get(String(item.id || '')) || 0;
+      if (!deletedAt) return true;
+      const itemTime = new Date(item.updatedAt || item.modifiedAt || item.finishedAt || item.createdAt || fallbackTime || 0).getTime();
+      return itemTime > deletedAt;
+    });
+  }
+
   function mergeFoodLibraries(localItems, remoteItems, localFallback, remoteFallback) {
     const byKey = new Map();
     const add = (item, fallback, preferRemote = false) => {
@@ -315,9 +353,18 @@
 
     const localReadingTime = new Date(local.readingUpdatedAt || local.updatedAt || 0).getTime();
     const remoteReadingTime = new Date(remote.readingUpdatedAt || remote.updatedAt || 0).getTime();
+    const deletedBooks = mergeDeletionMarkers(local.reading?.deletedBooks, remote.reading?.deletedBooks);
+    const deletedSessions = mergeDeletionMarkers(local.reading?.deletedSessions, remote.reading?.deletedSessions);
+    const mergedBooks = mergeById(local.reading?.books, remote.reading?.books, localReadingTime, remoteReadingTime);
+    const mergedSessions = mergeById(local.reading?.sessions, remote.reading?.sessions, localReadingTime, remoteReadingTime);
+    const visibleBooks = applyDeletionMarkers(mergedBooks, deletedBooks, Math.max(localReadingTime, remoteReadingTime));
+    const visibleBookIds = new Set(visibleBooks.map((book) => String(book.id)));
     merged.reading = {
-      books: mergeById(local.reading?.books, remote.reading?.books, localReadingTime, remoteReadingTime),
-      sessions: mergeById(local.reading?.sessions, remote.reading?.sessions, localReadingTime, remoteReadingTime)
+      books: visibleBooks,
+      sessions: applyDeletionMarkers(mergedSessions, deletedSessions, Math.max(localReadingTime, remoteReadingTime))
+        .filter((session) => visibleBookIds.has(String(session.bookId))),
+      deletedBooks,
+      deletedSessions
     };
     merged.readingUpdatedAt = remoteReadingTime > localReadingTime
       ? (remote.readingUpdatedAt || remote.updatedAt || '')

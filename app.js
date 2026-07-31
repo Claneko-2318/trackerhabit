@@ -3235,7 +3235,7 @@ if (Store?.getScriptUrl()) {
   dateInput.value = Store.dateKey(new Date());
 
   const state = () => Store.getState();
-  const reading = () => state().reading || { books: [], sessions: [] };
+  const reading = () => state().reading || { books: [], sessions: [], deletedBooks: [], deletedSessions: [] };
   const ordered = () => [...(reading().sessions || [])].sort((a, b) =>
     a.date.localeCompare(b.date) || String(a.createdAt).localeCompare(String(b.createdAt))
   );
@@ -3349,13 +3349,13 @@ if (Store?.getScriptUrl()) {
     if (!book) return;
 
     if (event.target.closest('[data-reading-archive]')) {
-      saveReading({ ...data, books: data.books.map((item) => item.id === id ? { ...item, status: 'finished', finishedAt: Store.dateKey(new Date()) } : item) });
+      saveReading({ ...data, books: data.books.map((item) => item.id === id ? { ...item, status: 'finished', finishedAt: Store.dateKey(new Date()), updatedAt: new Date().toISOString() } : item) });
       render();
       return;
     }
 
     if (event.target.closest('[data-reading-restore]')) {
-      saveReading({ ...data, books: data.books.map((item) => item.id === id ? { ...item, status: 'reading', finishedAt: '' } : item) });
+      saveReading({ ...data, books: data.books.map((item) => item.id === id ? { ...item, status: 'reading', finishedAt: '', updatedAt: new Date().toISOString() } : item) });
       render();
       return;
     }
@@ -3363,11 +3363,21 @@ if (Store?.getScriptUrl()) {
     if (event.target.closest('[data-reading-delete]')) {
       const confirmed = window.confirm(`Eliminare “${book.title}”? Verranno eliminate anche tutte le sue sessioni di lettura.`);
       if (!confirmed) return;
+      const deletedAt = new Date().toISOString();
+      const deletedSessionMarkers = data.sessions
+        .filter((item) => item.bookId === id)
+        .map((item) => ({ id: item.id, deletedAt }));
       saveReading({
         ...data,
         books: data.books.filter((item) => item.id !== id),
         sessions: data.sessions.filter((item) => item.bookId !== id),
+        deletedBooks: [...(data.deletedBooks || []).filter((item) => item.id !== id), { id, deletedAt }],
+        deletedSessions: [
+          ...(data.deletedSessions || []).filter((item) => !deletedSessionMarkers.some((marker) => marker.id === item.id)),
+          ...deletedSessionMarkers
+        ]
       });
+      Store.syncRemote().catch((error) => console.warn('Eliminazione salvata localmente; sincronizzazione remota in attesa.', error));
       render();
     }
   });
