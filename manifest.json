@@ -1,0 +1,91 @@
+{
+  "name": "Tracker personale",
+  "short_name": "Tracker",
+  "description": "Tracker personale per sonno, attività, cibo, acqua, lettura e Tetr-Emotion.",
+  "lang": "it-IT",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
+  "orientation": "any",
+  "background_color": "#F7F3FA",
+  "theme_color": "#523F77",
+  "categories": [
+    "productivity",
+    "lifestyle",
+    "health"
+  ],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "La mia giornata",
+      "short_name": "Giornata",
+      "description": "Apri le attività della giornata.",
+      "url": "./giornata.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Sonno",
+      "short_name": "Sonno",
+      "description": "Apri il diario del sonno.",
+      "url": "./sonno.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Lettura",
+      "short_name": "Lettura",
+      "description": "Apri il diario di lettura.",
+      "url": "./lettura.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}

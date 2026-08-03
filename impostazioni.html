@@ -7,10 +7,20 @@
   <meta name="description" content="Impostazioni desktop del tracker personale.">
   <title>Tracker personale — Impostazioni</title>
   
-  <link rel="stylesheet" href="styles.css?v=42">
-  <link rel="stylesheet" href="mobile.css?v=42">
+  <link rel="stylesheet" href="styles.css?v=44">
+  <link rel="stylesheet" href="mobile.css?v=44">
   <meta name="robots" content="noindex, nofollow">
 <link rel="icon" type="image/png" href="favicon.png">
+
+  <meta name="theme-color" content="#523F77">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Tracker personale">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="manifest.json?v=44">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="pwa.css?v=44">
 </head>
 <body class="settings-page">
 <header class="site-header">
@@ -72,6 +82,27 @@
         <div><span class="settings-section-kicker">Generali</span><h2>Il funzionamento quotidiano</h2></div>
         <p>Località, calendario e contenuti mostrati nella homepage.</p>
       </div>
+
+
+      <article class="settings-card settings-card-wide pwa-install-card" data-pwa-install-card>
+        <div class="settings-card-heading settings-card-heading-split">
+          <div class="settings-card-title-wrap">
+            <span class="settings-card-icon icon-periwinkle" aria-hidden="true">▣</span>
+            <div>
+              <h3>App installabile</h3>
+              <p>Apri il tracker in una finestra autonoma e mantieni disponibili le pagine principali anche senza connessione.</p>
+            </div>
+          </div>
+          <span class="pwa-install-badge" data-pwa-install-badge>Verifica in corso</span>
+        </div>
+        <p class="settings-note pwa-install-status" data-pwa-install-status>
+          Il browser sta verificando la disponibilità dell’installazione.
+        </p>
+        <div class="pwa-install-actions">
+          <button class="settings-button primary" type="button" data-pwa-install hidden>Installa l’app</button>
+          <button class="settings-button secondary" type="button" data-pwa-update-check>Controlla aggiornamenti</button>
+        </div>
+      </article>
 
       <div class="settings-grid settings-grid-two">
         <article class="settings-card">
@@ -353,7 +384,8 @@
 </main>
 
 <footer class="site-footer settings-footer"><span>Tracker personale · salvataggio attivo</span><a href="index.html">Torna alla homepage</a></footer>
-<script src="tracker-store.js?v=42"></script>
-<script src="app.js?v=42"></script>
+<script src="tracker-store.js?v=44"></script>
+<script src="app.js?v=44"></script>
+<script src="pwa.js?v=44"></script>
 </body>
 </html>
