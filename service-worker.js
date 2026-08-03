@@ -1,4 +1,4 @@
-const VERSION = '44';
+const VERSION = '45';
 const CACHE_PREFIX = 'tracker-personale';
 const PRECACHE = `${CACHE_PREFIX}-precache-v${VERSION}`;
 const RUNTIME = `${CACHE_PREFIX}-runtime-v${VERSION}`;
@@ -20,10 +20,15 @@ const APP_SHELL = [
   './pwa.css?v=44',
   './tracker-store.js?v=44',
   './app.js?v=44',
-  './pwa.js?v=44',
-  './manifest.json?v=44',
+  './pwa.js?v=45',
+  './manifest.json?v=45',
   './favicon.png',
   './apple-touch-icon.png',
+  './apple-touch-icon-v45.png',
+  './icons/app-screen-icon-192-v45.png',
+  './icons/app-screen-icon-512-v45.png',
+  './icons/app-screen-icon-maskable-192-v45.png',
+  './icons/app-screen-icon-maskable-512-v45.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-maskable-192.png',
