@@ -1,4 +1,4 @@
-const VERSION = '45';
+const VERSION = '46';
 const CACHE_PREFIX = 'tracker-personale';
 const PRECACHE = `${CACHE_PREFIX}-precache-v${VERSION}`;
 const RUNTIME = `${CACHE_PREFIX}-runtime-v${VERSION}`;
@@ -15,13 +15,13 @@ const APP_SHELL = [
   './archivio.html',
   './impostazioni.html',
   './offline.html',
-  './styles.css?v=44',
-  './mobile.css?v=44',
-  './pwa.css?v=44',
-  './tracker-store.js?v=44',
-  './app.js?v=44',
-  './pwa.js?v=45',
-  './manifest.json?v=45',
+  './styles.css?v=46',
+  './mobile.css?v=46',
+  './pwa.css?v=46',
+  './tracker-store.js?v=46',
+  './app.js?v=46',
+  './pwa.js?v=46',
+  './manifest.json?v=46',
   './favicon.png',
   './apple-touch-icon.png',
   './apple-touch-icon-v45.png',
@@ -33,12 +33,14 @@ const APP_SHELL = [
   './icons/icon-512.png',
   './icons/icon-maskable-192.png',
   './icons/icon-maskable-512.png',
-  './assets/hero-room.png'
+  './assets/hero-room.png?v=46'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(PRECACHE).then((cache) => cache.addAll(APP_SHELL))
+    caches.open(PRECACHE).then((cache) =>
+      Promise.allSettled(APP_SHELL.map((asset) => cache.add(asset)))
+    )
   );
 });
 

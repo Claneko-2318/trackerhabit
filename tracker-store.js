@@ -4,6 +4,8 @@
   const STORAGE_KEY = 'tracker_personale_data_v1';
   const SCRIPT_URL_KEY = 'tracker_personale_script_url';
   const REMOTE_DELAY = 900;
+  const REMOTE_REFRESH_INTERVAL = 30000;
+  const REQUEST_TIMEOUT = 25000;
   let remoteTimer = null;
   let syncInProgress = false;
   let remoteReady = false;
@@ -31,6 +33,7 @@
     return {
       date: key,
       updatedAt: '',
+      sectionUpdatedAt: {},
       sleep: null,
       meals: {},
       mealItems: {},
@@ -135,7 +138,8 @@
             category: String(item?.category || ''),
             favorite: item?.favorite === true,
             active: item?.active !== false,
-            createdAt: item?.createdAt || ''
+             createdAt: item?.createdAt || '',
+             updatedAt: item?.updatedAt || item?.createdAt || ''
           })).filter((item) => item.name) : [],
           categories: Array.isArray(input.settings?.tracker?.categories)
             ? input.settings.tracker.categories.map((item, index) => ({
@@ -250,9 +254,26 @@
     const requestUrl = isGet
       ? `${url}${url.includes('?') ? '&' : '?'}action=${encodeURIComponent(payload.action)}&_=${Date.now()}`
       : url;
-    const response = await fetch(requestUrl, isGet
-      ? { method: 'GET', cache: 'no-store', redirect: 'follow' }
-      : { method: 'POST', body: JSON.stringify(payload), redirect: 'follow' });
+    const controller = typeof AbortController === 'function' ? new AbortController() : null;
+    const timeout = controller ? window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT) : null;
+    let response;
+    try {
+      response = await fetch(requestUrl, isGet
+        ? { method: 'GET', cache: 'no-store', redirect: 'follow', signal: controller?.signal }
+        : {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+            cache: 'no-store',
+            redirect: 'follow',
+            signal: controller?.signal
+          });
+    } catch (error) {
+      if (error?.name === 'AbortError') throw new Error('La sincronizzazione ha superato 25 secondi. Controlla la rete e riprova.');
+      throw new Error(`Connessione alla Web App non riuscita: ${error?.message || 'errore di rete'}`);
+    } finally {
+      if (timeout) window.clearTimeout(timeout);
+    }
     if (!response.ok) throw new Error(`Errore HTTP ${response.status}`);
     let data;
     try { data = await response.json(); }
@@ -332,6 +353,64 @@
     return [...byKey.values()];
   }
 
+  const DAY_SECTIONS = ['sleep', 'meals', 'mealItems', 'water', 'beverages', 'activities', 'dailyNote', 'tetr'];
+
+  function mergeLegacyArray(first, second) {
+    const map = new Map();
+    [...(first || []), ...(second || [])].forEach((item, index) => {
+      const key = String(item?.id || '') || `legacy:${JSON.stringify(item)}:${index}`;
+      map.set(key, map.has(key) ? newerItem(map.get(key), item) : clone(item));
+    });
+    return [...map.values()];
+  }
+
+  function hasContent(value) {
+    if (value == null) return false;
+    if (typeof value === 'string') return value.trim() !== '';
+    if (Array.isArray(value)) return value.length > 0;
+    if (typeof value === 'object') return Object.keys(value).length > 0;
+    return true;
+  }
+
+  function mergeLegacySection(name, localValue, remoteValue, localDayTime, remoteDayTime) {
+    if (['water', 'beverages', 'activities'].includes(name)) return mergeLegacyArray(localValue, remoteValue);
+    if (name === 'meals' || name === 'mealItems') {
+      const merged = { ...(remoteValue || {}), ...(localValue || {}) };
+      new Set([...Object.keys(localValue || {}), ...Object.keys(remoteValue || {})]).forEach((key) => {
+        const a = localValue?.[key];
+        const b = remoteValue?.[key];
+        if (!hasContent(a) && hasContent(b)) merged[key] = clone(b);
+        else if (hasContent(a) && hasContent(b) && remoteDayTime > localDayTime) merged[key] = clone(b);
+      });
+      return merged;
+    }
+    if (!hasContent(localValue) && hasContent(remoteValue)) return clone(remoteValue);
+    if (hasContent(localValue) && !hasContent(remoteValue)) return clone(localValue);
+    return clone(remoteDayTime > localDayTime ? remoteValue : localValue);
+  }
+
+  function mergeDay(localDay, remoteDay, key) {
+    if (!localDay) return clone(remoteDay);
+    if (!remoteDay) return clone(localDay);
+    const localDayTime = new Date(localDay.updatedAt || 0).getTime() || 0;
+    const remoteDayTime = new Date(remoteDay.updatedAt || 0).getTime() || 0;
+    const result = { ...emptyDay(key), date: key, sectionUpdatedAt: {} };
+    DAY_SECTIONS.forEach((name) => {
+      const localStamp = localDay.sectionUpdatedAt?.[name] || '';
+      const remoteStamp = remoteDay.sectionUpdatedAt?.[name] || '';
+      const localTime = new Date(localStamp || 0).getTime() || 0;
+      const remoteTime = new Date(remoteStamp || 0).getTime() || 0;
+      if (localTime || remoteTime) {
+        result[name] = clone(remoteTime > localTime ? remoteDay[name] : localDay[name]);
+        result.sectionUpdatedAt[name] = remoteTime > localTime ? remoteStamp : localStamp;
+      } else {
+        result[name] = mergeLegacySection(name, localDay[name], remoteDay[name], localDayTime, remoteDayTime);
+      }
+    });
+    result.updatedAt = new Date(Math.max(localDayTime, remoteDayTime)).toISOString();
+    return result;
+  }
+
   function mergeStates(localState, remoteState) {
     const local = normalizeState(localState);
     const remote = normalizeState(remoteState);
@@ -342,11 +421,7 @@
     const allDayKeys = new Set([...Object.keys(local.days || {}), ...Object.keys(remote.days || {})]);
     merged.days = {};
     allDayKeys.forEach((key) => {
-      const localDay = local.days[key];
-      const remoteDay = remote.days[key];
-      const localDayTime = new Date(localDay?.updatedAt || 0).getTime();
-      const remoteDayTime = new Date(remoteDay?.updatedAt || 0).getTime();
-      merged.days[key] = clone(!localDay ? remoteDay : !remoteDay ? localDay : remoteDayTime > localDayTime ? remoteDay : localDay);
+      merged.days[key] = mergeDay(local.days[key], remote.days[key], key);
     });
 
     const localSettingsTime = new Date(local.settingsUpdatedAt || local.updatedAt || 0).getTime();
@@ -430,6 +505,10 @@
       return { empty: false, state: clone(state), summary: stateSummary(state) };
     } finally {
       syncInProgress = false;
+      if (pendingRemoteSave) {
+        pendingRemoteSave = false;
+        scheduleRemoteSave();
+      }
     }
   }
 
@@ -459,6 +538,10 @@
       return { ...result, state: clone(state), summary: stateSummary(state) };
     } finally {
       syncInProgress = false;
+      if (pendingRemoteSave) {
+        pendingRemoteSave = false;
+        scheduleRemoteSave();
+      }
     }
   }
 
@@ -514,11 +597,25 @@
 
   function saveDay(key, nextDay, reason = 'day-update') {
     const normalizedKey = typeof key === 'string' ? key : dateKey(key);
+    const now = new Date().toISOString();
+    const sectionByReason = {
+      'sleep-save': 'sleep', 'sleep-delete': 'sleep',
+      'activity-save': 'activities', 'activity-add': 'activities', 'activity-edit': 'activities', 'activity-delete': 'activities',
+      'daily-note': 'dailyNote', 'meal-save': 'meals', 'meal-food-update': 'mealItems',
+      'water-add': 'water', 'water-delete': 'water', 'water-undo': 'water',
+      'beverage-add': 'beverages', 'beverage-delete': 'beverages',
+      'tetr-save': 'tetr', 'tetr-note': 'tetr', 'tetr-remove': 'tetr'
+    };
+    const sectionUpdatedAt = { ...(nextDay?.sectionUpdatedAt || {}) };
+    const changedSection = sectionByReason[reason];
+    if (changedSection) sectionUpdatedAt[changedSection] = now;
+    else DAY_SECTIONS.forEach((section) => { sectionUpdatedAt[section] = now; });
     state.days[normalizedKey] = {
       ...emptyDay(normalizedKey),
       ...(nextDay || {}),
       date: normalizedKey,
-      updatedAt: new Date().toISOString(),
+      updatedAt: now,
+      sectionUpdatedAt,
       meals: { ...((nextDay || {}).meals || {}) },
       water: Array.isArray(nextDay?.water) ? nextDay.water : [],
       beverages: Array.isArray(nextDay?.beverages) ? nextDay.beverages : [],
@@ -639,4 +736,7 @@
   }), 0);
   document.addEventListener('visibilitychange', refreshRemoteWhenReturning);
   window.addEventListener('focus', refreshRemoteWhenReturning);
+  window.setInterval(() => {
+    if (document.visibilityState === 'visible' && navigator.onLine) refreshRemoteWhenReturning();
+  }, REMOTE_REFRESH_INTERVAL);
 })();

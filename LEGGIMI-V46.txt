@@ -1,0 +1,38 @@
+TRACKER PERSONALE — AGGIORNAMENTO V46
+
+1. Prima di aggiornare
+- Esporta un backup JSON dal dispositivo che contiene i dati più completi.
+- Conserva privatamente il backup: non caricarlo su GitHub.
+
+2. GitHub Pages
+- Carica nella cartella principale di trackerhabit tutti i file e le cartelle
+  contenuti in questo pacchetto, sostituendo quelli esistenti.
+- Attendi il completamento della pubblicazione di GitHub Pages.
+
+3. Google Apps Script (obbligatorio)
+- Apri il progetto Apps Script collegato al foglio.
+- Sostituisci integralmente Code.gs con google-apps-script/Code.gs.
+- Usa Distribuisci > Gestisci distribuzioni > Modifica.
+- Seleziona Nuova versione e conferma la distribuzione.
+- L'URL /exec può restare lo stesso.
+
+4. Dispositivi
+- Apri il tracker online e ricaricalo.
+- Su iPad/iPhone chiudi e riapri l'app dalla schermata Home.
+- In Impostazioni premi Verifica collegamento.
+- Per l'uso normale scegli sempre Unisci dispositivo e foglio.
+
+Principali correzioni
+- fusione separata di sonno, pasti, alimenti, acqua, bevande, attività,
+  nota giornaliera e Tetr-Emotion;
+- protezione delle vecchie giornate complete dalle copie parziali;
+- una sola sincronizzazione all'avvio e controllo remoto ogni 30 secondi;
+- richiesta Apps Script più compatibile con Safari/iPad e timeout leggibile;
+- installazione della cache PWA resistente a singole risorse mancanti;
+- immagine Home forzata alla versione V46;
+- libreria cibi limitata ai 5 elementi aggiunti più di recente, con pulsante
+  Mostra tutti e filtro per categoria invariato;
+- contenitori e intestazioni interne resi più coerenti tra le pagine.
+
+Nota: il backup personale BACKUP-PRINCIPALE-NON-CANCELLARE.json è stato
+escluso intenzionalmente dal pacchetto destinato a GitHub.

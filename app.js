@@ -258,7 +258,7 @@ window.addEventListener('tracker:data-changed', (event) => {
       evening: [[38,20,53],[91,48,76],[35,21,50]],
       night: [[18,18,47],[25,28,66],[14,17,44]]
     }[scene];
-    hero.style.backgroundImage = `linear-gradient(90deg, rgba(${palette[0].join(',')},${strength}) 0%, rgba(${palette[1].join(',')},${Math.max(.08, strength * .28)}) 52%, rgba(${palette[2].join(',')},${Math.max(.22, strength * .62)}) 100%), linear-gradient(0deg, rgba(${palette[0].join(',')},${Math.max(.34, strength * .92)}) 0%, rgba(${palette[0].join(',')},.02) 52%), url("assets/hero-room.png")`;
+    hero.style.backgroundImage = `linear-gradient(90deg, rgba(${palette[0].join(',')},${strength}) 0%, rgba(${palette[1].join(',')},${Math.max(.08, strength * .28)}) 52%, rgba(${palette[2].join(',')},${Math.max(.22, strength * .62)}) 100%), linear-gradient(0deg, rgba(${palette[0].join(',')},${Math.max(.34, strength * .92)}) 0%, rgba(${palette[0].join(',')},.02) 52%), url("assets/hero-room.png?v=46")`;
   };
   applyScene();
   window.setInterval(applyScene, 60000);
@@ -872,17 +872,26 @@ window.addEventListener('tracker:data-changed', (event) => {
   const libraryList = page.querySelector('[data-food-library-list]');
   const librarySearch = page.querySelector('[data-food-library-search]');
   const libraryFilter = page.querySelector('[data-food-library-filter]');
+  const libraryMore = page.querySelector('[data-food-library-more]');
+  const libraryMoreWrap = page.querySelector('[data-food-library-more-wrap]');
   const editor = page.querySelector('[data-food-library-editor]');
   let pendingMealAfterCreate = null;
+  let showAllFoodLibrary = false;
   function renderFoodLibrary() {
     if (!libraryList) return;
     const query = (librarySearch?.value || '').trim().toLocaleLowerCase('it');
     const category = libraryFilter?.value || '';
-    const items = foodLibrary().filter((item) => item.active !== false && (!query || `${item.name} ${item.category}`.toLocaleLowerCase('it').includes(query)) && (!category || item.category === category)).sort((a,b) => Number(b.favorite)-Number(a.favorite) || a.name.localeCompare(b.name,'it'));
-    libraryList.innerHTML = items.length ? items.map((item) => {
+    const items = foodLibrary().filter((item) => item.active !== false && (!query || `${item.name} ${item.category}`.toLocaleLowerCase('it').includes(query)) && (!category || item.category === category)).sort((a,b) => new Date(b.createdAt || b.updatedAt || 0).getTime() - new Date(a.createdAt || a.updatedAt || 0).getTime() || a.name.localeCompare(b.name,'it'));
+    const visibleItems = showAllFoodLibrary ? items : items.slice(0, 5);
+    libraryList.innerHTML = visibleItems.length ? visibleItems.map((item) => {
       const usage = foodUsage(item.id);
       return `<article class="food-library-card" data-library-food-id="${escapeHtml(item.id)}"><div class="food-library-icon">${escapeHtml(item.icon || '•')}</div><div><div class="food-library-name"><strong>${escapeHtml(item.name)}</strong>${item.favorite ? '<span aria-label="Preferito">★</span>' : ''}</div><p>${escapeHtml(item.category || 'Senza categoria')} · ${usage.count} ${usage.count === 1 ? 'consumo' : 'consumi'}${usage.lastDate ? ` · Ultimo: ${formatDate(usage.lastDate,{day:'numeric',month:'short'})}` : ''}</p></div><div class="food-library-actions"><button type="button" data-toggle-food-favorite aria-label="Preferito">${item.favorite ? '★' : '☆'}</button><button type="button" data-edit-food>Modifica</button><button type="button" data-merge-food>Unisci</button><button type="button" data-delete-food>Elimina</button></div></article>`;
     }).join('') : '<div class="food-library-empty"><strong>Nessun alimento trovato.</strong><p>Aggiungine uno mentre compili un pasto oppure usa “Nuovo alimento”.</p></div>';
+    if (libraryMoreWrap && libraryMore) {
+      libraryMoreWrap.hidden = items.length <= 5;
+      libraryMore.textContent = showAllFoodLibrary ? 'Mostra solo i 5 più recenti' : `Mostra tutti (${items.length})`;
+      libraryMore.setAttribute('aria-expanded', String(showAllFoodLibrary));
+    }
   }
   function openFoodEditor(id = null, suggestedName = '', meal = null) {
     if (!editor) return;
@@ -910,7 +919,8 @@ window.addEventListener('tracker:data-changed', (event) => {
     const duplicate = foodLibrary().find((item) => item.id !== editingFoodId && item.name.toLocaleLowerCase('it') === name.toLocaleLowerCase('it'));
     if (duplicate) { feedback.textContent = `Esiste già “${duplicate.name}”. Usa quella voce oppure modifica il nome.`; return; }
     const next = foodLibrary();
-    const data = { id: editingFoodId || uid('food'), name, icon: editor.querySelector('[data-food-editor-icon]').value.trim(), category: editor.querySelector('[data-food-editor-category]').value, favorite: editor.querySelector('[data-food-editor-favorite]').checked, active: true, createdAt: editingFoodId ? (foodById(editingFoodId)?.createdAt || '') : new Date().toISOString() };
+    const now = new Date().toISOString();
+    const data = { id: editingFoodId || uid('food'), name, icon: editor.querySelector('[data-food-editor-icon]').value.trim(), category: editor.querySelector('[data-food-editor-category]').value, favorite: editor.querySelector('[data-food-editor-favorite]').checked, active: true, createdAt: editingFoodId ? (foodById(editingFoodId)?.createdAt || now) : now, updatedAt: now };
     const saved = editingFoodId ? next.map((item) => item.id === editingFoodId ? data : item) : [...next, data];
     saveFoodLibrary(saved);
     if (pendingMealAfterCreate) { const day=Store.getDay(key()); persistMealFood(pendingMealAfterCreate,[...selectedFoodIds(day,pendingMealAfterCreate),data.id]); }
@@ -919,7 +929,7 @@ window.addEventListener('tracker:data-changed', (event) => {
   libraryList?.addEventListener('click', (event) => {
     const card=event.target.closest('[data-library-food-id]'); if(!card) return; const id=card.dataset.libraryFoodId;
     if(event.target.closest('[data-edit-food]')) openFoodEditor(id);
-    if(event.target.closest('[data-toggle-food-favorite]')) saveFoodLibrary(foodLibrary().map((item)=>item.id===id?{...item,favorite:!item.favorite}:item));
+    if(event.target.closest('[data-toggle-food-favorite]')) saveFoodLibrary(foodLibrary().map((item)=>item.id===id?{...item,favorite:!item.favorite,updatedAt:new Date().toISOString()}:item));
     if(event.target.closest('[data-merge-food]')) {
       const source = foodById(id);
       const targetName = prompt(`Con quale alimento vuoi unire “${source?.name || ''}”? Scrivi il nome esatto.`);
@@ -934,16 +944,17 @@ window.addEventListener('tracker:data-changed', (event) => {
               if (ids.includes(id)) day.mealItems[meal] = [...new Set(ids.map((value) => value === id ? target.id : value))];
             });
           });
-          state.settings.tracker.foodLibrary = state.settings.tracker.foodLibrary.map((item) => item.id === id ? { ...item, active:false } : item);
+          state.settings.tracker.foodLibrary = state.settings.tracker.foodLibrary.map((item) => item.id === id ? { ...item, active:false, updatedAt:new Date().toISOString() } : item);
           Store.replaceState(state, 'food-library-merge');
         }
       }
     }
-    if(event.target.closest('[data-delete-food]')) { if(confirm('Rimuovere questo alimento dalla libreria? Lo storico resterà intatto.')) saveFoodLibrary(foodLibrary().map((item)=>item.id===id?{...item,active:false}:item)); }
+    if(event.target.closest('[data-delete-food]')) { if(confirm('Rimuovere questo alimento dalla libreria? Lo storico resterà intatto.')) saveFoodLibrary(foodLibrary().map((item)=>item.id===id?{...item,active:false,updatedAt:new Date().toISOString()}:item)); }
     renderFoodLibrary(); renderFoodPickers(Store.getDay(key()));
   });
-  librarySearch?.addEventListener('input', renderFoodLibrary);
-  libraryFilter?.addEventListener('change', renderFoodLibrary);
+  librarySearch?.addEventListener('input', () => { showAllFoodLibrary = false; renderFoodLibrary(); });
+  libraryFilter?.addEventListener('change', () => { showAllFoodLibrary = false; renderFoodLibrary(); });
+  libraryMore?.addEventListener('click', () => { showAllFoodLibrary = !showAllFoodLibrary; renderFoodLibrary(); });
   function formatEntry(quarters) {
     const ml = Math.round(quarters * quarterMl());
     const base = quarters === 4 ? '1 borraccia' : formatWater(quarters);
@@ -2182,7 +2193,7 @@ window.addEventListener('tracker:data-changed', (event) => {
 
   function renderGradient() {
     page.querySelector('[data-gradient-value]').textContent = `${gradient.value}%`;
-    page.querySelector('[data-gradient-sample]').style.backgroundImage = `linear-gradient(0deg, rgba(38,25,56,${Number(gradient.value) / 100}), rgba(38,25,56,.03)), url("assets/hero-room.png")`;
+    page.querySelector('[data-gradient-sample]').style.backgroundImage = `linear-gradient(0deg, rgba(38,25,56,${Number(gradient.value) / 100}), rgba(38,25,56,.03)), url("assets/hero-room.png?v=46")`;
   }
 
   function renderTetrPreview() {
@@ -2453,12 +2464,6 @@ window.addEventListener('tracker:data-changed', (event) => {
   page.querySelector('[data-demo-reset]')?.addEventListener('click', () => { autoScenes.checked = true; renderScene(currentScene()); page.querySelector('[data-image-feedback]').textContent = 'Scene automatiche ripristinate. Premi Salva modifiche.'; });
   loadSettings();
 })();
-
-// Se è già configurato un foglio, esegue una sincronizzazione atomica completa senza bloccare l’apertura.
-if (Store?.getScriptUrl()) {
-  Store.syncRemote().catch((error) => console.warn('Sincronizzazione iniziale non riuscita. I dati locali restano disponibili.', error));
-}
-
 
 // V24 — esportazione del riepilogo, CSV e grafici PNG per Notion.
 (() => {
