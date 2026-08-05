@@ -5,7 +5,10 @@ function doGet(e) {
   try {
     const action = String((e && e.parameter && e.parameter.action) || 'ping');
     if (action === 'ping') return json_({ ok: true, message: 'Tracker personale collegato', time: new Date().toISOString(), version: 2 });
-    if (action === 'getState') return json_({ ok: true, state: loadState_(), summary: stateSummary_(loadState_()) });
+    if (action === 'getState') {
+      const state = loadState_();
+      return json_({ ok: true, state: state, summary: stateSummary_(state) });
+    }
     return json_({ ok: false, error: 'Azione GET non riconosciuta.' });
   } catch (error) { return json_({ ok: false, error: error.message }); }
 }
@@ -138,6 +141,69 @@ function mergeFood_(a, b, fallbackA, fallbackB) {
   (b || []).forEach(item => add(item, fallbackB, true));
   return Object.keys(map).map(key => map[key]);
 }
+
+const DAY_SECTIONS_ = ['sleep', 'meals', 'mealItems', 'water', 'beverages', 'activities', 'dailyNote', 'tetr'];
+
+function hasContent_(value) {
+  if (value == null) return false;
+  if (typeof value === 'string') return value.trim() !== '';
+  if (Array.isArray(value)) return value.length > 0;
+  if (typeof value === 'object') return Object.keys(value).length > 0;
+  return true;
+}
+
+function mergeLegacyArray_(a, b) {
+  const map = {};
+  (a || []).concat(b || []).forEach((item, index) => {
+    if (!item) return;
+    const key = String(item.id || '') || ('legacy:' + JSON.stringify(item) + ':' + index);
+    map[key] = map[key] ? newer_(map[key], item) : clone_(item);
+  });
+  return Object.keys(map).map(key => map[key]);
+}
+
+function mergeLegacySection_(name, a, b, at, bt) {
+  if (['water', 'beverages', 'activities'].indexOf(name) >= 0) return mergeLegacyArray_(a, b);
+  if (name === 'meals' || name === 'mealItems') {
+    const result = Object.assign({}, b || {}, a || {});
+    const keys = {};
+    Object.keys(a || {}).forEach(key => keys[key] = true);
+    Object.keys(b || {}).forEach(key => keys[key] = true);
+    Object.keys(keys).forEach(key => {
+      if (!hasContent_(a && a[key]) && hasContent_(b && b[key])) result[key] = clone_(b[key]);
+      else if (hasContent_(a && a[key]) && hasContent_(b && b[key]) && bt > at) result[key] = clone_(b[key]);
+    });
+    return result;
+  }
+  if (!hasContent_(a) && hasContent_(b)) return clone_(b);
+  if (hasContent_(a) && !hasContent_(b)) return clone_(a);
+  return clone_(bt > at ? b : a);
+}
+
+function emptyDay_(key) {
+  return { date:key, updatedAt:'', sectionUpdatedAt:{}, sleep:null, meals:{}, mealItems:{}, water:[], beverages:[], activities:[], dailyNote:'', tetr:null };
+}
+
+function mergeDay_(a, b, key) {
+  if (!a) return clone_(b);
+  if (!b) return clone_(a);
+  const at = time_(a.updatedAt), bt = time_(b.updatedAt);
+  const result = emptyDay_(key);
+  DAY_SECTIONS_.forEach(name => {
+    const as = a.sectionUpdatedAt && a.sectionUpdatedAt[name] || '';
+    const bs = b.sectionUpdatedAt && b.sectionUpdatedAt[name] || '';
+    const ast = time_(as), bst = time_(bs);
+    if (ast || bst) {
+      result[name] = clone_(bst > ast ? b[name] : a[name]);
+      result.sectionUpdatedAt[name] = bst > ast ? bs : as;
+    } else {
+      result[name] = mergeLegacySection_(name, a[name], b[name], at, bt);
+    }
+  });
+  result.updatedAt = new Date(Math.max(at, bt)).toISOString();
+  return result;
+}
+
 function mergeStates_(local, remote) {
   local = local || {}; remote = remote || {};
   const lt = time_(local.updatedAt), rt = time_(remote.updatedAt);
@@ -148,7 +214,7 @@ function mergeStates_(local, remote) {
   Object.keys(remote.days || {}).forEach(k => keys[k] = true);
   Object.keys(keys).forEach(k => {
     const a = (local.days || {})[k], b = (remote.days || {})[k];
-    merged.days[k] = !a ? clone_(b) : !b ? clone_(a) : clone_(time_(b.updatedAt) > time_(a.updatedAt) ? b : a);
+    merged.days[k] = mergeDay_(a, b, k);
   });
   const lst = time_(local.settingsUpdatedAt || local.updatedAt), rst = time_(remote.settingsUpdatedAt || remote.updatedAt);
   merged.settings = clone_(rst > lst ? remote.settings : local.settings) || {};
