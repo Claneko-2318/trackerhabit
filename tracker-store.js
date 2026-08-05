@@ -529,9 +529,15 @@
     if (syncInProgress) return remoteBootstrapPromise || { state: clone(state), summary: stateSummary(state) };
     syncInProgress = true;
     try {
-      const result = await api({ action: 'mergeState', state });
+      // Invia una fotografia stabile. Durante l'attesa l'utente puo continuare
+      // a salvare: quelle modifiche restano nello stato locale corrente.
+      const stateSent = clone(state);
+      const result = await api({ action: 'mergeState', state: stateSent });
       if (!result.state) throw new Error('La Web App non ha restituito lo stato sincronizzato.');
-      state = normalizeState(result.state);
+      // Non sostituire mai i salvataggi eseguiti mentre la richiesta era in
+      // corso. Uniscili alla risposta e il salvataggio pendente li inviera al
+      // foglio nel giro successivo.
+      state = mergeStates(state, result.state);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       lastRemoteRefresh = Date.now();
       emit({ reason: 'remote-sync', state: clone(state), savedAt: result.savedAt || '' });

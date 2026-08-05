@@ -1,4 +1,4 @@
-const VERSION = '49';
+const VERSION = '50';
 const CACHE_PREFIX = 'tracker-personale';
 const PRECACHE = `${CACHE_PREFIX}-precache-v${VERSION}`;
 const RUNTIME = `${CACHE_PREFIX}-runtime-v${VERSION}`;
@@ -18,7 +18,7 @@ const APP_SHELL = [
   './styles.css?v=46',
   './mobile.css?v=47',
   './pwa.css?v=46',
-  './tracker-store.js?v=46',
+  './tracker-store.js?v=50',
   './app.js?v=49',
   './pwa.js?v=48',
   './manifest.json?v=48',
