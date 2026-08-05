@@ -1203,11 +1203,18 @@ window.addEventListener('tracker:data-changed', (event) => {
     const bx = x + dx; const by = y + dy;
     return bx >= 0 && bx < COLS && by >= 0 && by < ROWS && !board[by][bx];
   });
+  const findLowestFreeY = (shape, x) => {
+    const bounds = getBounds(shape);
+    for (let y = ROWS - bounds.height; y >= 0; y -= 1) {
+      if (canPlace(shape, x, y)) return y;
+    }
+    return null;
+  };
   const getDropY = (piece = current) => {
-    if (!piece) return 0;
-    let y = piece.y;
-    while (canPlace(piece.shape, piece.x, y + 1)) y += 1;
-    return y;
+    if (!piece) return null;
+    // Cerca l'incastro libero piu basso nell'intera colonna. Una sporgenza
+    // superiore non deve impedire di riempire un vuoto compatibile sotto.
+    return findLowestFreeY(piece.shape, piece.x);
   };
   const monthKey = () => Store.monthKey(selectedMonth);
   const selectedKey = () => Store.dateKey(selectedDate);
@@ -1294,7 +1301,7 @@ window.addEventListener('tracker:data-changed', (event) => {
     const ghostCells = new Set();
     if (current) current.shape.forEach(([dx, dy]) => {
       currentCells.add(`${current.x + dx},${current.y + dy}`);
-      ghostCells.add(`${current.x + dx},${ghostY + dy}`);
+      if (ghostY !== null) ghostCells.add(`${current.x + dx},${ghostY + dy}`);
     });
     for (let y = 0; y < ROWS; y += 1) {
       for (let x = 0; x < COLS; x += 1) {
@@ -1390,15 +1397,20 @@ window.addEventListener('tracker:data-changed', (event) => {
     const bounds = getBounds(current.shape);
     const wantedX = Math.max(0, Math.min(COLS - bounds.width, column - Math.floor(bounds.width / 2)));
     const candidates = Array.from({ length: COLS - bounds.width + 1 }, (_, x) => x).sort((a, b) => Math.abs(a - wantedX) - Math.abs(b - wantedX));
-    const validX = candidates.find((x) => canPlace(current.shape, x, current.y));
+    const validX = candidates.find((x) => findLowestFreeY(current.shape, x) !== null);
     if (validX !== undefined) { current.x = validX; renderBoard(); feedback.textContent = 'Posizione aggiornata.'; }
   }
-  function moveCurrent(dx) { if (current && canPlace(current.shape, current.x + dx, current.y)) { current.x += dx; renderBoard(); } }
+  function moveCurrent(dx) {
+    if (current && findLowestFreeY(current.shape, current.x + dx) !== null) {
+      current.x += dx;
+      renderBoard();
+    }
+  }
   function rotateCurrent() {
     if (!current) return;
     const emotion = EMOTIONS[current.emotionKey];
     const rotated = rotateShape(current.shape, emotion.piece);
-    const kick = [0, -1, 1, -2, 2].find((value) => canPlace(rotated, current.x + value, current.y));
+    const kick = [0, -1, 1, -2, 2].find((value) => findLowestFreeY(rotated, current.x + value) !== null);
     if (kick !== undefined) { current.shape = rotated; current.x += kick; renderBoard(); feedback.textContent = emotion.piece === 'O' ? 'Il tetramino O mantiene la stessa forma.' : 'Pezzo ruotato.'; }
     else feedback.textContent = 'Qui il pezzo non può ruotare.';
   }
@@ -1407,6 +1419,11 @@ window.addEventListener('tracker:data-changed', (event) => {
     if (!current) return;
     const emotion = EMOTIONS[current.emotionKey];
     const dropY = getDropY(current);
+    if (dropY === null) {
+      feedback.textContent = 'Non c\'e spazio libero per questo pezzo nella posizione scelta.';
+      confirmOverlay.hidden = true;
+      return;
+    }
     const cells = current.shape.map(([dx, dy]) => [dropY + dy, current.x + dx]);
     const rotationShape = current.shape.map((point) => [...point]);
     const dateKey = selectedKey();
