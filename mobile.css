@@ -1273,6 +1273,176 @@
   }
 }
 
+/* V47 — rifinitura visiva mobile. */
+@media (max-width: 600px) {
+  body {
+    color: #3f3650;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  h1, h2, h3, p, span, strong, a, label, button {
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  .home-page .hero-fullscreen {
+    min-height: 560px !important;
+    padding: 28px var(--mobile-gutter) 32px !important;
+    background-color: #382a52 !important;
+    background-image:
+      linear-gradient(90deg, rgba(28,18,45,.82), rgba(36,22,54,.38)),
+      linear-gradient(0deg, rgba(25,15,42,.72), rgba(25,15,42,.08)),
+      url("assets/hero-room.png?v=47") !important;
+    background-size: cover !important;
+    background-position: 52% center !important;
+    background-repeat: no-repeat !important;
+  }
+
+  .home-page .hero-stage {
+    min-height: 500px !important;
+    justify-content: flex-end !important;
+  }
+
+  .home-page .hero-copy,
+  .home-page .hero-copy :is(h1, p, span, strong),
+  .home-page .weather-card,
+  .home-page .weather-card :is(p, span, strong) {
+    color: #fff !important;
+  }
+
+  .home-page .hero-kicker,
+  .home-page .hero-date-copy p,
+  .home-page .hero-time-label,
+  .home-page .weather-location,
+  .home-page .weather-status,
+  .home-page .weather-bottom {
+    color: rgba(255,255,255,.84) !important;
+  }
+
+  .home-page .weather-card {
+    padding: 18px !important;
+    border-color: rgba(255,255,255,.28) !important;
+    background: rgba(42,29,61,.62) !important;
+  }
+
+  :is(
+    .primary-button,
+    .secondary-button,
+    .sleep-primary-button,
+    .sleep-small-button,
+    .food-today-button,
+    .today-button,
+    .reading-action-button,
+    .reading-save-button,
+    .tetr-today-button,
+    .tetr-save-piece,
+    .tetr-save-note,
+    .settings-button,
+    .archive-today-button,
+    .meal-save-button,
+    .meal-note-toggle
+  ) {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    min-height: 48px !important;
+    padding: 12px 18px !important;
+    border-radius: 14px !important;
+    font-size: 15px !important;
+    font-weight: 760 !important;
+    line-height: 1.25 !important;
+  }
+
+  :is(.primary-button, .sleep-primary-button, .reading-save-button, .tetr-save-piece, .settings-button.primary) {
+    color: #fff !important;
+    background: #523f77 !important;
+    border-color: #523f77 !important;
+    box-shadow: 0 8px 20px rgba(82,63,119,.18) !important;
+  }
+
+  :is(.secondary-button, .sleep-small-button, .meal-note-toggle) {
+    color: #523f77 !important;
+    background: #fff !important;
+    border: 1px solid #d9cfe3 !important;
+    box-shadow: 0 5px 14px rgba(82,63,119,.08) !important;
+  }
+
+  .food-library-more {
+    margin-top: 18px !important;
+  }
+
+  .food-library-more .secondary-button {
+    width: min(100%, 300px) !important;
+  }
+
+  :is(
+    .brand,
+    .mobile-nav-item,
+    .mobile-more-link,
+    .summary-card,
+    .quick-status,
+    .complete-row,
+    .section-card,
+    .food-library-card,
+    .settings-card-title-wrap,
+    .settings-switch-row,
+    .reading-action-button
+  ) {
+    column-gap: 12px !important;
+  }
+
+  :is(.secondary-text, .settings-note, .food-feedback, .sleep-helper, .water-feedback) {
+    font-size: 13px !important;
+    line-height: 1.55 !important;
+  }
+
+  .mobile-nav-item span {
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+  }
+
+  :is(.day-page .date-switcher, .sleep-page .sleep-date-switcher, .food-page .food-date-switcher) {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  :is(.day-page .date-switcher-copy, .sleep-page .sleep-date-copy, .food-page .food-date-copy) {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    padding-bottom: 4px !important;
+  }
+
+  :is(.day-page .date-arrow, .sleep-page .sleep-date-arrow, .food-page .food-date-arrow) {
+    width: 100% !important;
+    min-height: 46px !important;
+    border-radius: 13px !important;
+  }
+
+  :is(.day-page .today-button, .sleep-page .sleep-today-button, .food-page .food-today-button) {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+  }
+
+  .food-library-card {
+    padding: 16px !important;
+  }
+
+  .food-library-actions {
+    justify-content: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .food-library-actions button {
+    min-height: 40px !important;
+    padding: 8px 11px !important;
+    border-radius: 11px !important;
+    font-size: 13px !important;
+  }
+}
+
 @media (max-width: 600px) {
   /* Correzioni finali del layout approvato. */
   input[type="radio"],

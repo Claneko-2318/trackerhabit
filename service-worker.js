@@ -1,4 +1,4 @@
-const VERSION = '46';
+const VERSION = '47';
 const CACHE_PREFIX = 'tracker-personale';
 const PRECACHE = `${CACHE_PREFIX}-precache-v${VERSION}`;
 const RUNTIME = `${CACHE_PREFIX}-runtime-v${VERSION}`;
@@ -16,11 +16,11 @@ const APP_SHELL = [
   './impostazioni.html',
   './offline.html',
   './styles.css?v=46',
-  './mobile.css?v=46',
+  './mobile.css?v=47',
   './pwa.css?v=46',
   './tracker-store.js?v=46',
   './app.js?v=46',
-  './pwa.js?v=46',
+  './pwa.js?v=47',
   './manifest.json?v=46',
   './favicon.png',
   './apple-touch-icon.png',
@@ -33,7 +33,7 @@ const APP_SHELL = [
   './icons/icon-512.png',
   './icons/icon-maskable-192.png',
   './icons/icon-maskable-512.png',
-  './assets/hero-room.png?v=46'
+  './assets/hero-room.png?v=47'
 ];
 
 self.addEventListener('install', (event) => {

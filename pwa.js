@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '46';
+  const VERSION = '47';
   let deferredInstallPrompt = null;
   let registration = null;
   let reloadingForUpdate = false;
