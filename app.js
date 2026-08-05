@@ -1314,7 +1314,9 @@ window.addEventListener('tracker:data-changed', (event) => {
           cell.dataset.pieceId = locked.pieceId;
           cell.dataset.date = locked.date;
           const dateLabel = formatDate(locked.date, { weekday: 'long', day: 'numeric', month: 'long' });
-          cell.dataset.tooltip = `${locked.label}|${locked.note || ''}`;
+          cell.dataset.tooltip = locked.label;
+          cell.dataset.tooltipDate = dateLabel;
+          cell.dataset.tooltipNote = locked.note || '';
           if (locked.date === todayKey && tetrSettings().highlightToday !== false) cell.classList.add('is-today-piece');
         } else if (current && currentCells.has(key)) {
           cell.classList.add('is-current'); cell.style.setProperty('--cell-color', EMOTIONS[current.emotionKey].color);
@@ -1485,8 +1487,8 @@ window.addEventListener('tracker:data-changed', (event) => {
     const cell = event.target.closest('.tetr-cell[data-tooltip]');
     if (!cell) { highlightWholePiece(null); tooltip.hidden = true; return; }
     if (trackerSettings().appearance?.tetrHover !== false) highlightWholePiece(cell.dataset.pieceId); else highlightWholePiece(null);
-    const parts = cell.dataset.tooltip.split('|');
-    tooltip.innerHTML = `<strong>${escapeHtml(parts[0])}</strong>${parts[1] ? `<span class="tetr-tooltip-note">${escapeHtml(parts[1])}</span>` : ''}`;
+    const note = cell.dataset.tooltipNote || '';
+    tooltip.innerHTML = `<strong>${escapeHtml(cell.dataset.tooltip)}</strong><span>${escapeHtml(cell.dataset.tooltipDate || '')}</span>${note ? `<span class="tetr-tooltip-note">${escapeHtml(note)}</span>` : ''}`;
     tooltip.hidden = false; tooltip.style.left = `${event.clientX + 16}px`; tooltip.style.top = `${event.clientY + 16}px`;
   });
   boardElement.addEventListener('mouseleave', () => { highlightWholePiece(null); tooltip.hidden = true; });
