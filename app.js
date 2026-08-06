@@ -1010,7 +1010,6 @@ window.addEventListener('tracker:data-changed', (event) => {
     const meals = allowedMeals.filter((meal) => String(day.meals?.[meal] || '').trim() || (day.mealItems?.[meal] || []).length);
     const quarters = waterQuarters(day);
     page.querySelector('[data-meal-count]').textContent = String(meals.length);
-    page.querySelector('[data-last-meal]').textContent = meals.at(-1) ? ({ breakfast: 'Colazione', lunch: 'Pranzo', dinner: 'Cena', snacks: 'Spuntino' }[meals.at(-1)] || '—') : '—';
     page.querySelector('[data-water-total]').textContent = formatWater(quarters);
     page.querySelector('[data-water-short]').textContent = quarters ? (quarters % 4 ? `${Math.floor(quarters / 4)} + ${quarters % 4}/4` : String(quarters / 4)) : '0';
     page.querySelector('[data-water-liters]').textContent = `circa ${waterLiters(quarters, bottleMl())}`;
@@ -1824,7 +1823,10 @@ window.addEventListener('tracker:data-changed', (event) => {
         cell.classList.add('is-filled');
         cell.style.setProperty('--cell-color', entry.color || EMOTIONS[entry.emotionKey]?.color);
         cell.dataset.pieceId = entry.pieceId;
-        cell.dataset.tooltip = `${formatDate(entry.date, { day: 'numeric', month: 'long' })} · ${EMOTIONS[entry.emotionKey]?.label}${entry.note ? ` · ${entry.note}` : ''}`;
+        cell.dataset.tooltip = EMOTIONS[entry.emotionKey]?.label || 'Emozione';
+        cell.dataset.tooltipType = 'tetr';
+        cell.dataset.tooltipDate = formatDate(entry.date, { weekday: 'long', day: 'numeric', month: 'long' });
+        cell.dataset.tooltipNote = entry.note || '';
       }
       board.append(cell);
     }));
@@ -1925,15 +1927,12 @@ window.addEventListener('tracker:data-changed', (event) => {
       <div class="stats-comparison-row" role="row"><strong>Sonno medio</strong><span>${current.sleep ? formatMinutes(current.sleep) : '—'}</span><span>${previous.sleep ? formatMinutes(previous.sleep) : '—'}</span><em>${differenceMinutes(current.sleep, previous.sleep)}</em></div>
       <div class="stats-comparison-row" role="row"><strong>Acqua media</strong><span>${current.water ? formatWater(Math.round(current.water)) : '—'}</span><span>${previous.water ? formatWater(Math.round(previous.water)) : '—'}</span><em>${differenceNumber(current.water, previous.water, ' quarti')}</em></div>
       <div class="stats-comparison-row" role="row"><strong>Tempo nelle attività</strong><span>${current.activityTotal ? formatMinutes(current.activityTotal) : '—'}</span><span>${previous.activityTotal ? formatMinutes(previous.activityTotal) : '—'}</span><em>${differenceMinutes(current.activityTotal, previous.activityTotal)}</em></div>
-      <div class="stats-comparison-row" role="row"><strong>Ore lavorate</strong><span>${current.workTotal ? formatMinutes(current.workTotal) : '—'}</span><span>${previous.workTotal ? formatMinutes(previous.workTotal) : '—'}</span><em>${differenceMinutes(current.workTotal, previous.workTotal)}</em></div>
       <div class="stats-comparison-row" role="row"><strong>Emozione più frequente</strong><span>${emotionCurrent}</span><span>${emotionPrevious}</span><em>—</em></div>
       <div class="stats-comparison-row" role="row"><strong>Giornate produttive</strong><span>${productiveCurrent}</span><span>${productivePrevious}</span><em>${differenceNumber(productiveCurrent, productivePrevious)}</em></div>`;
   }
 
   function render() {
     const settings = trackerSettings();
-    const showWork = settings.tracker?.showWorkInStats !== false;
-    page.querySelector('.summary-work')?.toggleAttribute('hidden', !showWork);
     const habitCards = [...page.querySelectorAll('.stats-habit-card')];
     const weekdayLabels = settings.weekStart === 'sunday' ? ['D','L','M','M','G','V','S'] : ['L','M','M','G','V','S','D'];
     page.querySelectorAll('.stats-week-labels').forEach((holder) => { holder.innerHTML = weekdayLabels.map((label) => `<span>${label}</span>`).join(''); });
@@ -1950,8 +1949,6 @@ window.addEventListener('tracker:data-changed', (event) => {
     page.querySelector('[data-stat-sleep-note]').innerHTML = current.sleep ? `<b>${differenceMinutes(current.sleep, previous.sleep)}</b> rispetto al periodo precedente` : 'Nessun dato nel periodo';
     page.querySelector('[data-stat-water]').textContent = current.water ? formatWater(Math.round(current.water)) : '—';
     page.querySelector('[data-stat-water-note]').textContent = current.water ? `circa ${waterLiters(current.water, Store.getState().settings.bottleMl)} al giorno` : 'Nessun dato nel periodo';
-    page.querySelector('[data-stat-work]').textContent = current.workTotal ? formatMinutes(current.workTotal) : '—';
-    page.querySelector('[data-stat-work-note]').textContent = current.workAverage ? `media di ${formatMinutes(current.workAverage)} nei giorni lavorati` : 'Nessuna attività Lavoro';
     const emotion = current.mostEmotion[0] ? EMOTIONS[current.mostEmotion[0]] : null;
     page.querySelector('[data-stat-emotion]').textContent = emotion?.label || '—';
     page.querySelector('[data-stat-emotion-note]').textContent = emotion ? `${current.mostEmotion[1]} giorni nel periodo` : 'Nessuna emozione registrata';
@@ -2022,11 +2019,18 @@ window.addEventListener('tracker:data-changed', (event) => {
   page.querySelector('[data-stats-compare]')?.addEventListener('click', () => { comparison.hidden = !comparison.hidden; });
   page.querySelector('[data-stats-export]')?.addEventListener('click', () => window.dispatchEvent(new CustomEvent('tracker:open-notion-export')));
   page.addEventListener('mousemove', (event) => {
-    const target = event.target.closest('[data-tooltip]');
+    const target = event.target.closest('[data-tooltip]:not(.stats-heat-cell)');
     let tip = page.querySelector('.stats-floating-tooltip');
     if (!tip) { tip = document.createElement('div'); tip.className = 'stats-floating-tooltip'; tip.hidden = true; document.body.append(tip); }
     if (!target) { tip.hidden = true; return; }
-    tip.textContent = target.dataset.tooltip;
+    if (target.dataset.tooltipType === 'tetr') {
+      const note = target.dataset.tooltipNote || '';
+      tip.innerHTML = `<strong>${escapeHtml(target.dataset.tooltip)}</strong><span>${escapeHtml(target.dataset.tooltipDate || '')}</span>${note ? `<span class="tetr-tooltip-note">${escapeHtml(note)}</span>` : ''}`;
+      tip.classList.add('is-tetr-tooltip');
+    } else {
+      tip.textContent = target.dataset.tooltip;
+      tip.classList.remove('is-tetr-tooltip');
+    }
     tip.hidden = false;
     tip.style.left = `${event.clientX + 14}px`;
     tip.style.top = `${event.clientY + 14}px`;
@@ -2135,7 +2139,8 @@ window.addEventListener('tracker:data-changed', (event) => {
       beverageHolder.hidden = !drinks.length;
     }
     page.querySelector('[data-detail-activity-count]').textContent = String(day.activities.length);
-    page.querySelector('[data-detail-work]').textContent = formatMinutes(workMinutes(day));
+    const workDetail = page.querySelector('[data-detail-work]');
+    if (workDetail) workDetail.textContent = formatMinutes(workMinutes(day));
     const activities = page.querySelector('[data-detail-activities]');
     activities.innerHTML = day.activities.length ? day.activities.map((item) => {
       const categoryClass = categoryStyleClass(item.category || 'Altro');
@@ -2316,7 +2321,8 @@ window.addEventListener('tracker:data-changed', (event) => {
     const tracker = settings.tracker || {};
     page.querySelectorAll('[data-setting-sleep]').forEach((input) => { input.checked = tracker.sleep?.[input.dataset.settingSleep] !== false; });
     page.querySelectorAll('[data-setting-tetr]').forEach((input) => { input.checked = tracker.tetr?.[input.dataset.settingTetr] !== false; });
-    page.querySelector('[data-setting-work]').checked = tracker.showWorkInStats !== false;
+    const workSetting = page.querySelector('[data-setting-work]');
+    if (workSetting) workSetting.checked = tracker.showWorkInStats !== false;
     page.querySelectorAll('[data-setting-food]').forEach((input) => { input.checked = tracker.food?.[input.dataset.settingFood] !== false; });
     renderCategories(tracker.categories || visibleCategories());
 
@@ -2362,7 +2368,7 @@ window.addEventListener('tracker:data-changed', (event) => {
         sleep: Object.fromEntries([...page.querySelectorAll('[data-setting-sleep]')].map((input) => [input.dataset.settingSleep, input.checked])),
         tetr: Object.fromEntries([...page.querySelectorAll('[data-setting-tetr]')].map((input) => [input.dataset.settingTetr, input.checked])),
         categories,
-        showWorkInStats: page.querySelector('[data-setting-work]').checked,
+        showWorkInStats: page.querySelector('[data-setting-work]')?.checked ?? oldState.settings.tracker?.showWorkInStats ?? true,
         food: Object.fromEntries([...page.querySelectorAll('[data-setting-food]')].map((input) => [input.dataset.settingFood, input.checked]))
       }
     };
@@ -2531,7 +2537,6 @@ window.addEventListener('tracker:data-changed', (event) => {
     'sleep-calendar': { label: 'Calendario del sonno', file: 'calendario-sonno' },
     'water-trend': { label: 'Andamento dell’acqua', file: 'andamento-acqua' },
     'water-calendar': { label: 'Calendario dell’acqua', file: 'calendario-acqua' },
-    'work-calendar': { label: 'Calendario delle ore lavorate', file: 'calendario-lavoro' },
     activities: { label: 'Distribuzione delle attività', file: 'distribuzione-attivita' },
     emotions: { label: 'Distribuzione delle emozioni', file: 'distribuzione-emozioni' },
     'tetr-grid': { label: 'Griglia Tetr-Emotion', file: 'griglia-tetr-emotion' }
@@ -2697,7 +2702,6 @@ window.addEventListener('tracker:data-changed', (event) => {
       lines.push('## Panoramica', '', '| Dato | Valore |', '|---|---|',
         `| Sonno medio | ${stats.sleepCount ? formatMinutes(stats.sleepAverage) : '—'} |`,
         `| Acqua media | ${stats.waterCount ? `${formatWater(Math.round(stats.waterAverage))} · ${waterLiters(stats.waterAverage, Store.getState().settings.bottleMl)}` : '—'} |`,
-        `| Ore lavorate | ${stats.workTotal ? formatMinutes(stats.workTotal) : '—'} |`,
         `| Attività registrate | ${stats.totalActivities} |`,
         `| Emozione più frequente | ${emotion ? `${emotion.label} · ${stats.mostEmotion[1]} giorni` : '—'} |`,
         '');
@@ -2738,7 +2742,6 @@ window.addEventListener('tracker:data-changed', (event) => {
     if (sections.has('day')) {
       lines.push('## La mia giornata', '',
         `- Attività registrate: **${stats.totalActivities}**`,
-        `- Ore lavorate: **${stats.workTotal ? formatMinutes(stats.workTotal) : '—'}**`,
         `- Categoria più presente: **${stats.topCategory[0] || '—'}${stats.topCategory[1] ? ` · ${stats.topCategory[1]} attività` : ''}**`, '');
       const categories = Object.entries(stats.categoryMinutes).sort((a, b) => b[1] - a[1]);
       if (categories.length) {
@@ -2747,8 +2750,8 @@ window.addEventListener('tracker:data-changed', (event) => {
         lines.push('');
       }
       if (full) {
-        lines.push('| Data | Attività | Ore lavorate |', '|---|---|---:|');
-        context.dateEntries.filter(({ day }) => day.activities?.length).forEach(({ date, day }) => lines.push(`| ${formatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' })} | ${activityDescription(day) || '—'} | ${workMinutes(day) ? formatMinutes(workMinutes(day)) : '—'} |`));
+        lines.push('| Data | Attività |', '|---|---|');
+        context.dateEntries.filter(({ day }) => day.activities?.length).forEach(({ date, day }) => lines.push(`| ${formatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' })} | ${activityDescription(day) || '—'} |`));
         lines.push('');
       }
     }
@@ -2909,7 +2912,6 @@ window.addEventListener('tracker:data-changed', (event) => {
     const cards = [
       ['Sonno medio', context.stats.sleepCount ? formatMinutes(context.stats.sleepAverage) : '—', `${context.stats.sleepCount} notti registrate`, '#F4EFF7'],
       ['Acqua media', context.stats.waterCount ? formatWater(Math.round(context.stats.waterAverage)) : '—', context.stats.waterCount ? waterLiters(context.stats.waterAverage, Store.getState().settings.bottleMl) : 'Nessun dato', '#EEF4F8'],
-      ['Ore lavorate', context.stats.workTotal ? formatMinutes(context.stats.workTotal) : '—', `${context.stats.totalActivities} attività registrate`, '#F1EFF7'],
       ['Emozione più frequente', emotion?.label || '—', emotion ? `${context.stats.mostEmotion[1]} giorni` : 'Nessun dato', emotion?.color ? `${emotion.color}26` : '#F7F4F9'],
       ['Giornate con dati', String(context.stats.completedDays), `${context.dateEntries.length} giorni nel periodo`, '#F8F3F6']
     ];
@@ -2996,7 +2998,7 @@ window.addEventListener('tracker:data-changed', (event) => {
   }
 
   function drawCalendar(context, type) {
-    const titles = { sleep: 'Calendario del sonno', water: 'Calendario dell’acqua', work: 'Calendario delle ore lavorate' };
+    const titles = { sleep: 'Calendario del sonno', water: 'Calendario dell’acqua' };
     const monthTitle = formatDate(context.monthDate, { month: 'long', year: 'numeric' });
     const base = canvasBase(titles[type], capitalizeFirstLetter(monthTitle), 1600, 1100);
     const { ctx, canvas } = base;
@@ -3324,10 +3326,23 @@ window.addEventListener('tracker:data-changed', (event) => {
     </article>`;
   }
 
+  function archivedBookCard(book) {
+    const sessions = ordered().filter((item) => item.bookId === book.id);
+    const minutes = sessions.reduce((sum, item) => sum + (Number(item.minutes) || 0), 0);
+    return `<article class="reading-archive-compact">
+      <div><h3>${escapeHtml(book.title)}</h3><p>${escapeHtml(book.author || 'Autore non indicato')}</p></div>
+      <div><span>Fine lettura</span><strong>${book.finishedAt ? formatDate(book.finishedAt, { day: 'numeric', month: 'long', year: 'numeric' }) : 'Data non indicata'}</strong></div>
+      <div><span>Tempo letto totale</span><strong>${minutes ? formatMinutes(minutes) : 'Non registrato'}</strong></div>
+    </article>`;
+  }
+
   function render() {
     const data = reading();
     const activeBooks = data.books.filter((book) => book.status !== 'finished');
-    const archivedBooks = data.books.filter((book) => book.status === 'finished');
+    const archivedBooks = data.books
+      .filter((book) => book.status === 'finished')
+      .sort((a, b) => String(b.finishedAt || b.updatedAt || '').localeCompare(String(a.finishedAt || a.updatedAt || '')))
+      .slice(0, 5);
 
     select.innerHTML = activeBooks.map((book) =>
       `<option value="${escapeHtml(book.id)}">${escapeHtml(book.title)}</option>`
@@ -3338,12 +3353,12 @@ window.addEventListener('tracker:data-changed', (event) => {
       : '<article class="reading-book-card reading-book-placeholder"><div class="reading-placeholder-icon">📚</div><h3>Nessun libro in corso</h3><p>Aggiungi un libro oppure rimettine uno archiviato tra le letture in corso.</p><button class="reading-action-button reading-placeholder-button" type="button" data-reading-empty-add><span aria-hidden="true">＋</span> Aggiungi libro</button></article>';
 
     const archivedMarkup = archivedBooks.length
-      ? `<section class="reading-archive-section"><div class="reading-archive-heading"><span class="stats-eyebrow">Archivio</span><h2>Libri letti</h2></div><div class="reading-archive-list">${archivedBooks.map((book) => bookCard(book, true)).join('')}</div></section>`
+      ? `<section class="reading-archive-section"><div class="reading-archive-heading"><span class="stats-eyebrow">Archivio</span><h2>Libri letti</h2><p>Ultimi 5 libri conclusi</p></div><div class="reading-archive-list">${archivedBooks.map(archivedBookCard).join('')}</div></section>`
       : '';
 
     booksHolder.innerHTML = activeMarkup + archivedMarkup;
 
-    const sessions = ordered().reverse().slice(0, 10);
+    const sessions = ordered().reverse().slice(0, 3);
     recent.innerHTML = sessions.length ? sessions.map((session) => {
       const book = data.books.find((item) => item.id === session.bookId);
       const ascending = ordered();

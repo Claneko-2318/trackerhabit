@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tracker personale — Cibo e acqua</title>
   
-  <link rel="stylesheet" href="styles.css?v=46">
+  <link rel="stylesheet" href="styles.css?v=54">
   <link rel="stylesheet" href="mobile.css?v=47">
   <meta name="robots" content="noindex, nofollow">
 <link rel="icon" type="image/png" href="favicon.png">
@@ -98,12 +98,6 @@
           <span>Acqua bevuta</span>
           <strong data-water-short>1 + 2/4</strong>
           <span data-water-ml-short class="secondary-text">circa 1,125 l</span>
-        </article>
-        <article class="food-summary-card summary-last-meal">
-          <span class="food-summary-icon">⌁</span>
-          <span>Ultimo pasto</span>
-          <strong data-last-meal>Cena</strong>
-          <span class="secondary-text">registrato oggi</span>
         </article>
         <article class="food-summary-card summary-last-water">
           <span class="food-summary-icon">⌄</span>
@@ -271,7 +265,7 @@
     <section class="food-library-section food-content" data-food-library-section>
       <div class="section-heading-row">
         <div><span class="section-kicker">La tua raccolta</span><h2>Libreria dei cibi</h2><p>Gli alimenti aggiunti compaiono nei suggerimenti dei pasti.</p></div>
-        <button class="secondary-button" type="button" data-open-food-library-add>+ Nuovo alimento</button>
+        <button class="food-library-main-button" type="button" data-open-food-library-add>+ Nuovo elemento</button>
       </div>
       <div class="food-library-tools">
         <label><span>Cerca nella libreria</span><input type="search" data-food-library-search placeholder="Cerca un alimento…"></label>
@@ -279,7 +273,7 @@
       </div>
       <div class="food-library-grid" data-food-library-list></div>
       <div class="food-library-more" data-food-library-more-wrap hidden>
-        <button class="secondary-button" type="button" data-food-library-more>Mostra tutti</button>
+        <button class="food-library-main-button is-secondary" type="button" data-food-library-more>Mostra tutti</button>
       </div>
       <div class="food-library-editor" data-food-library-editor hidden>
         <h3 data-food-editor-title>Nuovo alimento</h3>
@@ -348,7 +342,7 @@
   </main>
 
 <script src="tracker-store.js?v=50"></script>
-<script src="app.js?v=49"></script>
+<script src="app.js?v=54"></script>
 <script src="pwa.js?v=48"></script>
 </body>
 </html>

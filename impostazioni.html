@@ -7,7 +7,7 @@
   <meta name="description" content="Impostazioni desktop del tracker personale.">
   <title>Tracker personale — Impostazioni</title>
   
-  <link rel="stylesheet" href="styles.css?v=46">
+  <link rel="stylesheet" href="styles.css?v=54">
   <link rel="stylesheet" href="mobile.css?v=47">
   <meta name="robots" content="noindex, nofollow">
 <link rel="icon" type="image/png" href="favicon.png">
@@ -304,12 +304,6 @@
 
       <div class="settings-grid settings-grid-two">
         <article class="settings-card">
-          <div class="settings-card-heading"><span class="settings-card-icon icon-periwinkle">◷</span><div><h3>Ore lavorate</h3><p>Il totale arriva dal tracker lavorativo separato.</p></div></div>
-          <label class="settings-switch-row"><span><strong>Mostra nelle statistiche</strong><span class="secondary-text">Usa il totale giornaliero per grafici e confronti</span></span><input type="checkbox" checked data-setting-work><i aria-hidden="true"></i></label>
-          <label class="settings-field"><span>Modalità di inserimento</span><select><option selected>Manuale</option><option disabled>Collegamento automatico — futuro</option></select></label>
-        </article>
-
-        <article class="settings-card">
           <div class="settings-card-heading"><span class="settings-card-icon icon-rose">⌁</span><div><h3>Cibo</h3><p>Nascondi i momenti della giornata che non usi.</p></div></div>
           <div class="settings-switch-list compact-list">
             <label class="settings-switch-row"><span><strong>Colazione</strong></span><input type="checkbox" checked data-setting-food="breakfast"><i aria-hidden="true"></i></label>
@@ -351,21 +345,6 @@
         <p class="settings-note">Per l’uso normale scegli <strong>Unisci dispositivo e foglio</strong>. I due comandi di sostituzione sono operazioni straordinarie: prima di usarli conserva sempre un backup JSON.</p>
       </article>
 
-      <article class="settings-card settings-card-wide">
-        <div class="settings-card-heading"><span class="settings-card-icon icon-periwinkle">▤</span><div><h3>Esportazione per Notion</h3><p>Questa parte resta in sospeso e verrà progettata in seguito.</p></div></div>
-        <div class="settings-export-grid">
-          <label class="settings-field"><span>Da</span><div class="settings-date-wrap"><input type="date" value="2026-07-01" disabled></div></label>
-          <label class="settings-field"><span>A</span><div class="settings-date-wrap"><input type="date" value="2026-07-31" disabled></div></label>
-          <label class="settings-field"><span>Formato</span><select disabled><option selected>Testo per Notion — in sospeso</option></select></label>
-        </div>
-        <div class="settings-check-row">
-          <label><input type="checkbox" checked disabled> Sonno</label>
-          <label><input type="checkbox" checked disabled> Cibo e acqua</label>
-          <label><input type="checkbox" checked disabled> La mia giornata</label>
-          <label><input type="checkbox" checked disabled> Tetr-Emotion</label>
-        </div>
-      </article>
-
       <article class="settings-danger-card">
         <div><span class="settings-section-kicker">Gestione dei dati</span><h3>Azioni irreversibili</h3><p>Queste funzioni avranno sempre una conferma aggiuntiva prima di modificare o cancellare i dati.</p></div>
         <div class="settings-danger-actions"><button type="button" data-data-action="reset">Ripristina impostazioni</button><button type="button" class="danger" data-data-action="delete">Elimina tutti i dati</button></div>
@@ -384,7 +363,7 @@
 
 <footer class="site-footer settings-footer"><span>Tracker personale · salvataggio attivo</span><a href="index.html">Torna alla homepage</a></footer>
 <script src="tracker-store.js?v=50"></script>
-<script src="app.js?v=53"></script>
+<script src="app.js?v=54"></script>
 <script src="pwa.js?v=48"></script>
 </body>
 </html>
