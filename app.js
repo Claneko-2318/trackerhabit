@@ -2270,12 +2270,14 @@ window.addEventListener('tracker:data-changed', (event) => {
     const index = categoryList.children.length;
     categoryList.append(categoryRow({ id: `custom-${Date.now()}`, name: 'Nuova categoria', color: categoryColors[index % categoryColors.length], icon: categoryIcons[index % categoryIcons.length], visible: true }, index));
     categoryList.lastElementChild.querySelector('[data-category-name]')?.select();
+    queueAutomaticSettingsSave();
   });
   categoryList?.addEventListener('click', (event) => {
     const button = event.target.closest('.category-remove');
     if (!button) return;
     if (categoryList.children.length <= 1) { saveFeedback.textContent = 'Deve restare almeno una categoria.'; return; }
     button.closest('.category-setting-row')?.remove();
+    queueAutomaticSettingsSave();
   });
 
   function updateConnectionStatus(message, type) {
@@ -2390,6 +2392,10 @@ window.addEventListener('tracker:data-changed', (event) => {
     if (event.target.closest('[data-connection-url], [data-import-file]')) return;
     if (event.target.matches('input, select, textarea')) queueAutomaticSettingsSave();
   });
+  page.addEventListener('input', (event) => {
+    if (event.target.closest('[data-connection-url], [data-import-file]')) return;
+    if (event.target.matches('input, select, textarea')) queueAutomaticSettingsSave();
+  });
   page.querySelectorAll('[data-scene-choice], [data-text-mode], [data-segmented] button').forEach((control) => {
     control.addEventListener('click', queueAutomaticSettingsSave);
   });
@@ -2479,8 +2485,18 @@ window.addEventListener('tracker:data-changed', (event) => {
     catch (error) { dataFeedback.textContent = `File non valido: ${error.message}`; }
     importInput.value = '';
   });
-  page.querySelector('[data-demo-upload]')?.addEventListener('click', () => { page.querySelector('[data-image-feedback]').textContent = 'Il caricamento di immagini personalizzate resta locale e verrà aggiunto in una fase successiva.'; });
-  page.querySelector('[data-demo-reset]')?.addEventListener('click', () => { autoScenes.checked = true; renderScene(currentScene()); page.querySelector('[data-image-feedback]').textContent = 'Scene automatiche ripristinate. Premi Salva modifiche.'; });
+  page.querySelector('[data-demo-reset]')?.addEventListener('click', () => {
+    autoScenes.checked = true;
+    renderScene(currentScene());
+    queueAutomaticSettingsSave();
+    page.querySelector('[data-image-feedback]').textContent = 'Scene automatiche ripristinate e salvate.';
+  });
+  window.addEventListener('tracker:data-changed', (event) => {
+    if (!['remote-sync', 'remote-pull', 'import', 'reset'].includes(event.detail?.reason)) return;
+    const active = document.activeElement;
+    if (active && page.contains(active) && active.matches('input, select, textarea')) return;
+    loadSettings();
+  });
   loadSettings();
 })();
 
