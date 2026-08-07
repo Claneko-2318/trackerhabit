@@ -1,0 +1,26 @@
+/* V58 — campo motivazione coerente su desktop, tablet e mobile. */
+.sleep-page .awakening-reason-field textarea {
+  display: block;
+  width: 100%;
+  min-height: 108px;
+  padding: 14px 16px;
+  border: 1px solid rgba(82, 63, 119, .16);
+  border-radius: 15px;
+  outline: none;
+  color: #342b46;
+  background: #fff;
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.55;
+  resize: vertical;
+  box-shadow: inset 0 1px 2px rgba(82, 63, 119, .03);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.sleep-page .awakening-reason-field textarea::placeholder {
+  color: #8a8195;
+}
+.sleep-page .awakening-reason-field textarea:focus {
+  border-color: #b35a8a;
+  box-shadow: 0 0 0 4px rgba(179, 90, 138, .13);
+}
+

@@ -1,0 +1,225 @@
+/* V58 — rifiniture mirate ricavate dal controllo sui dispositivi mobili. */
+@media (max-width: 600px) {
+  /* Margini interni delle sezioni. */
+  .food-page .food-library-section {
+    width: calc(100% - 28px) !important;
+    max-width: calc(100% - 28px) !important;
+    margin-inline: auto !important;
+    padding: 22px 18px !important;
+  }
+  .food-page .food-library-section .section-heading-row,
+  .food-page .food-library-tools,
+  .food-page .food-library-grid,
+  .food-page .food-library-more {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .food-page .food-library-main-button {
+    width: auto !important;
+    max-width: 100% !important;
+    align-self: flex-start !important;
+    padding-inline: 20px !important;
+  }
+
+  .tetr-page .tetr-summary-band > .tetr-summary,
+  .stats-page .stats-tetr-band > .stats-content,
+  .stats-page .stats-tetr-band .stats-tetr-inner {
+    width: calc(100% - 40px) !important;
+    max-width: calc(100% - 40px) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .tetr-page .tetr-summary-band,
+  .stats-page .stats-tetr-band {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .tetr-page .tetr-summary-band :is(h2, h3, p, .tetr-eyebrow),
+  .stats-page .stats-tetr-band :is(h2, h3, p, .stats-eyebrow) {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* Energie: numero e descrizione sulla stessa riga. */
+  .sleep-page .quality-scale {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .sleep-page .quality-scale label {
+    display: grid !important;
+    grid-template-columns: 52px minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 12px !important;
+    width: 100% !important;
+    min-height: 58px !important;
+    padding: 7px 12px !important;
+    border: 1px solid rgba(82,63,119,.13) !important;
+    border-radius: 16px !important;
+    background: #faf8fb !important;
+    text-align: left !important;
+  }
+  .sleep-page .quality-scale label > span:first-of-type {
+    display: grid !important;
+    place-items: center !important;
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 13px !important;
+    color: #523f77 !important;
+    background: #eee9f3 !important;
+    font-weight: 800 !important;
+  }
+  .sleep-page .quality-scale label > .secondary-text {
+    display: block !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    color: #4f4560 !important;
+    background: transparent !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+  }
+  .sleep-page .quality-scale input:checked + span {
+    color: #fff !important;
+    background: #7f88bb !important;
+  }
+
+  /* Filtri e pulsanti delle attività compatti. */
+  .day-page .activity-filter {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+  .day-page .filter-chip {
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 40px !important;
+    padding: 8px 14px !important;
+    flex: 0 0 auto !important;
+  }
+  .day-page .activity-card-top {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+  }
+  .day-page .activity-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: auto !important;
+    flex: 0 0 auto !important;
+  }
+  .day-page .activity-actions button {
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 0 !important;
+    border-radius: 12px !important;
+  }
+
+  /* Archivio: titolo leggibile e navigazione del mese compatta. */
+  .archive-page .archive-hero-copy h1 {
+    color: #fff !important;
+    text-shadow: 0 2px 14px rgba(40,25,62,.22) !important;
+  }
+  .archive-page .archive-hero-copy > p {
+    color: rgba(255,255,255,.92) !important;
+  }
+  .archive-page .archive-eyebrow {
+    color: #f1b2d2 !important;
+  }
+  .archive-page .archive-month-row {
+    display: grid !important;
+    grid-template-columns: 48px minmax(0,1fr) 48px !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+  .archive-page .archive-month-row .archive-icon-button {
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    height: 48px !important;
+    padding: 0 !important;
+    border-radius: 14px !important;
+  }
+  .archive-page .archive-month-row strong {
+    width: auto !important;
+    min-width: 0 !important;
+    text-align: center !important;
+  }
+  .archive-page .archive-month-row .archive-today-button {
+    grid-column: 1 / -1 !important;
+    width: auto !important;
+    min-width: 120px !important;
+    justify-self: center !important;
+    padding-inline: 24px !important;
+  }
+
+  /* Calendario: abbreviazioni e icone disposte tre per riga. */
+  .archive-page .archive-calendar-shell {
+    padding: 12px !important;
+  }
+  .archive-page .archive-weekdays span {
+    padding: 11px 2px !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    white-space: nowrap !important;
+  }
+  .archive-page .archive-calendar-grid {
+    gap: 4px !important;
+  }
+  .archive-page .archive-day {
+    min-height: 126px !important;
+    padding: 8px 4px !important;
+  }
+  .archive-page .archive-day-number {
+    font-size: 20px !important;
+    line-height: 1 !important;
+  }
+  .archive-page .archive-day-metrics {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+    align-content: start !important;
+    gap: 5px 3px !important;
+    width: 100% !important;
+    margin-top: 9px !important;
+  }
+  .archive-page .archive-day-metric {
+    display: grid !important;
+    place-items: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 28px !important;
+    padding: 0 !important;
+    border-radius: 9px !important;
+  }
+  .archive-page .archive-day-metric > span,
+  .archive-page .archive-day-metric > .tetromino + span {
+    display: none !important;
+  }
+  .archive-page .archive-day-metric > i {
+    margin: 0 !important;
+    font-size: 14px !important;
+    line-height: 1 !important;
+  }
+  .archive-page .archive-day-metric .tetromino {
+    transform: scale(.72) !important;
+    transform-origin: center !important;
+  }
+}
