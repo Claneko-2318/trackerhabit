@@ -547,7 +547,7 @@ window.addEventListener('tracker:data-changed', (event) => {
     row.className = 'awakening-row';
     row.innerHTML = `<label><span>Mi sono svegliata</span><span class="sleep-time-wrap"><input type="time" name="awakeningTime[]" value="${escapeHtml(awakening.time || '')}"></span></label>
       <label><span>Mi sono riaddormentata <small>(facoltativo)</small></span><span class="sleep-time-wrap"><input type="time" name="awakeningAsleepAt[]" value="${escapeHtml(awakening.asleepAt || '')}"></span></label>
-      <label class="awakening-reason-field"><span>Motivazione <small>(facoltativa)</small></span><input type="text" name="awakeningReason[]" value="${escapeHtml(awakening.reason || '')}" placeholder="Es. rumore, bagno, pensieri…"></label>
+      <label class="awakening-reason-field"><span>Motivazione <small>(facoltativa)</small></span><textarea name="awakeningReason[]" rows="3" placeholder="Es. rumore, bagno, pensieri…">${escapeHtml(awakening.reason || '')}</textarea></label>
       <button class="awakening-remove" type="button" data-remove-awakening aria-label="Rimuovi risveglio">×</button>`;
     return row;
   }
@@ -556,7 +556,7 @@ window.addEventListener('tracker:data-changed', (event) => {
     return [...awakeningList.querySelectorAll('.awakening-row')].map((row) => ({
       time: row.querySelector('input[name="awakeningTime[]"]')?.value || '',
       asleepAt: row.querySelector('input[name="awakeningAsleepAt[]"]')?.value || '',
-      reason: row.querySelector('input[name="awakeningReason[]"]')?.value.trim() || ''
+      reason: row.querySelector('[name="awakeningReason[]"]')?.value.trim() || ''
     })).filter((item) => item.time);
   }
 
@@ -1515,15 +1515,25 @@ window.addEventListener('tracker:data-changed', (event) => {
     boardElement.querySelectorAll('.is-piece-hovered').forEach((cell) => cell.classList.remove('is-piece-hovered'));
     if (pieceId) boardElement.querySelectorAll(`[data-piece-id="${pieceId}"]`).forEach((cell) => cell.classList.add('is-piece-hovered'));
   }
+  function showBoardTooltip(cell, clientX = 0, clientY = 0) {
+    const note = cell.dataset.tooltipNote || '';
+    tooltip.innerHTML = `<strong>${escapeHtml(cell.dataset.tooltip)}</strong><span>${escapeHtml(cell.dataset.tooltipDate || '')}</span>${note ? `<span class="tetr-tooltip-note">${escapeHtml(note)}</span>` : ''}`;
+    tooltip.hidden = false;
+    tooltip.style.left = `${clientX + 16}px`;
+    tooltip.style.top = `${clientY + 16}px`;
+  }
   boardElement.addEventListener('mousemove', (event) => {
     const cell = event.target.closest('.tetr-cell[data-tooltip]');
     if (!cell) { highlightWholePiece(null); tooltip.hidden = true; return; }
     if (trackerSettings().appearance?.tetrHover !== false) highlightWholePiece(cell.dataset.pieceId); else highlightWholePiece(null);
-    const note = cell.dataset.tooltipNote || '';
-    tooltip.innerHTML = `<strong>${escapeHtml(cell.dataset.tooltip)}</strong><span>${escapeHtml(cell.dataset.tooltipDate || '')}</span>${note ? `<span class="tetr-tooltip-note">${escapeHtml(note)}</span>` : ''}`;
-    tooltip.hidden = false; tooltip.style.left = `${event.clientX + 16}px`; tooltip.style.top = `${event.clientY + 16}px`;
+    showBoardTooltip(cell, event.clientX, event.clientY);
   });
   boardElement.addEventListener('mouseleave', () => { highlightWholePiece(null); tooltip.hidden = true; });
+  boardElement.addEventListener('click', (event) => {
+    if (!window.matchMedia('(max-width: 600px)').matches || current) return;
+    const cell = event.target.closest('.tetr-cell[data-tooltip]');
+    if (cell) showBoardTooltip(cell);
+  });
 
   page.querySelectorAll('[data-tetr-day-shift]').forEach((button) => button.addEventListener('click', () => {
     const shift = Number(button.dataset.tetrDayShift);
@@ -2051,11 +2061,10 @@ window.addEventListener('tracker:data-changed', (event) => {
   periodSelect.addEventListener('change', render);
   page.querySelector('[data-stats-compare]')?.addEventListener('click', () => { comparison.hidden = !comparison.hidden; });
   page.querySelector('[data-stats-export]')?.addEventListener('click', () => window.dispatchEvent(new CustomEvent('tracker:open-notion-export')));
-  page.addEventListener('mousemove', (event) => {
-    const target = event.target.closest('[data-tooltip]:not(.stats-heat-cell)');
+  function showStatsFloatingTooltip(target, clientX = 0, clientY = 0) {
     let tip = page.querySelector('.stats-floating-tooltip');
     if (!tip) { tip = document.createElement('div'); tip.className = 'stats-floating-tooltip'; tip.hidden = true; document.body.append(tip); }
-    if (!target) { tip.hidden = true; return; }
+    if (!target) { tip.hidden = true; return tip; }
     if (target.dataset.tooltipType === 'tetr') {
       const note = target.dataset.tooltipNote || '';
       tip.innerHTML = `<strong>${escapeHtml(target.dataset.tooltip)}</strong><span>${escapeHtml(target.dataset.tooltipDate || '')}</span>${note ? `<span class="tetr-tooltip-note">${escapeHtml(note)}</span>` : ''}`;
@@ -2065,8 +2074,18 @@ window.addEventListener('tracker:data-changed', (event) => {
       tip.classList.remove('is-tetr-tooltip');
     }
     tip.hidden = false;
-    tip.style.left = `${event.clientX + 14}px`;
-    tip.style.top = `${event.clientY + 14}px`;
+    tip.style.left = `${clientX + 14}px`;
+    tip.style.top = `${clientY + 14}px`;
+    return tip;
+  }
+  page.addEventListener('mousemove', (event) => {
+    const target = event.target.closest('[data-tooltip]:not(.stats-heat-cell)');
+    showStatsFloatingTooltip(target, event.clientX, event.clientY);
+  });
+  page.addEventListener('click', (event) => {
+    if (!window.matchMedia('(max-width: 600px)').matches) return;
+    const target = event.target.closest('[data-tooltip]');
+    if (target && !target.classList.contains('stats-heat-cell')) showStatsFloatingTooltip(target);
   });
   page.addEventListener('mouseleave', () => { const tip = document.querySelector('.stats-floating-tooltip'); if (tip) tip.hidden = true; });
   render();

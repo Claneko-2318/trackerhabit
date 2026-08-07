@@ -6,7 +6,8 @@
   <title>Tracker personale — Sonno</title>
   
   <link rel="stylesheet" href="styles.css?v=56">
-  <link rel="stylesheet" href="mobile.css?v=56">
+  <link rel="stylesheet" href="mobile.css?v=57">
+  <link rel="stylesheet" href="mobile-v57-fixes.css?v=57">
   <meta name="robots" content="noindex, nofollow">
 <link rel="icon" type="image/png" href="favicon.png">
 
@@ -129,7 +130,7 @@
               <div class="awakening-row">
                 <label><span>Mi sono svegliata</span><span class="sleep-time-wrap"><input type="time" name="awakeningTime[]" value="03:20"></span></label>
                 <label><span>Mi sono riaddormentata <small>(facoltativo)</small></span><span class="sleep-time-wrap"><input type="time" name="awakeningAsleepAt[]"></span></label>
-                <label class="awakening-reason-field"><span>Motivazione <small>(facoltativa)</small></span><input type="text" name="awakeningReason[]" placeholder="Es. rumore, bagno, pensieri…"></label>
+                <label class="awakening-reason-field"><span>Motivazione <small>(facoltativa)</small></span><textarea name="awakeningReason[]" rows="3" placeholder="Es. rumore, bagno, pensieri…"></textarea></label>
                 <button class="awakening-remove" type="button" data-remove-awakening aria-label="Rimuovi risveglio">×</button>
               </div>
             </div>
@@ -308,7 +309,7 @@
   </main>
 
 <script src="tracker-store.js?v=50"></script>
-<script src="app.js?v=56"></script>
+<script src="app.js?v=57"></script>
 <script src="pwa.js?v=48"></script>
 </body>
 </html>

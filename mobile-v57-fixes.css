@@ -1,0 +1,137 @@
+/* Correzioni mobili V57, caricate dopo tutti gli stili precedenti. */
+@media (max-width: 600px) {
+  body { color: #342b46 !important; }
+
+  :is(h1, h2, h3, h4, p, span, strong, small, label, button, a, li, dt, dd) {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+  }
+
+  :is(.secondary-text, .settings-note, .sleep-helper, .sleep-feedback,
+      .food-feedback, .water-feedback, .other-drinks-feedback, .form-feedback,
+      .archive-save-feedback, .settings-save-feedback, .settings-data-feedback,
+      .stats-export-feedback, [data-notion-feedback], .tetr-feedback,
+      .tetr-note-helper, .stats-calendar-summary) {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    color: #62586f !important;
+    font-size: 14px !important;
+    line-height: 1.55 !important;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  :is(.home-page .hero-fullscreen, .sleep-hero, .day-hero, .food-hero,
+      .reading-hero, .tetr-hero, .stats-hero, .archive-hero, .settings-hero,
+      .violet-panel, .stats-dark-card) :is(.secondary-text, p, small) {
+    color: rgba(255,255,255,.88) !important;
+  }
+
+  :is(.section-heading, .split-heading, .day-section-heading, .sleep-section-heading,
+      .food-section-heading, .reading-heading, .tetr-section-heading,
+      .stats-section-heading, .archive-section-heading, .settings-section-heading) > * {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    text-align: left !important;
+  }
+
+  :is(.day-page .date-switcher, .sleep-page .sleep-date-switcher, .food-page .food-date-switcher) {
+    display: grid !important;
+    grid-template-columns: 48px minmax(0,1fr) 48px !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+  :is(.day-page .date-switcher-copy, .sleep-page .sleep-date-copy, .food-page .food-date-copy) {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    width: 100% !important;
+    padding: 0 4px !important;
+    text-align: center !important;
+  }
+  :is(.day-page .date-arrow, .sleep-page .sleep-date-arrow, .food-page .food-date-arrow) {
+    grid-row: 1 !important;
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    padding: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 14px !important;
+    font-size: 20px !important;
+    line-height: 1 !important;
+  }
+  :is(.day-page .today-button, .sleep-page .sleep-today-button, .food-page .food-today-button) {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+  }
+
+  select {
+    min-height: 48px !important;
+    padding: 10px 44px 10px 14px !important;
+    color: #342b46 !important;
+    background-color: #fff !important;
+    background-size: 12px 8px !important;
+    background-position: right 15px center !important;
+  }
+
+  .sleep-page .awakening-reason-field textarea {
+    width: 100% !important;
+    min-height: 96px !important;
+    padding: 13px 14px !important;
+    border: 1px solid rgba(82,63,119,.16) !important;
+    border-radius: 14px !important;
+    color: #342b46 !important;
+    background: #fff !important;
+    font: inherit !important;
+    line-height: 1.5 !important;
+    resize: vertical !important;
+    box-shadow: none !important;
+  }
+  .sleep-page .awakening-reason-field textarea:focus {
+    outline: 3px solid rgba(179,90,138,.16) !important;
+    border-color: #b35a8a !important;
+  }
+
+  .stats-page .stats-heat-cell[data-tooltip]::before,
+  :is(.tetr-board-tooltip, .stats-tetr-tooltip, .stats-floating-tooltip) {
+    position: fixed !important;
+    z-index: 500 !important;
+    left: 14px !important;
+    right: 14px !important;
+    bottom: 94px !important;
+    top: auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding: 14px 16px !important;
+    white-space: normal !important;
+    text-align: left !important;
+    line-height: 1.5 !important;
+    overflow-wrap: break-word !important;
+    transform: none !important;
+  }
+  .stats-page .stats-heat-cell[data-tooltip]::after { display: none !important; }
+  .stats-page .stats-heat-cell[data-tooltip]:focus::before,
+  .stats-page .stats-heat-cell[data-tooltip]:focus-visible::before,
+  .stats-page .stats-heat-cell[data-tooltip]:hover::before {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  :is(.tetr-board-tooltip, .stats-tetr-tooltip, .stats-floating-tooltip) :is(strong, span, .tetr-tooltip-note) {
+    display: block !important;
+    width: 100% !important;
+    color: #fff !important;
+    white-space: normal !important;
+    line-height: 1.45 !important;
+  }
+  :is(.tetr-board-tooltip, .stats-tetr-tooltip, .stats-floating-tooltip) :is(span, .tetr-tooltip-note) {
+    margin-top: 4px !important;
+    color: rgba(255,255,255,.88) !important;
+  }
+}
