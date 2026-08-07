@@ -1313,6 +1313,30 @@
   }
 }
 
+/* V56 — risvegli: campi leggibili e comodi anche su telefono. */
+@media (max-width: 700px) {
+  .sleep-page .sleep-awakenings-card,
+  .sleep-page .sleep-quality-card {
+    grid-column: auto !important;
+  }
+  .sleep-page .awakening-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 38px !important;
+    gap: 12px 10px !important;
+    align-items: end !important;
+  }
+  .sleep-page .awakening-row > label,
+  .sleep-page .awakening-reason-field {
+    grid-column: 1 !important;
+    width: 100% !important;
+  }
+  .sleep-page .awakening-remove {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    align-self: end !important;
+  }
+}
+
 /* V55 — scorrimento Android a un dito e barre categorie leggibili */
 @media (max-width: 600px) {
   html,

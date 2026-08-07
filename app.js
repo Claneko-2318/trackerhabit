@@ -542,18 +542,48 @@ window.addEventListener('tracker:data-changed', (event) => {
     if (hint) hint.textContent = `Notte tra ${formatDate(previous, { weekday: 'long' }).toLowerCase()} e ${formatDate(selectedDate, { weekday: 'long' }).toLowerCase()}`;
   }
 
-  function awakeningRow(awakening = { time: '' }) {
+  function awakeningRow(awakening = { time: '', asleepAt: '', reason: '' }) {
     const row = document.createElement('div');
     row.className = 'awakening-row';
-    row.innerHTML = `<label><span>Orario</span><span class="sleep-time-wrap"><input type="time" name="awakeningTime[]" value="${escapeHtml(awakening.time || '')}"></span></label>
+    row.innerHTML = `<label><span>Mi sono svegliata</span><span class="sleep-time-wrap"><input type="time" name="awakeningTime[]" value="${escapeHtml(awakening.time || '')}"></span></label>
+      <label><span>Mi sono riaddormentata <small>(facoltativo)</small></span><span class="sleep-time-wrap"><input type="time" name="awakeningAsleepAt[]" value="${escapeHtml(awakening.asleepAt || '')}"></span></label>
+      <label class="awakening-reason-field"><span>Motivazione <small>(facoltativa)</small></span><input type="text" name="awakeningReason[]" value="${escapeHtml(awakening.reason || '')}" placeholder="Es. rumore, bagno, pensieri…"></label>
       <button class="awakening-remove" type="button" data-remove-awakening aria-label="Rimuovi risveglio">×</button>`;
     return row;
   }
 
   function awakeningsFromForm() {
     return [...awakeningList.querySelectorAll('.awakening-row')].map((row) => ({
-      time: row.querySelector('input[name="awakeningTime[]"]')?.value || ''
+      time: row.querySelector('input[name="awakeningTime[]"]')?.value || '',
+      asleepAt: row.querySelector('input[name="awakeningAsleepAt[]"]')?.value || '',
+      reason: row.querySelector('input[name="awakeningReason[]"]')?.value.trim() || ''
     })).filter((item) => item.time);
+  }
+
+  function clockMinutes(value) {
+    const match = /^(\d{2}):(\d{2})$/.exec(value || '');
+    if (!match) return null;
+    return Number(match[1]) * 60 + Number(match[2]);
+  }
+
+  function awakeMinutesDuringNight(bedtime, wake, awakenings) {
+    const bedtimeMinutes = clockMinutes(bedtime);
+    const nightDuration = timeDifference(bedtime, wake);
+    if (bedtimeMinutes === null || !Number.isFinite(nightDuration) || nightDuration <= 0) return 0;
+    const offset = (value) => {
+      const minutes = clockMinutes(value);
+      return minutes === null ? null : (minutes - bedtimeMinutes + 1440) % 1440;
+    };
+    const intervals = awakenings.map((awakening) => [offset(awakening.time), offset(awakening.asleepAt)])
+      .filter(([start, end]) => start !== null && end !== null && end > start && start < nightDuration && end <= nightDuration)
+      .sort((a, b) => a[0] - b[0]);
+    const merged = [];
+    intervals.forEach(([start, end]) => {
+      const previous = merged[merged.length - 1];
+      if (previous && start <= previous[1]) previous[1] = Math.max(previous[1], end);
+      else merged.push([start, end]);
+    });
+    return merged.reduce((total, [start, end]) => total + end - start, 0);
   }
 
   function sleepCalculations() {
@@ -563,8 +593,11 @@ window.addEventListener('tracker:data-changed', (event) => {
     const up = settings.riseDelay === false ? wake : (form.elements.up.value || wake);
     const napStart = form.elements.napStart?.value || '';
     const napEnd = form.elements.napEnd?.value || '';
+    const nightDuration = timeDifference(bedtime, wake);
+    const awakeMinutes = awakeMinutesDuringNight(bedtime, wake, awakeningsFromForm());
     return {
-      duration: timeDifference(bedtime, wake),
+      duration: Math.max(0, nightDuration - awakeMinutes),
+      awakeMinutes,
       bedDuration: timeDifference(bedtime, up),
       riseDelay: timeDifference(wake, up),
       napDuration: napStart && napEnd ? timeDifference(napStart, napEnd) : null

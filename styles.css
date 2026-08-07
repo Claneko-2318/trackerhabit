@@ -19,6 +19,31 @@
   --radius-sm: 14px;
 }
 
+/* V56 — dettagli facoltativi dei risvegli e scheda nella colonna sinistra. */
+.sleep-page .sleep-awakenings-card {
+  grid-column: 1;
+}
+.sleep-page .sleep-quality-card {
+  grid-column: 2;
+}
+.sleep-page .awakening-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) 38px;
+  align-items: end;
+}
+.sleep-page .awakening-reason-field {
+  grid-column: 1 / 3;
+}
+.sleep-page .awakening-remove {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  align-self: center;
+}
+.sleep-page .awakening-row label > span:first-child small {
+  color: var(--muted);
+  font-size: .82em;
+  font-weight: 500;
+}
+
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
@@ -6755,4 +6780,24 @@ input, select, textarea, button { min-width: 0; }
     max-width: none;
     margin-inline: 24px;
   }
+}
+
+/* V56 final override — risvegli nella colonna sinistra. */
+.sleep-page .sleep-awakenings-card {
+  grid-column: 1;
+}
+.sleep-page .sleep-quality-card {
+  grid-column: 2;
+}
+.sleep-page .awakening-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) 38px;
+  align-items: end;
+}
+.sleep-page .awakening-reason-field {
+  grid-column: 1 / 3;
+}
+.sleep-page .awakening-remove {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  align-self: center;
 }

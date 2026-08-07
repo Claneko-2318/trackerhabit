@@ -1,0 +1,14 @@
+AGGIORNAMENTO MIRATO V55
+
+Sostituire su GitHub tutti i file presenti in questa cartella.
+
+Modifiche:
+- Lettura: aggiunto il pulsante Elimina anche agli ultimi libri archiviati;
+- Statistiche: barre delle categorie ridisposte su schermi stretti, senza
+  sovrapposizioni tra nome, barra e durata;
+- Android: abilitato esplicitamente lo scorrimento verticale a un dito e lo
+  scorrimento inerziale; calendari e tabelle mantengono anche il gesto laterale;
+- sono mantenute tutte le modifiche della V54.
+
+Le pagine HTML aggiuntive servono soltanto a caricare mobile.css?v=55 su tutto
+il tracker. Non occorre aggiornare tracker-store.js o Google Apps Script.
