@@ -3329,10 +3329,11 @@ window.addEventListener('tracker:data-changed', (event) => {
   function archivedBookCard(book) {
     const sessions = ordered().filter((item) => item.bookId === book.id);
     const minutes = sessions.reduce((sum, item) => sum + (Number(item.minutes) || 0), 0);
-    return `<article class="reading-archive-compact">
+    return `<article class="reading-archive-compact" data-reading-book-card="${escapeHtml(book.id)}">
       <div><h3>${escapeHtml(book.title)}</h3><p>${escapeHtml(book.author || 'Autore non indicato')}</p></div>
       <div><span>Fine lettura</span><strong>${book.finishedAt ? formatDate(book.finishedAt, { day: 'numeric', month: 'long', year: 'numeric' }) : 'Data non indicata'}</strong></div>
       <div><span>Tempo letto totale</span><strong>${minutes ? formatMinutes(minutes) : 'Non registrato'}</strong></div>
+      <button type="button" class="reading-book-button is-danger" data-reading-delete>Elimina</button>
     </article>`;
   }
 

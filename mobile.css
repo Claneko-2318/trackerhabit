@@ -2,6 +2,46 @@
    Attivo esclusivamente sui telefoni. Desktop e tablet restano gestiti da styles.css. */
 
 @media (max-width: 600px) {
+  html,
+  body {
+    touch-action: pan-y pinch-zoom !important;
+    overscroll-behavior-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  body,
+  main,
+  .day-main,
+  .sleep-main,
+  .food-main,
+  .stats-main,
+  .archive-main,
+  .settings-main,
+  .reading-main,
+  .tetr-main {
+    touch-action: pan-y !important;
+  }
+
+  main,
+  .day-main,
+  .sleep-main,
+  .food-main,
+  .stats-main,
+  .archive-main,
+  .settings-main,
+  .reading-main,
+  .tetr-main {
+    overflow-y: visible !important;
+  }
+
+  .archive-calendar-shell,
+  .stats-chart-shell,
+  .stats-comparison-table,
+  .settings-tabs {
+    touch-action: pan-x pan-y !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
   :root {
     --mobile-gutter: 14px;
     --mobile-card-radius: 22px;
@@ -1273,6 +1313,59 @@
   }
 }
 
+/* V55 — scorrimento Android a un dito e barre categorie leggibili */
+@media (max-width: 600px) {
+  html,
+  body,
+  main,
+  .day-main,
+  .sleep-main,
+  .food-main,
+  .stats-main,
+  .archive-main,
+  .settings-main,
+  .reading-main,
+  .tetr-main {
+    touch-action: pan-y pinch-zoom !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  html,
+  body { overscroll-behavior-y: auto !important; }
+
+  .archive-calendar-shell,
+  .stats-chart-shell,
+  .stats-comparison-table,
+  .settings-tabs {
+    touch-action: pan-x pan-y pinch-zoom !important;
+  }
+
+  .stats-page .stats-horizontal-bars > div {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) auto !important;
+    grid-template-areas: "category value" "bar bar" !important;
+    gap: 7px 12px !important;
+    align-items: center !important;
+  }
+  .stats-page .stats-horizontal-bars > div > span {
+    grid-area: category !important;
+    font-size: 14px !important;
+    line-height: 1.3 !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+  .stats-page .stats-horizontal-bars > div > i {
+    grid-area: bar !important;
+    width: 100% !important;
+  }
+  .stats-page .stats-horizontal-bars > div > strong {
+    grid-area: value !important;
+    white-space: nowrap !important;
+    font-size: 13px !important;
+  }
+}
+
 /* V47 — rifinitura visiva mobile. */
 @media (max-width: 600px) {
   body {
@@ -1742,5 +1835,40 @@
   }
   .reading-page .reading-main {
     padding-top: 24px !important;
+  }
+}
+
+/* V55 final override */
+@media (max-width: 600px) {
+  html, body, main,
+  .day-main, .sleep-main, .food-main, .stats-main, .archive-main,
+  .settings-main, .reading-main, .tetr-main {
+    touch-action: pan-y pinch-zoom !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  html, body { overscroll-behavior-y: auto !important; }
+  .archive-calendar-shell, .stats-chart-shell, .stats-comparison-table, .settings-tabs {
+    touch-action: pan-x pan-y pinch-zoom !important;
+  }
+  .stats-page .stats-horizontal-bars > div {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) auto !important;
+    grid-template-areas: "category value" "bar bar" !important;
+    gap: 7px 12px !important;
+    align-items: center !important;
+  }
+  .stats-page .stats-horizontal-bars > div > span {
+    grid-area: category !important;
+    font-size: 14px !important;
+    line-height: 1.3 !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+  .stats-page .stats-horizontal-bars > div > i { grid-area: bar !important; width: 100% !important; }
+  .stats-page .stats-horizontal-bars > div > strong {
+    grid-area: value !important;
+    white-space: nowrap !important;
+    font-size: 13px !important;
   }
 }
